@@ -188,7 +188,7 @@ button { font: inherit; color: inherit; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 120px var(--pad) 80px;
+  padding: 80px var(--pad) 40px;
   overflow: hidden;
 }
 
@@ -203,10 +203,12 @@ button { font: inherit; color: inherit; }
     radial-gradient(ellipse 35% 30% at 78% 16%, rgba(212, 162, 78, 0.05), transparent 70%);
 }
 
-/* Le titre remplit l'écran : c'est tout le hero */
+/* Le titre remplit l'écran : c'est tout le hero.
+   La taille est bornée par la LARGEUR (16.5vw) ET la HAUTEUR (25svh) :
+   3 lignes × 0.92 × 25svh ≈ 69svh — jamais coupé, quel que soit l'écran. */
 .hero-title {
   font-weight: 800;
-  font-size: clamp(3.2rem, 16.5vw, 22rem);
+  font-size: clamp(3rem, min(16.5vw, 25svh), 20rem);
   line-height: 0.92;
   letter-spacing: -0.035em;
 }
@@ -223,17 +225,23 @@ button { font: inherit; color: inherit; }
 }
 
 /* 6. Manifeste (mots rotatifs) ------------------------------------------------------ */
+/* Le manifeste occupe un écran entier : un vrai temps de respiration,
+   label en ouverture, titre massif au centre, chips en pied de propos. */
 .manifesto {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: var(--sect) var(--pad);
   border-top: 1px solid var(--line);
 }
 
 .manifesto-title {
   font-weight: 700;
-  font-size: clamp(2.2rem, 6.5vw, 5.4rem);
+  font-size: clamp(2.4rem, 7.2vw, 6.6rem);
   line-height: 1.04;
   letter-spacing: -0.025em;
-  margin-top: 1.6rem;
+  margin-top: 2rem;
   max-width: 20ch;
 }
 
@@ -267,14 +275,14 @@ button { font: inherit; color: inherit; }
 }
 
 .manifesto-sub {
-  max-width: 40rem;
+  max-width: 42rem;
   color: var(--muted);
-  font-size: 1.05rem;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
   line-height: 1.7;
-  margin-top: 2.2rem;
+  margin-top: 2.8rem;
 }
 
-.bucket-chips { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2.8rem; }
+.bucket-chips { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 3.4rem; }
 
 .bucket-chip {
   font-family: var(--font-m);
