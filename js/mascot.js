@@ -17,6 +17,34 @@ window.VestaMascot = (() => {
   const BODY_SIZE = 76;      // diamètre du médaillon (voir CSS .mascot-body)
   const EXCITE_DIST = 130;   // distance curseur → mascotte qui déclenche l'excitation
 
+  /* Les quatre agents jouables : apparence (classe CSS) et caractère (textes).
+     `greeting` ouvre la visite, `self` est son petit moment de fierté quand
+     sa propre carte d'équipe apparaît. */
+  const SKINS = {
+    cadre: {
+      name: 'CADRE-01',
+      greeting: 'Bienvenue ✦ CADRE-01, chef opérateur de Vesta. Suivez-moi, je cadre la visite.',
+      self: 'Et cette carte-là… CADRE-01 : c’est moi ! ✦',
+    },
+    lumen: {
+      name: 'LUMEN-02',
+      greeting: 'Bienvenue ✦ Moi c’est LUMEN-02, je m’occupe de la lumière. Venez, je vous éclaire le chemin.',
+      self: 'Oh, LUMEN-02… mais c’est moi, ça ! ✦',
+    },
+    cut: {
+      name: 'CUT-03',
+      greeting: 'CUT-03. Montage. On visite, on ne traîne pas. Suivez-moi.',
+      self: 'CUT-03. C’est moi. Évidemment.',
+    },
+    scribe: {
+      name: 'SCRIBE-04',
+      greeting: 'Bienvenue ✦ SCRIBE-04, plume officielle de Vesta. Laissez-moi vous raconter ce site.',
+      self: 'Et la carte SCRIBE-04… c’est bibi ! ✦',
+    },
+  };
+
+  let currentSkin = 'cadre';
+
   let root, body, bubble, skipBtn, pupils;
   let xTo, yTo;              // déplacement fluide du conteneur
   let excited = false;
@@ -128,6 +156,31 @@ window.VestaMascot = (() => {
     root.classList.toggle('is-excited', !!on);
   }
 
+  /* --- Skins : les quatre agents ------------------------------------------------------ */
+
+  function setSkin(key) {
+    if (!SKINS[key]) return;
+    currentSkin = key;
+    const flame = root.querySelector('.mascot-flame');
+    flame.className = 'mascot-flame flame-skin--' + key;
+  }
+
+  function getSkin() { return currentSkin; }
+  function skinData() { return SKINS[currentSkin]; }
+
+  /* Petit moment de fierté : sursaut, frétillement, et sa réplique signature */
+  function celebrate(text) {
+    say(text);
+    hideBubble(2800);
+    root.classList.add('is-excited');
+    gsap.timeline()
+      .fromTo(body, { scale: 1.22 }, { scale: 1, duration: 0.5, ease: 'back.out(3)' }, 0)
+      .to(body, { rotation: -9, duration: 0.07 }, 0)
+      .to(body, { rotation: 9, duration: 0.12, yoyo: true, repeat: 3 }, 0.07)
+      .to(body, { rotation: 0, duration: 0.16, ease: 'power2.out' }, 0.55);
+    setTimeout(() => { if (!embarrassed) root.classList.remove('is-excited'); }, 1800);
+  }
+
   /* Un tag l'a touchée et a brûlé : "Oops !" et mine gênée. */
   function embarrass() {
     clearTimeout(embarrassTimer);
@@ -179,5 +232,6 @@ window.VestaMascot = (() => {
     init, show, moveTo, moveToPx, getCenter, home: goHome,
     say, hideBubble, setSkip, onBodyClick, onSkipClick,
     catchReact, embarrass, express,
+    setSkin, getSkin, skinData, celebrate,
   };
 })();

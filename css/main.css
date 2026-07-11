@@ -456,14 +456,14 @@ button { font: inherit; color: inherit; }
 .polaroid[data-room="salon"]    { top: 18%; left: 6%; }
 .polaroid[data-room="cuisine"]  { top: 14%; right: 8%; }
 .polaroid[data-room="chambre"]  { bottom: 14%; left: 12%; }
-.polaroid[data-room="bain"]     { bottom: 12%; right: 7%; }
+.polaroid[data-room="entree"]   { bottom: 12%; right: 7%; }
 
 /* Vraies photos par-dessus un dégradé chaleureux : si le fichier manque,
    le dégradé prend le relais (aucune icône d'image cassée) */
 .polaroid[data-room="salon"]    .polaroid-photo { background: url('../assets/img/salon.jpg') center/cover, linear-gradient(135deg, #6b4a2b, #2c1c10); }
 .polaroid[data-room="cuisine"]  .polaroid-photo { background: url('../assets/img/cuisine.jpg') center/cover, linear-gradient(135deg, #8a6a3b, #3a2a14); }
 .polaroid[data-room="chambre"]  .polaroid-photo { background: url('../assets/img/chambre.jpg') center/cover, linear-gradient(135deg, #5c3d2e, #241610); }
-.polaroid[data-room="bain"]     .polaroid-photo { background: url('../assets/img/bain.jpg') center/cover, linear-gradient(135deg, #4e5a5c, #1c2425); }
+.polaroid[data-room="entree"]   .polaroid-photo { background: url('../assets/img/entree.jpg') center/cover, linear-gradient(135deg, #7a5a30, #33230e); }
 
 .demo-flash {
   position: absolute;
@@ -926,17 +926,56 @@ button { font: inherit; color: inherit; }
 
 /* 17. Mascotte — l'esprit du foyer -------------------------------------------------------------------------- */
 
-/* La flamme (corps) — dessinée en pur CSS */
+/* La flamme (corps) — dessinée en pur CSS.
+   Couleurs et silhouette pilotées par variables : chaque agent de l'équipe
+   a son propre skin (voir .flame-skin--*). Par défaut : CADRE-01. */
 .mascot-flame {
+  --m-core: #fff3d6;
+  --m-mid: var(--ember);
+  --m-outer: var(--fire);
+  --m-glow: rgba(255, 122, 26, 0.75);
   position: relative;
   display: block;
   width: 36px;
   height: 48px;
-  background: radial-gradient(ellipse at 50% 78%, #fff3d6 0%, var(--ember) 38%, var(--fire) 72%, transparent 100%);
+  background: radial-gradient(ellipse at 50% 78%, var(--m-core) 0%, var(--m-mid) 38%, var(--m-outer) 72%, transparent 100%);
   border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
-  filter: drop-shadow(0 0 14px rgba(255, 122, 26, 0.75));
+  filter: drop-shadow(0 0 14px var(--m-glow));
   animation: flame-flicker 1.7s ease-in-out infinite;
   transform-origin: 50% 92%;
+}
+
+/* LUMEN-02 · lumière : dorée, ronde, rayonnante */
+.flame-skin--lumen {
+  --m-core: #fffbe6;
+  --m-mid: #ffd76a;
+  --m-outer: #f0a91f;
+  --m-glow: rgba(255, 208, 90, 0.8);
+  width: 42px;
+  height: 44px;
+  border-radius: 50% 50% 48% 48% / 58% 58% 42% 42%;
+}
+
+/* CUT-03 · montage : bleue, haute, effilée comme une lame */
+.flame-skin--cut {
+  --m-core: #eaf6ff;
+  --m-mid: #6ec4ff;
+  --m-outer: #2465d6;
+  --m-glow: rgba(90, 165, 255, 0.8);
+  width: 28px;
+  height: 54px;
+  border-radius: 46% 54% 50% 50% / 76% 76% 24% 24%;
+}
+
+/* SCRIBE-04 · textes : verte, penchée, malicieuse */
+.flame-skin--scribe {
+  --m-core: #f2ffe8;
+  --m-mid: #a9dd6d;
+  --m-outer: #3f9e46;
+  --m-glow: rgba(130, 215, 105, 0.75);
+  width: 33px;
+  height: 42px;
+  border-radius: 62% 38% 52% 48% / 66% 58% 42% 34%;
 }
 
 @keyframes flame-flicker {
@@ -994,7 +1033,7 @@ button { font: inherit; color: inherit; }
 /* Excitation (curseur proche) : yeux grands, bouche ronde */
 .is-excited .mascot-eye { transform: scale(1.2); }
 .is-excited .mascot-mouth { width: 8px; height: 7px; border-radius: 50%; }
-.is-excited .mascot-flame { filter: drop-shadow(0 0 22px rgba(255, 122, 26, 1)); }
+.is-excited .mascot-flame { filter: drop-shadow(0 0 22px var(--m-glow)); }
 
 /* Gêne (un tag l'a touchée) : yeux mi-clos, bouche pincée, joues rouges */
 .is-embarrassed .mascot-eye { transform: scaleY(0.5); }
@@ -1140,25 +1179,51 @@ button { font: inherit; color: inherit; }
   letter-spacing: -0.03em;
 }
 
-.overlay-mascot { transform: scale(1.7); margin: 1.2rem 0; }
+/* Le sélecteur de guide : quatre agents, quatre flammes */
+.mascot-picker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.2rem 0 0.4rem;
+}
 
-.overlay-name {
-  font-family: var(--font-m);
-  font-size: 0.9rem;
-  letter-spacing: 0.3em;
+.mascot-choice {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  min-width: 112px;
+  min-height: 150px;
+  background: rgba(245, 239, 230, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.2rem 1.2rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
 }
 
-.overlay-name-sub {
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
+.mascot-choice:hover {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
 }
 
-.tour-overlay-actions { margin-top: 0.6rem; }
+.mascot-choice.is-selected {
+  border-color: var(--fire);
+  background: rgba(255, 122, 26, 0.07);
+}
+
+.choice-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+}
+
+.choice-role { font-size: 0.55rem; }
+
+.tour-overlay-actions { margin-top: 0.8rem; }
 
 /* 18b. Curseur personnalisé --------------------------------------------------------------------------------------- */
 /* Point braise + anneau or traînant. Activé par cursor.js (souris uniquement,

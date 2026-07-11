@@ -23,18 +23,57 @@
     <div class="tour-overlay-inner">
       <p class="mono-label">( CHOISISSEZ VOTRE GUIDE )</p>
       <h2 class="tour-overlay-title">Ce site est vivant.</h2>
-      <div class="overlay-mascot" aria-hidden="true">
-        <span class="mascot-flame">
-          <span class="mascot-face">
-            <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
-            <span class="mascot-eye r"><span class="mascot-pupil"></span></span>
-            <span class="mascot-mouth"></span>
+
+      <!-- Les quatre agents de l'équipe vidéo : chacun peut guider la visite -->
+      <div class="mascot-picker" role="radiogroup" aria-label="Choix du guide">
+        <button class="mascot-choice" data-skin="cadre" type="button">
+          <span class="mascot-flame flame-skin--cadre">
+            <span class="mascot-face">
+              <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
+              <span class="mascot-eye r"><span class="mascot-pupil"></span></span>
+              <span class="mascot-mouth"></span>
+            </span>
           </span>
-        </span>
+          <span class="choice-name">CADRE-01</span>
+          <span class="choice-role mono-label">CAMÉRA</span>
+        </button>
+        <button class="mascot-choice" data-skin="lumen" type="button">
+          <span class="mascot-flame flame-skin--lumen">
+            <span class="mascot-face">
+              <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
+              <span class="mascot-eye r"><span class="mascot-pupil"></span></span>
+              <span class="mascot-mouth"></span>
+            </span>
+          </span>
+          <span class="choice-name">LUMEN-02</span>
+          <span class="choice-role mono-label">LUMIÈRE</span>
+        </button>
+        <button class="mascot-choice" data-skin="cut" type="button">
+          <span class="mascot-flame flame-skin--cut">
+            <span class="mascot-face">
+              <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
+              <span class="mascot-eye r"><span class="mascot-pupil"></span></span>
+              <span class="mascot-mouth"></span>
+            </span>
+          </span>
+          <span class="choice-name">CUT-03</span>
+          <span class="choice-role mono-label">MONTAGE</span>
+        </button>
+        <button class="mascot-choice" data-skin="scribe" type="button">
+          <span class="mascot-flame flame-skin--scribe">
+            <span class="mascot-face">
+              <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
+              <span class="mascot-eye r"><span class="mascot-pupil"></span></span>
+              <span class="mascot-mouth"></span>
+            </span>
+          </span>
+          <span class="choice-name">SCRIBE-04</span>
+          <span class="choice-role mono-label">TEXTES</span>
+        </button>
       </div>
-      <p class="overlay-name">VESTA<span class="overlay-name-sub">l'esprit du foyer</span></p>
+
       <div class="tour-overlay-actions">
-        <button id="tour-start" class="btn-solid" type="button">Laissez Vesta guider →</button>
+        <button id="tour-start" class="btn-solid" type="button">Laissez <span id="tour-start-name">CADRE-01</span> guider →</button>
       </div>
       <button id="tour-skip-intro" class="mono-link" type="button">PASSER · EXPLORER PAR MOI-MÊME →</button>
     </div>
@@ -135,7 +174,7 @@
                 <span class="mock-file">salon.jpg <b>✓</b></span>
                 <span class="mock-file">cuisine.jpg <b>✓</b></span>
                 <span class="mock-file">chambre.jpg <b>✓</b></span>
-                <span class="mock-file">terrasse.jpg <b>✓</b></span>
+                <span class="mock-file">entree.jpg <b>✓</b></span>
               </div>
             </div>
           </div>
@@ -236,9 +275,9 @@
             <div class="polaroid-photo"></div>
             <figcaption>Chambre</figcaption>
           </figure>
-          <figure class="polaroid" data-room="bain" data-rotate="-5">
+          <figure class="polaroid" data-room="entree" data-rotate="-5">
             <div class="polaroid-photo"></div>
-            <figcaption>Salle de bain</figcaption>
+            <figcaption>Entrée</figcaption>
           </figure>
         </div>
 

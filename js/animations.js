@@ -372,6 +372,8 @@ window.VestaAnimations = (() => {
 
   /* --- Deck : cartes staff cliquables --------------------------------------------------- */
 
+  let deckShowFn = null; // rempli par initDeck, consommé par deckShow()
+
   function initDeck() {
     const deck = document.getElementById('deck');
     if (!deck) return;
@@ -408,6 +410,20 @@ window.VestaAnimations = (() => {
     });
 
     layout(false);
+
+    /* Fait remonter la carte d'un agent sur le dessus du deck (le moment
+       "Ça, c'est moi !" de la visite guidée) */
+    deckShowFn = (workerKey) => {
+      const target = order.find((c) => c.dataset.worker === workerKey);
+      if (!target || order[0] === target) return;
+      order = [target, ...order.filter((c) => c !== target)];
+      layout(true);
+      gsap.fromTo(target, { scale: 1.07 }, { scale: 1, duration: 0.55, ease: 'back.out(2.5)' });
+    };
+  }
+
+  function deckShow(workerKey) {
+    if (deckShowFn) deckShowFn(workerKey);
   }
 
   /* --- FAQ : accordéon ------------------------------------------------------------------- */
@@ -454,5 +470,5 @@ window.VestaAnimations = (() => {
     initFaq();
   }
 
-  return { init, DEMO_PIN };
+  return { init, DEMO_PIN, deckShow };
 })();

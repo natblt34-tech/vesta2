@@ -17,7 +17,8 @@ window.VestaTour = (() => {
     {
       target: '#top',
       mascot: [82, 76],   // coin bas droit : le titre plein écran reste lisible
-      text: 'Bienvenue ✦ Je suis Vesta, l’esprit du foyer. Suivez-moi, je vous fais visiter.',
+      // Chaque agent a sa propre entrée en matière
+      text: () => window.VestaMascot.skinData().greeting,
     },
     {
       target: '#work',
@@ -56,6 +57,15 @@ window.VestaTour = (() => {
       target: '#equipe',
       mascot: [6, 74],    // le deck et le titre sont centrés
       text: 'Votre équipe de tournage IA. Cliquez sur les cartes pour la rencontrer.',
+      // Sa propre carte remonte du deck : petit sursaut de fierté
+      followUp: {
+        delay: 2600,
+        run() {
+          window.VestaAnimations.deckShow(window.VestaMascot.getSkin());
+          window.VestaMascot.celebrate(window.VestaMascot.skinData().self);
+        },
+      },
+      extra: 3200, // le temps de savourer son moment
     },
     {
       target: '#toolkit',
@@ -76,6 +86,7 @@ window.VestaTour = (() => {
   let overlay;
   let active = false;
   let stepTimer = null;
+  let followTimer = null;
 
   /* --- Déroulé ---------------------------------------------------------------- */
 
@@ -86,12 +97,19 @@ window.VestaTour = (() => {
     const step = STEPS[index];
     const duration = step.duration || SCROLL_DURATION;
     const offset = typeof step.offset === 'function' ? step.offset() : (step.offset || 0);
+    const text = typeof step.text === 'function' ? step.text() : step.text;
 
     window.VestaMascot.moveTo(step.mascot[0], step.mascot[1]);
-    window.VestaMascot.say(step.text);
+    window.VestaMascot.say(text);
     window.VestaScroll.lenis.scrollTo(step.target, { duration, offset });
 
-    const readTime = READ_BASE + step.text.length * READ_PER_CHAR;
+    // Certains arrêts ont un second temps (ex. "Ça, c'est moi !" à l'équipe)
+    if (step.followUp) {
+      followTimer = setTimeout(() => { if (active) step.followUp.run(); },
+        duration * 1000 + step.followUp.delay);
+    }
+
+    const readTime = READ_BASE + text.length * READ_PER_CHAR + (step.extra || 0);
     stepTimer = setTimeout(() => goToStep(index + 1), duration * 1000 + readTime);
   }
 
@@ -106,6 +124,7 @@ window.VestaTour = (() => {
   function end() {
     active = false;
     clearTimeout(stepTimer);
+    clearTimeout(followTimer);
     document.body.classList.remove('tour-active');
     window.VestaMascot.setSkip(false);
     window.VestaMascot.hideBubble(400);
@@ -116,6 +135,7 @@ window.VestaTour = (() => {
     if (!active) return;
     active = false;
     clearTimeout(stepTimer);
+    clearTimeout(followTimer);
     document.body.classList.remove('tour-active');
     window.VestaMascot.setSkip(false);
     window.VestaMascot.say('Je vous laisse la main ✦');
@@ -136,6 +156,25 @@ window.VestaTour = (() => {
 
   function init() {
     overlay = document.getElementById('tour-overlay');
+
+    /* Sélecteur de guide : applique le skin, met à jour le CTA, mémorise */
+    const startName = document.getElementById('tour-start-name');
+    const choices = [...document.querySelectorAll('.mascot-choice')];
+
+    function selectSkin(key) {
+      window.VestaMascot.setSkin(key);
+      startName.textContent = window.VestaMascot.skinData().name;
+      choices.forEach((b) => b.classList.toggle('is-selected', b.dataset.skin === key));
+      try { localStorage.setItem('vesta-skin', key); } catch (e) { /* navigation privée */ }
+    }
+
+    let stored = 'cadre';
+    try { stored = localStorage.getItem('vesta-skin') || 'cadre'; } catch (e) { /* idem */ }
+    selectSkin(stored);
+
+    choices.forEach((btn) =>
+      btn.addEventListener('click', () => selectSkin(btn.dataset.skin))
+    );
 
     document.getElementById('tour-start').addEventListener('click', () => {
       closeOverlay();
