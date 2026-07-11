@@ -426,23 +426,6 @@ window.VestaAnimations = (() => {
     if (deckShowFn) deckShowFn(workerKey);
   }
 
-  /* --- FAQ : accordéon ------------------------------------------------------------------- */
-
-  function initFaq() {
-    gsap.utils.toArray('[data-faq]').forEach((item) => {
-      const question = item.querySelector('.faq-q');
-      const answer = item.querySelector('.faq-a');
-      question.addEventListener('click', () => {
-        const open = item.classList.toggle('is-open');
-        gsap.to(answer, {
-          height: open ? answer.scrollHeight : 0,
-          duration: 0.45,
-          ease: 'power2.inOut',
-        });
-      });
-    });
-  }
-
   /* --- Init ---------------------------------------------------------------------------------- */
 
   function staticFallback() {
@@ -451,7 +434,6 @@ window.VestaAnimations = (() => {
       el.textContent = parseFloat(el.dataset.count).toLocaleString('fr-FR');
     });
     gsap.set('.polaroid', { opacity: 0.25 });
-    initFaq(); // l'accordéon reste utilisable
   }
 
   function init() {
@@ -467,7 +449,6 @@ window.VestaAnimations = (() => {
     initStatement();
     initWorkPreview();
     initDeck();
-    initFaq();
   }
 
   return { init, DEMO_PIN, deckShow };

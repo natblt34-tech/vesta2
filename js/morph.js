@@ -16,13 +16,13 @@
 window.VestaMorph = (() => {
   'use strict';
 
-  const COUNT = 620;          // points dans le nuage
+  const COUNT = 1100;         // points dans le nuage (dense : les mots se lisent)
   const SHAPE_EVERY = 5000;   // nouvelle forme toutes les 5s
   const SPRING = 0.055;       // rappel vers la cible
   const FRICTION = 0.86;
   const REPULSE_R = 90;       // rayon de répulsion du curseur (px)
 
-  let canvas, ctx, sprite;
+  let canvas, ctx, spriteSharp, spriteSoft;
   let W = 0;
   let H = 0;
   let particles = [];
@@ -35,7 +35,11 @@ window.VestaMorph = (() => {
   /* --- Les formes ------------------------------------------------------------- */
 
   const drawWord = (word) => (g, w, h) => {
-    g.font = `900 ${Math.min(h * 0.3, (w / word.length) * 1.5)}px "Bricolage Grotesque", sans-serif`;
+    // Taille mesurée pour remplir le canvas au maximum sans déborder
+    g.font = '900 100px "Bricolage Grotesque", sans-serif';
+    const at100 = g.measureText(word).width;
+    const size = Math.min(((w * 0.92) / at100) * 100, h * 0.36);
+    g.font = `900 ${size}px "Bricolage Grotesque", sans-serif`;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
     g.fillText(word, w / 2, h / 2);
@@ -101,7 +105,7 @@ window.VestaMorph = (() => {
 
     const data = g.getImageData(0, 0, W, H).data;
     const pts = [];
-    const step = 4;
+    const step = 3; // échantillonnage fin : contours nets, lettres lisibles
     for (let y = 0; y < H; y += step) {
       for (let x = 0; x < W; x += step) {
         if (data[(y * W + x) * 4 + 3] > 128) pts.push({ x, y });
@@ -127,13 +131,15 @@ window.VestaMorph = (() => {
 
   /* --- Rendu ---------------------------------------------------------------------- */
 
-  function makeSprite() {
+  /* Deux sprites pour le relief : les points proches sont nets et brillants,
+     les points lointains sont doux et diffus */
+  function makeSprite(coreStop, midAlpha) {
     const s = document.createElement('canvas');
     s.width = s.height = 32;
     const g = s.getContext('2d');
     const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-    grad.addColorStop(0, 'rgba(255, 236, 200, 1)');
-    grad.addColorStop(0.4, 'rgba(255, 179, 71, 0.9)');
+    grad.addColorStop(0, 'rgba(255, 240, 210, 1)');
+    grad.addColorStop(coreStop, `rgba(255, 179, 71, ${midAlpha})`);
     grad.addColorStop(1, 'rgba(255, 122, 26, 0)');
     g.fillStyle = grad;
     g.fillRect(0, 0, 32, 32);
@@ -171,15 +177,15 @@ window.VestaMorph = (() => {
       p.x += p.vx;
       p.y += p.vy;
 
-      // Relief : taille, transparence et parallaxe dépendent de la profondeur,
-      // plus une respiration sinusoïdale propre à chaque point
+      // Relief : taille, transparence, netteté et parallaxe dépendent de la
+      // profondeur, plus une respiration sinusoïdale propre à chaque point
       const breathe = 1 + 0.12 * Math.sin(time * 1.4 + p.phase);
-      const size = p.size * p.z * breathe;
-      ctx.globalAlpha = 0.35 + p.z * 0.65;
+      const size = p.size * (0.4 + p.z * 0.95) * breathe;
+      ctx.globalAlpha = 0.22 + p.z * 0.78;
       ctx.drawImage(
-        sprite,
-        p.x + parallax.x * p.z - size / 2,
-        p.y + parallax.y * p.z - size / 2,
+        p.z > 0.62 ? spriteSharp : spriteSoft,
+        p.x + parallax.x * p.z * 1.6 - size / 2,
+        p.y + parallax.y * p.z * 1.6 - size / 2,
         size, size
       );
     }
@@ -188,7 +194,26 @@ window.VestaMorph = (() => {
 
   /* --- Mise en place ------------------------------------------------------------------ */
 
+  /* Le canvas occupe exactement l'espace À DROITE du titre, mesuré au
+     runtime : les formes ne peuvent jamais entrer en conflit avec le texte. */
+  function layout() {
+    // La ligne de titre la plus large (les inners sont inline-block :
+    // leur boîte colle au texte, contrairement au h1 qui prend tout)
+    const lines = [...document.querySelectorAll('.hero-line-inner')];
+    const textRight = Math.max(...lines.map((l) => l.getBoundingClientRect().right));
+    const margin = 36;
+    const left = textRight + margin;
+    const width = window.innerWidth - left - 12;
+    if (width < 250) { canvas.style.display = 'none'; return false; }
+    canvas.style.display = '';
+    canvas.style.left = left + 'px';
+    canvas.style.right = 'auto';
+    canvas.style.width = width + 'px';
+    return true;
+  }
+
   function resize() {
+    if (!layout()) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const rect = canvas.getBoundingClientRect();
     W = Math.round(rect.width);
@@ -220,7 +245,8 @@ window.VestaMorph = (() => {
 
   function build() {
     ctx = canvas.getContext('2d');
-    sprite = makeSprite();
+    spriteSharp = makeSprite(0.72, 0.95); // cœur dense, halo court : premier plan
+    spriteSoft = makeSprite(0.3, 0.5);    // diffus : arrière-plan
     resize();
 
     for (let i = 0; i < COUNT; i++) {
@@ -229,8 +255,8 @@ window.VestaMorph = (() => {
         y: Math.random() * H,
         vx: 0, vy: 0,
         tx: W / 2, ty: H / 2,
-        z: 0.35 + Math.random() * 0.65,   // profondeur
-        size: 5 + Math.random() * 7,
+        z: 0.25 + Math.random() * 0.75,   // profondeur (plage large : vrai relief)
+        size: 4 + Math.random() * 6.5,
         phase: Math.random() * Math.PI * 2,
       });
     }
@@ -244,8 +270,9 @@ window.VestaMorph = (() => {
 
     window.addEventListener('resize', () => { resize(); nextShape(); });
 
-    // Première forme une fois la typo chargée (les mots sont dessinés avec)
-    document.fonts.ready.then(nextShape);
+    // Première forme une fois la typo chargée : la largeur du titre (donc la
+    // place du canvas) et le dessin des mots dépendent de Bricolage
+    document.fonts.ready.then(() => { resize(); nextShape(); });
 
     // En pause hors écran ; le cycle des formes ne tourne que si visible
     ScrollTrigger.create({

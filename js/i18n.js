@@ -25,6 +25,7 @@ window.VestaI18n = (() => {
   const DOM_EN = [
     // Nav
     ['.nav-link[href="#demo"]', 'Demo'],
+    ['.nav-link[href="#equipe"]', 'Crew'],
     ['.site-nav .btn-pill', 'Book a demo →'],
 
     // Overlay d'accueil
@@ -124,20 +125,6 @@ window.VestaI18n = (() => {
     ['[data-worker="scribe"] .staff-tag', 'Writes the listing while the film exports.'],
     ['.deck-hint', 'CLICK · MEET THE WHOLE CREW'],
 
-    // Méthode
-    ['#how > .mono-label', '( THE METHOD )'],
-    ['.how-title', 'No shooting.<br>Three moves.', true],
-    ['.how-col:nth-child(1) .how-step', '01 · UPLOAD'],
-    ['.how-col:nth-child(1) h3', 'Your photos, raw'],
-    ['.how-col:nth-child(1) p', 'Straight from your phone, right after the visit. No photography skills required. Bad photos get fixed, not rejected.'],
-    ['.how-col:nth-child(2) .how-step', '02 · VESTA COMPOSES'],
-    ['.how-col:nth-child(2) h3', 'The film generates'],
-    ['.how-col:nth-child(2) p', 'The AI crew shoots, edits, grades and scores the film, then judges its own work. A disappointing render is redone, up to three times. If nothing passes, our team steps in and keeps you posted.'],
-    ['.how-col:nth-child(3) .how-step', '03 · PUBLISH'],
-    ['.how-col:nth-child(3) h3', 'Everywhere, in one click'],
-    ['.how-col:nth-child(3) p', 'Within 48 hours, the film arrives ready to publish, in every format. Your listings go out with a video your competitors don\'t have. That\'s often the whole difference.'],
-    ['.how-punch', 'Delivered within 48 hours, not in three weeks. That\'s the promise.'],
-
     // Statement
     ['.statement .mono-label', '( OUR PROMISE )'],
     ['.st-line:nth-child(1) .st-line-inner', 'WE PUT'],
@@ -171,20 +158,6 @@ window.VestaI18n = (() => {
     ['.toolkit-arena .tool-tag:nth-child(8)', 'Vertical formats'],
     ['.toolkit-arena .tool-tag:nth-child(9)', 'Virtual twilight'],
     ['.toolkit-arena .tool-tag:nth-child(10)', 'Simulated drone shots'],
-
-    // FAQ
-    ['.faq-title', 'We have answers.'],
-    ['.faq-head .mono-label', '( QUESTIONS? ANSWERED )'],
-    ['.faq-item:nth-child(1) .faq-q span:first-child', 'Are smartphone photos really enough?'],
-    ['.faq-item:nth-child(1) .faq-a p', 'Yes. Vesta is trained on real agents\' photos, not professional shoots: backlight, dark rooms and rough wide angles are corrected automatically. One roughly straight photo per room is all it takes.'],
-    ['.faq-item:nth-child(2) .faq-q span:first-child', 'How long until I get the film?'],
-    ['.faq-item:nth-child(2) .faq-a p', 'Your film is delivered within 48 hours, usually much sooner. If anything goes wrong, the AI agent regenerates it up to three times; if the result still fails its quality check, our team steps in and keeps you posted. You are notified the moment the film is online.'],
-    ['.faq-item:nth-child(3) .faq-q span:first-child', 'What does it cost?'],
-    ['.faq-item:nth-child(3) .faq-a p', '10 to 50 times less than a videographer, with predictable pricing: an agency subscription or pay-per-film, set upfront. No travel, no reshoots, no surprises.'],
-    ['.faq-item:nth-child(4) .faq-q span:first-child', 'Who owns the videos?'],
-    ['.faq-item:nth-child(4) .faq-a p', 'You do. Every generated film belongs to your agency, with no limit on where or how long you publish it. Your photos are never used for training and stay private.'],
-    ['.faq-item:nth-child(5) .faq-q span:first-child', 'What if I don\'t like the result?'],
-    ['.faq-item:nth-child(5) .faq-a p', 'Regenerate it, free of charge. Change the visit order, the mood of the light or the music in one click. Every variation is a full new film, not a touch-up.'],
 
     // Contact & footer
     ['#contact .mono-label', '( YOUR NEXT LISTING )'],
