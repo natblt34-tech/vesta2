@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vesta — Vos photos deviennent un film</title>
+  <meta name="description" content="Vesta transforme de simples photos de votre bien immobilier en une vidéo plan-séquence haut de gamme, générée par IA.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+
+  <!-- Typographies premium : Fraunces (display) · Manrope (texte) · IBM Plex Mono (labels) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Mono&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- ======================================================
+       OVERLAY D'ACCUEIL — choix du mode de visite
+       (inspiré du "choose your driver" de la référence)
+       ====================================================== -->
+  <div id="tour-overlay" class="tour-overlay">
+    <div class="tour-overlay-inner">
+      <p class="eyebrow">( BIENVENUE CHEZ VESTA )</p>
+      <h2 class="tour-overlay-title">L'esprit du foyer<br>veille sur ce site.</h2>
+      <div class="tour-overlay-flame" aria-hidden="true"><span class="flame-core"></span></div>
+      <div class="tour-overlay-actions">
+        <button id="tour-start" class="btn btn-cta" type="button">Laissez Vesta vous guider →</button>
+        <button id="tour-skip-intro" class="btn btn-ghost" type="button">Explorer par moi-même</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       GUIDE DE VISITE — avatar flamme + bulle de dialogue
+       (piloté par js/tour.js, auto-scroll via Lenis)
+       ====================================================== -->
+  <div id="tour-guide" class="tour-guide" hidden>
+    <div class="tour-bubble" role="status" aria-live="polite"></div>
+    <button class="tour-flame" type="button" title="Vesta — relancer la visite guidée" aria-label="Relancer la visite guidée">
+      <span class="flame-core"></span>
+    </button>
+    <button class="tour-stop" type="button" hidden>Passer la visite ✕</button>
+  </div>
+
+  <!-- ====================================================== -->
+  <header class="site-header">
+    <a class="logo" href="#hero">vesta<span class="logo-star">*</span></a>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#demo">Démo</a>
+      <a href="#features">Fonctionnalités</a>
+    </nav>
+    <a class="btn btn-cta btn-small" href="#contact">Essayer Vesta →</a>
+  </header>
+
+  <main>
+
+    <!-- ======================================================
+         HERO — promesse monumentale
+         ====================================================== -->
+    <section id="hero" class="hero">
+      <p class="eyebrow">IA GÉNÉRATIVE POUR L'IMMOBILIER — PLAN SÉQUENCE · 100% AUTOMATIQUE</p>
+      <!-- Chaque ligne est masquée (overflow hidden) : l'intérieur remonte à l'intro -->
+      <h1 class="hero-title">
+        <span class="hero-line"><span class="hero-line-inner">Vos photos</span></span>
+        <span class="hero-line"><span class="hero-line-inner">deviennent</span></span>
+        <span class="hero-line"><span class="hero-line-inner hero-line-accent">un film.</span></span>
+      </h1>
+      <p class="hero-sub">
+        Déposez une photo par pièce. Vesta génère une vidéo plan-séquence
+        fluide et haut de gamme qui visite le bien de pièce en pièce —
+        prête à publier en quelques minutes.
+      </p>
+      <a class="btn btn-cta" href="#demo">Voir la magie opérer →</a>
+
+      <!-- Bandeau défilant, comme sur la référence -->
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track">
+          <span>Plan séquence</span><span class="marquee-sep">✦</span>
+          <span>IA générative</span><span class="marquee-sep">✦</span>
+          <span>Salon</span><span class="marquee-sep">✦</span>
+          <span>Cuisine</span><span class="marquee-sep">✦</span>
+          <span>Suite parentale</span><span class="marquee-sep">✦</span>
+          <span>Rendu 4K</span><span class="marquee-sep">✦</span>
+          <span>Zéro tournage</span><span class="marquee-sep">✦</span>
+          <span>Prêt en minutes</span><span class="marquee-sep">✦</span>
+          <!-- Doublé pour la boucle infinie -->
+          <span>Plan séquence</span><span class="marquee-sep">✦</span>
+          <span>IA générative</span><span class="marquee-sep">✦</span>
+          <span>Salon</span><span class="marquee-sep">✦</span>
+          <span>Cuisine</span><span class="marquee-sep">✦</span>
+          <span>Suite parentale</span><span class="marquee-sep">✦</span>
+          <span>Rendu 4K</span><span class="marquee-sep">✦</span>
+          <span>Zéro tournage</span><span class="marquee-sep">✦</span>
+          <span>Prêt en minutes</span><span class="marquee-sep">✦</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         DÉMO — les Polaroïds fusionnent en vidéo (pinnée en Étape 3)
+         ====================================================== -->
+    <section id="demo" class="demo">
+      <div class="demo-stage">
+        <header class="demo-head">
+          <p class="eyebrow">( LA DÉMO )</p>
+          <h2 class="section-title">De simples photos.<br>Un plan-séquence.</h2>
+        </header>
+
+        <!-- Les 5 Polaroïds — dispersés, ils convergent au centre pendant le pin.
+             data-rotate : inclinaison initiale (posée par GSAP, pas par le CSS).
+             .polaroid-burn : calque de combustion révélé à l'embrasement. -->
+        <div class="polaroids" aria-label="Photos des pièces du bien">
+          <figure class="polaroid" data-room="salon" data-rotate="-7">
+            <div class="polaroid-photo"></div>
+            <div class="polaroid-burn" aria-hidden="true"></div>
+            <figcaption>Salon</figcaption>
+          </figure>
+          <figure class="polaroid" data-room="cuisine" data-rotate="5">
+            <div class="polaroid-photo"></div>
+            <div class="polaroid-burn" aria-hidden="true"></div>
+            <figcaption>Cuisine</figcaption>
+          </figure>
+          <figure class="polaroid" data-room="chambre" data-rotate="4">
+            <div class="polaroid-photo"></div>
+            <div class="polaroid-burn" aria-hidden="true"></div>
+            <figcaption>Chambre</figcaption>
+          </figure>
+          <figure class="polaroid" data-room="bain" data-rotate="-5">
+            <div class="polaroid-photo"></div>
+            <div class="polaroid-burn" aria-hidden="true"></div>
+            <figcaption>Salle de bain</figcaption>
+          </figure>
+          <figure class="polaroid" data-room="terrasse" data-rotate="-2">
+            <div class="polaroid-photo"></div>
+            <div class="polaroid-burn" aria-hidden="true"></div>
+            <figcaption>Terrasse</figcaption>
+          </figure>
+        </div>
+
+        <!-- Flash de fusion — lueur qui éclate quand les photos se consument -->
+        <div class="demo-flash" aria-hidden="true"></div>
+
+        <!-- Le lecteur vidéo révélé par la fusion -->
+        <figure class="demo-player">
+          <div class="demo-player-frame">
+            <video class="demo-video" playsinline muted loop preload="none"></video>
+            <div class="demo-player-ui" aria-hidden="true">
+              <span class="demo-play">▶</span>
+              <span class="demo-player-label">VESTA · PLAN SÉQUENCE · 00:42</span>
+            </div>
+          </div>
+          <figcaption>Vidéo générée automatiquement par Vesta</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         FONCTIONNALITÉS — trois gestes, zéro compétence vidéo
+         ====================================================== -->
+    <section id="features" class="features">
+      <header class="features-head">
+        <p class="eyebrow" data-reveal>( COMMENT ÇA MARCHE )</p>
+        <h2 class="section-title" data-reveal="0.1">Trois gestes.<br>Aucune caméra.</h2>
+      </header>
+
+      <div class="features-grid">
+        <article class="feature-card" data-reveal="0">
+          <span class="feature-index">01</span>
+          <h3>Déposez vos photos</h3>
+          <p>
+            Une photo par pièce, prise au smartphone. Pas de stabilisateur,
+            pas de drone, pas de retouche — Vesta se charge du reste.
+          </p>
+          <span class="feature-badge">2 MINUTES CHRONO</span>
+        </article>
+
+        <article class="feature-card" data-reveal="0.12">
+          <span class="feature-index">02</span>
+          <h3>L'IA compose le film</h3>
+          <p>
+            Vesta relie les pièces entre elles et génère un plan-séquence
+            continu, avec des mouvements de caméra dignes d'une production.
+          </p>
+          <span class="feature-badge">RENDU 4K · AMBIANCE CHALEUREUSE</span>
+        </article>
+
+        <article class="feature-card" data-reveal="0.24">
+          <span class="feature-index">03</span>
+          <h3>Publiez partout</h3>
+          <p>
+            Formats portails, réseaux sociaux et vitrine d'agence exportés
+            en un clic. Vos annonces passent dans la catégorie au-dessus.
+          </p>
+          <span class="feature-badge">PRÊT À DIFFUSER</span>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================
+       FOOTER — CTA final
+       ====================================================== -->
+  <footer id="contact" class="footer">
+    <p class="eyebrow" data-reveal>( VOTRE PROCHAINE ANNONCE )</p>
+    <h2 class="footer-title" data-reveal="0.1">Donnez vie<br>à vos biens.</h2>
+    <a class="btn btn-cta" href="mailto:contact@vesta.app" data-reveal="0.2">Demander un accès →</a>
+    <div class="footer-meta">
+      <span>© 2026 Vesta</span>
+      <span>Fait avec le feu sacré</span>
+    </div>
+  </footer>
+
+  <!-- Canvas des braises (Étape 4) -->
+  <canvas id="embers" aria-hidden="true"></canvas>
+
+  <!-- Librairies (CDN épinglés — 100% statique, compatible GitHub Pages) -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <!-- Modules du site (ordre : scroll → animations → visite guidée → particules → orchestration) -->
+  <script src="js/smooth-scroll.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/tour.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
