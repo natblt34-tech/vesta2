@@ -20,8 +20,10 @@ window.VestaMascot = (() => {
   let root, body, bubble, skipBtn, pupils;
   let xTo, yTo;              // déplacement fluide du conteneur
   let excited = false;
+  let embarrassed = false;
   let blinkTimer = null;
   let bubbleTimer = null;
+  let embarrassTimer = null;
 
   /* Position de repos : coin bas-gauche, hors du contenu */
   const home = () => ({ x: 26, y: window.innerHeight - BODY_SIZE - 44 });
@@ -43,8 +45,8 @@ window.VestaMascot = (() => {
     // La flamme se penche légèrement vers le curseur
     gsap.to(root.querySelector('.mascot-flame'), { rotation: nx * 8, duration: 0.5, ease: 'power2.out' });
 
-    // Curseur proche → excitation
-    const near = Math.hypot(dx, dy) < EXCITE_DIST;
+    // Curseur proche → excitation (sauf si elle est en pleine gêne)
+    const near = Math.hypot(dx, dy) < EXCITE_DIST && !embarrassed;
     if (near !== excited) {
       excited = near;
       root.classList.toggle('is-excited', near);
@@ -62,15 +64,26 @@ window.VestaMascot = (() => {
 
   /* --- Déplacements ----------------------------------------------------------- */
 
-  /* Déplace la mascotte vers un point exprimé en % du viewport (x: 0-100, y: 0-100).
-     Les valeurs sont bornées pour qu'elle reste toujours entièrement visible. */
-  function moveTo(xPercent, yPercent) {
-    const x = Math.max(14, Math.min(window.innerWidth - BODY_SIZE - 14, (window.innerWidth * xPercent) / 100));
-    const y = Math.max(80, Math.min(window.innerHeight - BODY_SIZE - 50, (window.innerHeight * yPercent) / 100));
+  /* Déplace la mascotte vers un point en pixels viewport (coin haut-gauche du
+     médaillon). Les valeurs sont bornées pour qu'elle reste entièrement visible. */
+  function moveToPx(px, py) {
+    const x = Math.max(14, Math.min(window.innerWidth - BODY_SIZE - 14, px));
+    const y = Math.max(80, Math.min(window.innerHeight - BODY_SIZE - 50, py));
     xTo(x);
     yTo(y);
     // La bulle bascule du bon côté selon la moitié d'écran
     root.classList.toggle('flip', x > window.innerWidth * 0.52);
+  }
+
+  /* Idem, en % du viewport (x: 0-100, y: 0-100). */
+  function moveTo(xPercent, yPercent) {
+    moveToPx((window.innerWidth * xPercent) / 100, (window.innerHeight * yPercent) / 100);
+  }
+
+  /* Centre actuel du médaillon, en coordonnées viewport (pour physics.js). */
+  function getCenter() {
+    const r = body.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
 
   function goHome() {
@@ -91,6 +104,33 @@ window.VestaMascot = (() => {
   function hideBubble(delay = 0) {
     clearTimeout(bubbleTimer);
     bubbleTimer = setTimeout(() => bubble.classList.remove('is-visible'), delay);
+  }
+
+  /* --- Réactions au jeu (toolkit) ---------------------------------------------------- */
+
+  /* Un tag lui a été lancé dessus et elle le renvoie : petit sursaut ravi. */
+  function catchReact() {
+    if (embarrassed) return;
+    gsap.fromTo(body, { scale: 1.18 }, { scale: 1, duration: 0.45, ease: 'back.out(3)' });
+    if (Math.random() < 0.5) {
+      say('Et hop ! ✦');
+      hideBubble(900);
+    }
+  }
+
+  /* Un tag l'a touchée et a brûlé : "Oops !" et mine gênée. */
+  function embarrass() {
+    clearTimeout(embarrassTimer);
+    embarrassed = true;
+    excited = false;
+    root.classList.remove('is-excited');
+    root.classList.add('is-embarrassed');
+    say('Oops !');
+    hideBubble(1800);
+    embarrassTimer = setTimeout(() => {
+      embarrassed = false;
+      root.classList.remove('is-embarrassed');
+    }, 2200);
   }
 
   /* --- API ------------------------------------------------------------------------- */
@@ -125,5 +165,9 @@ window.VestaMascot = (() => {
     scheduleBlink();
   }
 
-  return { init, show, moveTo, home: goHome, say, hideBubble, setSkip, onBodyClick, onSkipClick };
+  return {
+    init, show, moveTo, moveToPx, getCenter, home: goHome,
+    say, hideBubble, setSkip, onBodyClick, onSkipClick,
+    catchReact, embarrass,
+  };
 })();

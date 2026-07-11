@@ -507,7 +507,8 @@ button { font: inherit; color: inherit; }
 .polaroid[data-room="cuisine"]  { top: 12%; right: 8%; }
 .polaroid[data-room="chambre"]  { bottom: 16%; left: 12%; }
 .polaroid[data-room="bain"]     { bottom: 12%; right: 7%; }
-.polaroid[data-room="terrasse"] { top: 8%; left: 42%; }
+/* Mi-hauteur à droite : ne recouvre jamais le titre centré en haut */
+.polaroid[data-room="terrasse"] { top: 44%; right: 3%; }
 
 .polaroid[data-room="salon"]    .polaroid-photo { background: linear-gradient(135deg, #6b4a2b, #2c1c10); }
 .polaroid[data-room="cuisine"]  .polaroid-photo { background: linear-gradient(135deg, #8a6a3b, #3a2a14); }
@@ -723,6 +724,16 @@ button { font: inherit; color: inherit; }
   color: #180c02;
   margin-top: 1.6rem;
 }
+
+/* Masques de ligne : l'inner remonte dans son conteneur (initStatement) */
+.st-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.st-line-inner { display: block; }
 
 .statement-sub {
   max-width: 36rem;
@@ -1045,6 +1056,32 @@ button { font: inherit; color: inherit; }
 .is-excited .mascot-mouth { width: 8px; height: 7px; border-radius: 50%; }
 .is-excited .mascot-flame { filter: drop-shadow(0 0 22px rgba(255, 122, 26, 1)); }
 
+/* Gêne (un tag l'a touchée) : yeux mi-clos, bouche pincée, joues rouges */
+.is-embarrassed .mascot-eye { transform: scaleY(0.5); }
+.is-embarrassed .mascot-mouth { width: 8px; height: 2px; border-radius: 2px; }
+
+.mascot-face::before,
+.mascot-face::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  width: 5px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(214, 60, 20, 0.65);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mascot-face::before { left: -8px; }
+.mascot-face::after { right: -8px; }
+
+.is-embarrassed .mascot-face::before,
+.is-embarrassed .mascot-face::after { opacity: 1; }
+
+/* Tag en train de brûler dans la flamme de la mascotte */
+.tool-tag.is-burning { pointer-events: none; }
+
 /* Conteneur fixe (positionné par GSAP en x/y) */
 .mascot {
   position: fixed;
@@ -1160,6 +1197,41 @@ button { font: inherit; color: inherit; }
 }
 
 .tour-overlay-actions { margin-top: 0.6rem; }
+
+/* 18b. Curseur personnalisé --------------------------------------------------------------------------------------- */
+/* Point braise + anneau or traînant. Activé par cursor.js (souris uniquement,
+   jamais sur écran tactile). */
+.has-cursor,
+.has-cursor * { cursor: none !important; }
+
+.cursor-dot {
+  position: fixed;
+  top: -4px; left: -4px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 10px rgba(255, 179, 71, 0.9);
+  z-index: 500;
+  pointer-events: none;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: -17px; left: -17px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 162, 78, 0.55);
+  z-index: 499;
+  pointer-events: none;
+  transition: width 0.25s ease, height 0.25s ease, top 0.25s ease, left 0.25s ease, border-color 0.25s ease;
+}
+
+/* Survol d'un élément interactif : l'anneau s'ouvre et prend feu */
+.cursor-hot .cursor-ring {
+  width: 52px; height: 52px;
+  top: -26px; left: -26px;
+  border-color: var(--fire);
+}
 
 /* 19. Responsive ------------------------------------------------------------------------------------------------ */
 @media (max-width: 860px) {

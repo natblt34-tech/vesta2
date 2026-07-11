@@ -250,6 +250,21 @@ window.VestaAnimations = (() => {
       .to({}, { duration: 0.4 });
   }
 
+  /* --- Statement : les lignes sortent de leurs masques --------------------------------- */
+
+  function initStatement() {
+    const lines = gsap.utils.toArray('.st-line-inner');
+    if (!lines.length) return;
+    gsap.from(lines, {
+      yPercent: 115,
+      skewY: 4,
+      duration: 1.15,
+      ease: 'power4.out',
+      stagger: 0.14,
+      scrollTrigger: { trigger: '.statement', start: 'top 62%' },
+    });
+  }
+
   /* --- Biens sublimés : aperçu flottant au survol -------------------------------------- */
 
   function initWorkPreview() {
@@ -359,6 +374,7 @@ window.VestaAnimations = (() => {
     initNav();
     initHeroIntro();
     initDemoSequence();
+    initStatement();
     initWorkPreview();
     initDeck();
     initFaq();

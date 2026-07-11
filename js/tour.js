@@ -24,15 +24,26 @@ window.VestaTour = (() => {
       mascot: [76, 62],
       text: 'Ici on dit les choses franchement : vos biens méritent mieux que des photos figées.',
     },
+    /* Les trois phases : un arrêt par carte de la pile sticky, sinon le
+       glissement traverse tout et seule la dernière reste visible. */
     {
       target: '#phases',
-      offset: () => {
-        const s = document.getElementById('phases');
-        return Math.max(0, s.offsetHeight - window.innerHeight);
-      },
-      duration: 5.5,
-      mascot: [6, 62],
-      text: 'Trois phases : vous déposez, Vesta compose, vous diffusez. Regardez les cartes s’empiler.',
+      mascot: [5, 70],
+      text: 'Phase un : déposez une photo par pièce, brutes, au smartphone. Vesta lit les volumes et la lumière.',
+    },
+    {
+      target: '#phases',
+      offset: () => window.innerHeight,
+      duration: 2.2,
+      mascot: [7, 58],
+      text: 'Phase deux : l’IA compose le plan-séquence — trajectoire de caméra, étalonnage, musique.',
+    },
+    {
+      target: '#phases',
+      offset: () => window.innerHeight * 2,
+      duration: 2.2,
+      mascot: [5, 70],
+      text: 'Phase trois : un clic, et le film sort partout — portails, réseaux, vitrine.',
     },
     {
       target: '#demo',
@@ -48,8 +59,8 @@ window.VestaTour = (() => {
     },
     {
       target: '#toolkit',
-      mascot: [80, 28],
-      text: 'La boîte à outils. Attrapez un tag et lancez-le — c’est permis, tout rebondit.',
+      mascot: [80, 30],
+      text: 'La boîte à outils. Attrapez un tag et lancez-le-moi — mais évitez de me toucher, tout brûle ici.',
     },
     {
       target: '#contact',
@@ -141,7 +152,11 @@ window.VestaTour = (() => {
     });
 
     window.VestaMascot.onSkipClick(interrupt);
-    window.VestaMascot.onBodyClick(() => { if (!active) start(); });
+    window.VestaMascot.onBodyClick(() => {
+      // Pas de relance pendant qu'elle joue dans l'arène du toolkit
+      const docked = document.getElementById('mascot').classList.contains('is-docked');
+      if (!active && !docked) start();
+    });
 
     // Accessibilité : pas de visite auto en mouvement réduit
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.VestaTour.init();
   window.VestaPhysics.init();
   window.VestaParticles.init();
+  window.VestaCursor.init();
 
   console.info('[Vesta] Site complet — architecture calquée sur la référence.');
 });
