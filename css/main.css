@@ -204,12 +204,13 @@ button { font: inherit; color: inherit; }
   overflow: hidden;
 }
 
-/* Nuage de points morphing : moitié droite du hero, derrière le titre */
+/* Nuage de points morphing : canvas pleine largeur (les points voyagent
+   librement, y compris derrière le titre pendant les transitions), mais
+   les FORMES se posent dans la zone libre à droite du texte (morph.js) */
 #morph {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 52%;
+  inset: 0;
+  width: 100%;
   height: 100%;
   pointer-events: none;
 }
@@ -1146,17 +1147,30 @@ button { font: inherit; color: inherit; }
 .is-chatting .mascot-bubble { opacity: 0 !important; }
 
 /* 18. Overlay d'accueil --------------------------------------------------------------------------------------- */
+/* Fond totalement opaque : le site est invisible tant qu'on choisit son
+   guide. La sortie est un iris wipe piloté par GSAP (clip-path). */
 .tour-overlay {
   position: fixed;
   inset: 0;
   z-index: 300;
   display: grid;
   place-items: center;
-  background: rgba(9, 7, 6, 0.97);
-  transition: opacity 0.45s ease, visibility 0.45s ease;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 40%, #191209 0%, var(--bg) 62%, #060504 100%);
+  will-change: clip-path;
 }
 
-.tour-overlay.is-closed { opacity: 0; visibility: hidden; }
+/* Anneau de feu qui souligne le bord du rideau pendant l'aspiration */
+.overlay-ring {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--fire);
+  border-radius: 50%;
+  box-shadow:
+    0 0 34px rgba(255, 122, 26, 0.75),
+    inset 0 0 34px rgba(255, 122, 26, 0.45);
+  pointer-events: none;
+}
 
 /* Bascule de langue posée sur l'overlay, accessible dès l'arrivée */
 .overlay-lang {

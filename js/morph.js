@@ -96,19 +96,22 @@ window.VestaMorph = (() => {
   /* --- Échantillonnage : une forme → des cibles pour chaque point --------------- */
 
   function sampleShape(drawFn) {
+    // La forme est dessinée aux dimensions de la ZONE (droite du titre)
+    // puis décalée : les cibles ne recouvrent jamais le texte
+    const ZW = zone.width;
     const off = document.createElement('canvas');
-    off.width = W;
+    off.width = ZW;
     off.height = H;
     const g = off.getContext('2d', { willReadFrequently: true });
     g.fillStyle = '#fff';
-    drawFn(g, W, H);
+    drawFn(g, ZW, H);
 
-    const data = g.getImageData(0, 0, W, H).data;
+    const data = g.getImageData(0, 0, ZW, H).data;
     const pts = [];
     const step = 3; // échantillonnage fin : contours nets, lettres lisibles
     for (let y = 0; y < H; y += step) {
-      for (let x = 0; x < W; x += step) {
-        if (data[(y * W + x) * 4 + 3] > 128) pts.push({ x, y });
+      for (let x = 0; x < ZW; x += step) {
+        if (data[(y * ZW + x) * 4 + 3] > 128) pts.push({ x: x + zone.left, y });
       }
     }
     if (!pts.length) return;
@@ -124,6 +127,7 @@ window.VestaMorph = (() => {
   }
 
   function nextShape() {
+    if (!zone.ok) return;
     const shapes = shapeList();
     sampleShape(shapes[shapeIndex % shapes.length]);
     shapeIndex++;
@@ -147,7 +151,7 @@ window.VestaMorph = (() => {
   }
 
   function frame(time) {
-    if (!running || document.hidden) return;
+    if (!running || !zone.ok || document.hidden) return;
 
     // Parallaxe douce : le nuage "penche" vers le curseur
     parallax.x += ((mouse.x - W / 2) * 0.02 - parallax.x) * 0.04;
@@ -194,30 +198,28 @@ window.VestaMorph = (() => {
 
   /* --- Mise en place ------------------------------------------------------------------ */
 
-  /* Le canvas occupe exactement l'espace À DROITE du titre, mesuré au
-     runtime : les formes ne peuvent jamais entrer en conflit avec le texte. */
+  /* Le canvas couvre tout le hero (les points voyagent librement pendant
+     les transitions, même derrière le titre) mais les FORMES se posent
+     dans la zone libre à droite du texte, mesurée au pixel. */
+  let zone = { left: 0, width: 0, ok: false };
+
   function layout() {
     // La ligne de titre la plus large (les inners sont inline-block :
     // leur boîte colle au texte, contrairement au h1 qui prend tout)
     const lines = [...document.querySelectorAll('.hero-line-inner')];
     const textRight = Math.max(...lines.map((l) => l.getBoundingClientRect().right));
-    const margin = 36;
-    const left = textRight + margin;
-    const width = window.innerWidth - left - 12;
-    if (width < 250) { canvas.style.display = 'none'; return false; }
-    canvas.style.display = '';
-    canvas.style.left = left + 'px';
-    canvas.style.right = 'auto';
-    canvas.style.width = width + 'px';
-    return true;
+    zone.left = textRight + 36;
+    zone.width = window.innerWidth - zone.left - 12;
+    zone.ok = zone.width >= 250;
+    canvas.style.display = zone.ok ? '' : 'none';
   }
 
   function resize() {
-    if (!layout()) return;
+    layout();
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const rect = canvas.getBoundingClientRect();
-    W = Math.round(rect.width);
-    H = Math.round(rect.height);
+    W = Math.round(rect.width) || window.innerWidth;
+    H = Math.round(rect.height) || window.innerHeight;
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);

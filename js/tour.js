@@ -154,11 +154,70 @@ window.VestaTour = (() => {
 
   /* --- Overlay d'accueil --------------------------------------------------------- */
 
-  function closeOverlay() {
-    overlay.classList.add('is-closed');
-    window.VestaMascot.show();
-    overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
-    document.dispatchEvent(new CustomEvent('vesta:overlay-closed'));
+  let overlayClosing = false;
+
+  /* Sortie cinématique : le contenu s'efface, le guide choisi s'embrase,
+     puis tout l'écran d'accueil est aspiré dans sa flamme (iris wipe en
+     clip-path, souligné d'un anneau de feu) pendant que le hero se révèle. */
+  function closeOverlay(onDone) {
+    if (overlayClosing) return;
+    overlayClosing = true;
+
+    const reveal = () => {
+      document.dispatchEvent(new CustomEvent('vesta:overlay-closed'));
+      window.VestaMascot.show();
+    };
+
+    // Accessibilité : sortie immédiate en mouvement réduit
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      overlay.remove();
+      reveal();
+      if (onDone) onDone();
+      return;
+    }
+
+    const selected = document.querySelector('.mascot-choice.is-selected') || overlay;
+    const r = selected.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    // Rayon couvrant le coin d'écran le plus lointain
+    const radius = Math.hypot(
+      Math.max(cx, window.innerWidth - cx),
+      Math.max(cy, window.innerHeight - cy)
+    ) + 60;
+
+    const ring = document.createElement('div');
+    ring.className = 'overlay-ring';
+    overlay.appendChild(ring);
+    gsap.set(ring, { left: cx, top: cy });
+    gsap.set(overlay, { clipPath: `circle(${radius}px at ${cx}px ${cy}px)` });
+
+    gsap.timeline({
+      onComplete() {
+        overlay.remove();
+        if (onDone) onDone();
+      },
+    })
+      // 1. Tout le contenu s'efface… sauf le guide choisi
+      .to(
+        ['.tour-overlay-inner > .mono-label', '.tour-overlay-title', '.tour-overlay-actions', '#tour-skip-intro', '.overlay-lang'],
+        { y: 26, opacity: 0, duration: 0.32, stagger: 0.05, ease: 'power2.in' }
+      )
+      .to('.mascot-choice:not(.is-selected)', { scale: 0.8, opacity: 0, duration: 0.3, ease: 'power2.in' }, '<')
+      // 2. Le guide choisi s'embrase, sa carte se dissout autour de lui
+      .to(selected, {
+        scale: 1.2,
+        borderColor: 'rgba(255, 122, 26, 0)',
+        backgroundColor: 'rgba(255, 122, 26, 0)',
+        duration: 0.4,
+        ease: 'back.out(2)',
+      })
+      // 3. Le site se révèle pendant que le rideau est aspiré dans la flamme
+      .add(reveal)
+      .to(overlay, { clipPath: `circle(0px at ${cx}px ${cy}px)`, duration: 0.85, ease: 'power3.inOut' }, '<')
+      .fromTo(ring,
+        { width: radius * 2, height: radius * 2, opacity: 0 },
+        { width: 0, height: 0, opacity: 1, duration: 0.85, ease: 'power3.inOut' }, '<');
   }
 
   /* --- Init ------------------------------------------------------------------------ */
@@ -185,11 +244,8 @@ window.VestaTour = (() => {
       btn.addEventListener('click', () => selectSkin(btn.dataset.skin))
     );
 
-    document.getElementById('tour-start').addEventListener('click', () => {
-      closeOverlay();
-      setTimeout(start, 500);
-    });
-    document.getElementById('tour-skip-intro').addEventListener('click', closeOverlay);
+    document.getElementById('tour-start').addEventListener('click', () => closeOverlay(start));
+    document.getElementById('tour-skip-intro').addEventListener('click', () => closeOverlay());
 
     // Reprise de main : tout geste de scroll manuel interrompt la visite
     ['wheel', 'touchmove'].forEach((evt) =>
