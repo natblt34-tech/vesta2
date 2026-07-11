@@ -29,7 +29,9 @@ window.VestaMorph = (() => {
   let running = false;
   let shapeIndex = 0;
   let shapeTimer = null;
-  const mouse = { x: -9999, y: -9999 };
+  /* seen : tant qu'aucun mousemove n'est arrivé, la parallaxe reste neutre
+     (sinon la sentinelle -9999 décalait tout le nuage de ~220px) */
+  const mouse = { x: -9999, y: -9999, seen: false };
   const parallax = { x: 0, y: 0 };
 
   /* --- Les formes ------------------------------------------------------------- */
@@ -82,14 +84,52 @@ window.VestaMorph = (() => {
     g.clearRect(cx - s * 0.22, cy + s * 0.35, s * 0.44, s * 0.7); // porte
   };
 
+  const drawCamera = (g, w, h) => {
+    const cx = w / 2;
+    const cy = h / 2;
+    const s = Math.min(w, h) * 0.3;
+    // boîtier
+    g.fillRect(cx - s * 1.25, cy - s * 0.7, s * 2.5, s * 1.5);
+    // bosse du viseur
+    g.fillRect(cx - s * 0.5, cy - s * 1.0, s, s * 0.35);
+    // objectif (anneau : disque évidé)
+    g.beginPath();
+    g.arc(cx, cy + s * 0.05, s * 0.55, 0, Math.PI * 2);
+    g.fill();
+    const prev = g.globalCompositeOperation;
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath();
+    g.arc(cx, cy + s * 0.05, s * 0.28, 0, Math.PI * 2);
+    g.fill();
+    g.globalCompositeOperation = prev;
+  };
+
+  const drawPolaroid = (g, w, h) => {
+    const cx = w / 2;
+    const cy = h / 2;
+    const s = Math.min(w, h) * 0.4;
+    g.save();
+    g.translate(cx, cy);
+    g.rotate(-0.09);
+    // cadre : photo évidée, gros bord bas — le polaroïd de la démo
+    g.fillRect(-s, -s * 1.05, s * 2, s * 2.35);
+    const prev = g.globalCompositeOperation;
+    g.globalCompositeOperation = 'destination-out';
+    g.fillRect(-s * 0.78, -s * 0.83, s * 1.56, s * 1.56);
+    g.globalCompositeOperation = prev;
+    g.restore();
+  };
+
   function shapeList() {
     const words = window.VestaI18n.t('morph.words', ['VESTA', 'UN FILM', '48H', 'FOYER']);
-    const shapes = [drawFlame];
-    words.forEach((wd, i) => {
-      shapes.push(drawWord(wd));
-      if (i === 0) shapes.push(drawPlay);
-      if (i === 1) shapes.push(drawHouse);
-    });
+    const icons = [drawFlame, drawCamera, drawPlay, drawPolaroid, drawHouse];
+    // Alternance mot / picto : toujours quelque chose de Vesta à raconter
+    const shapes = [];
+    const n = Math.max(words.length, icons.length);
+    for (let i = 0; i < n; i++) {
+      if (icons[i]) shapes.push(icons[i]);
+      if (words[i]) shapes.push(drawWord(words[i]));
+    }
     return shapes;
   }
 
@@ -153,21 +193,49 @@ window.VestaMorph = (() => {
   function frame(time) {
     if (!running || !zone.ok || document.hidden) return;
 
-    // Parallaxe douce : le nuage "penche" vers le curseur
-    parallax.x += ((mouse.x - W / 2) * 0.02 - parallax.x) * 0.04;
-    parallax.y += ((mouse.y - H / 2) * 0.02 - parallax.y) * 0.04;
+    // Parallaxe douce : le nuage "penche" vers le curseur (neutre sans souris)
+    const targetPX = mouse.seen ? (mouse.x - W / 2) * 0.02 : 0;
+    const targetPY = mouse.seen ? (mouse.y - H / 2) * 0.02 : 0;
+    parallax.x += (targetPX - parallax.x) * 0.04;
+    parallax.y += (targetPY - parallax.y) * 0.04;
+
+    /* Vraie 3D : le nuage oscille lentement autour de son axe vertical
+       (rotY) avec un léger tangage (rotX), amplitudes calibrées pour que
+       les mots restent lisibles. Projection perspective : les points
+       proches grossissent et brillent, les lointains s'estompent. */
+    const cx = zone.left + zone.width / 2;
+    const cy = H * 0.52;
+    const rotY = 0.3 * Math.sin(time * 0.38);
+    const rotX = 0.13 * Math.sin(time * 0.26 + 1.3);
+    const cosY = Math.cos(rotY);
+    const sinY = Math.sin(rotY);
+    const cosX = Math.cos(rotX);
+    const sinX = Math.sin(rotX);
+    const FOCAL = 850;
 
     ctx.clearRect(0, 0, W, H);
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
 
-      // Ressort vers la cible
+      // Ressort vers la cible (dans l'espace "modèle", non tourné)
       p.vx += (p.tx - p.x) * SPRING;
       p.vy += (p.ty - p.y) * SPRING;
 
-      // Répulsion du curseur
-      const dx = p.x - mouse.x;
-      const dy = p.y - mouse.y;
+      // Projection : rotation Y puis X autour du centre de la zone, à la
+      // profondeur d'extrusion propre du point (z3)
+      const mx = p.x - cx;
+      const my = p.y - cy;
+      const x1 = mx * cosY + p.z3 * sinY;
+      const z1 = -mx * sinY + p.z3 * cosY;
+      const y1 = my * cosX - z1 * sinX;
+      const z2 = my * sinX + z1 * cosX;
+      const persp = FOCAL / (FOCAL + z2);
+      const sx = cx + x1 * persp + parallax.x * p.z * 1.6;
+      const sy = cy + y1 * persp + parallax.y * p.z * 1.6;
+
+      // Répulsion du curseur, en coordonnées ÉCRAN (là où l'œil voit le point)
+      const dx = sx - mouse.x;
+      const dy = sy - mouse.y;
       const d2 = dx * dx + dy * dy;
       if (d2 < REPULSE_R * REPULSE_R && d2 > 0.01) {
         const d = Math.sqrt(d2);
@@ -181,15 +249,15 @@ window.VestaMorph = (() => {
       p.x += p.vx;
       p.y += p.vy;
 
-      // Relief : taille, transparence, netteté et parallaxe dépendent de la
-      // profondeur, plus une respiration sinusoïdale propre à chaque point
+      // Relief : taille et transparence combinent la profondeur "matière"
+      // (p.z), la perspective (persp) et une respiration sinusoïdale
       const breathe = 1 + 0.12 * Math.sin(time * 1.4 + p.phase);
-      const size = p.size * (0.4 + p.z * 0.95) * breathe;
-      ctx.globalAlpha = 0.22 + p.z * 0.78;
+      const size = p.size * (0.4 + p.z * 0.95) * breathe * persp;
+      ctx.globalAlpha = Math.min(1, (0.22 + p.z * 0.78) * persp * persp);
       ctx.drawImage(
         p.z > 0.62 ? spriteSharp : spriteSoft,
-        p.x + parallax.x * p.z * 1.6 - size / 2,
-        p.y + parallax.y * p.z * 1.6 - size / 2,
+        sx - size / 2,
+        sy - size / 2,
         size, size
       );
     }
@@ -257,7 +325,8 @@ window.VestaMorph = (() => {
         y: Math.random() * H,
         vx: 0, vy: 0,
         tx: W / 2, ty: H / 2,
-        z: 0.25 + Math.random() * 0.75,   // profondeur (plage large : vrai relief)
+        z: 0.25 + Math.random() * 0.75,   // profondeur "matière" (taille, éclat)
+        z3: (Math.random() - 0.5) * 72,   // extrusion : épaisseur révélée par la rotation
         size: 4 + Math.random() * 6.5,
         phase: Math.random() * Math.PI * 2,
       });
@@ -268,6 +337,7 @@ window.VestaMorph = (() => {
       const r = canvas.getBoundingClientRect();
       mouse.x = e.clientX - r.left;
       mouse.y = e.clientY - r.top;
+      mouse.seen = true;
     }, { passive: true });
 
     window.addEventListener('resize', () => { resize(); nextShape(); });
@@ -291,5 +361,16 @@ window.VestaMorph = (() => {
     gsap.ticker.add(frame);
   }
 
-  return { init };
+  /* Sonde de diagnostic (console uniquement) */
+  function debug() {
+    const mean = (fn) => Math.round(particles.reduce((a, p) => a + fn(p), 0) / particles.length);
+    return {
+      W, H, zone: { ...zone },
+      cibleMoyenne: { x: mean((p) => p.tx), y: mean((p) => p.ty) },
+      positionMoyenne: { x: mean((p) => p.x), y: mean((p) => p.y) },
+      vitesseMoyenne: mean((p) => Math.abs(p.vx) + Math.abs(p.vy)),
+    };
+  }
+
+  return { init, debug };
 })();
