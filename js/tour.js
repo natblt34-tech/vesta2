@@ -23,40 +23,46 @@ window.VestaTour = (() => {
     {
       target: '#work',
       mascot: [84, 66],   // le manifeste est calé à gauche
-      text: 'Ici on dit les choses franchement : vos biens méritent mieux que des photos figées.',
+      text: () => window.VestaI18n.t('tour.work',
+        'Ici on dit les choses franchement : vos biens méritent mieux que des photos figées.'),
     },
     /* Les trois phases : un arrêt par carte de la pile sticky, sinon le
        glissement traverse tout et seule la dernière reste visible. */
     {
       target: '#phases',
       mascot: [3, 82],    // coin bas gauche, sous le grand numéro
-      text: 'Phase un : déposez une photo par pièce, brutes, au smartphone. Vesta lit les volumes et la lumière.',
+      text: () => window.VestaI18n.t('tour.phase1',
+        'Phase un : déposez une photo par pièce, brutes, au smartphone. Vesta lit les volumes et la lumière.'),
     },
     {
       target: '#phases',
       offset: () => window.innerHeight,
       duration: 2.2,
       mascot: [3, 82],
-      text: 'Phase deux : l’IA monte le film. Caméra, transitions, étalonnage, musique.',
+      text: () => window.VestaI18n.t('tour.phase2',
+        'Phase deux : l’IA monte le film. Caméra, transitions, étalonnage, musique.'),
     },
     {
       target: '#phases',
       offset: () => window.innerHeight * 2,
       duration: 2.2,
       mascot: [3, 82],
-      text: 'Phase trois : un clic, et le film sort partout. Portails, réseaux, vitrine.',
+      text: () => window.VestaI18n.t('tour.phase3',
+        'Phase trois : un clic, et le film sort partout. Portails, réseaux, vitrine.'),
     },
     {
       target: '#demo',
       offset: () => (window.VestaAnimations ? window.VestaAnimations.DEMO_PIN * 0.95 : 0),
       duration: 4.2,
       mascot: [50, 36],   // au centre : c'est elle qui fait le numéro
-      text: 'Et voici mon numéro préféré : je goûte vos photos, et je vous rends un film.',
+      text: () => window.VestaI18n.t('tour.demo',
+        'Et voici mon numéro préféré : je goûte vos photos, et je vous rends un film.'),
     },
     {
       target: '#equipe',
       mascot: [6, 74],    // le deck et le titre sont centrés
-      text: 'Votre équipe de tournage IA. Cliquez sur les cartes pour la rencontrer.',
+      text: () => window.VestaI18n.t('tour.equipe',
+        'Votre équipe de tournage IA. Cliquez sur les cartes pour la rencontrer.'),
       // Sa propre carte remonte du deck : petit sursaut de fierté
       followUp: {
         delay: 2600,
@@ -70,12 +76,14 @@ window.VestaTour = (() => {
     {
       target: '#toolkit',
       mascot: [80, 26],   // en l'air dans l'arène, au-dessus du tas de tags
-      text: 'Lancez-moi un tag, je l’attrape au lasso ! Mais ne me touchez pas avec, tout brûle ici.',
+      text: () => window.VestaI18n.t('tour.toolkit',
+        'Lancez-moi un tag, je l’attrape au lasso ! Mais ne me touchez pas avec, tout brûle ici.'),
     },
     {
       target: '#contact',
       mascot: [8, 74],    // le titre et le bouton sont centrés
-      text: 'Prêt à donner vie à vos biens ? C’est par ici. Je vous laisse explorer ✦',
+      text: () => window.VestaI18n.t('tour.contact',
+        'Prêt à donner vie à vos biens ? C’est par ici. Je vous laisse explorer ✦'),
     },
   ];
 
@@ -138,7 +146,7 @@ window.VestaTour = (() => {
     clearTimeout(followTimer);
     document.body.classList.remove('tour-active');
     window.VestaMascot.setSkip(false);
-    window.VestaMascot.say('Je vous laisse la main ✦');
+    window.VestaMascot.say(window.VestaI18n.t('mascot.handover', 'Je vous laisse la main ✦'));
     window.VestaMascot.hideBubble(2000);
     window.VestaMascot.home();
   }

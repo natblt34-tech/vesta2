@@ -73,7 +73,7 @@
       </div>
 
       <div class="tour-overlay-actions">
-        <button id="tour-start" class="btn-solid" type="button">Laissez <span id="tour-start-name">CADRE-01</span> guider →</button>
+        <button id="tour-start" class="btn-solid" type="button"><span class="cta-before">Laissez </span><span id="tour-start-name">CADRE-01</span><span class="cta-after"> guider →</span></button>
       </div>
       <button id="tour-skip-intro" class="mono-link" type="button">PASSER · EXPLORER PAR MOI-MÊME →</button>
     </div>
@@ -102,6 +102,8 @@
     <div class="nav-right">
       <a class="nav-link" href="#demo">Démo</a>
       <a class="nav-link" href="#faq">FAQ</a>
+      <!-- Bascule de langue : affiche la langue CIBLE (géré par i18n.js) -->
+      <button id="lang-toggle" class="nav-link lang-toggle" type="button" aria-label="Switch language">EN</button>
       <a class="btn-pill" href="#contact">Réserver une démo →</a>
     </div>
   </nav>
@@ -126,8 +128,7 @@
     <section id="work" class="s-paper manifesto">
       <p class="mono-label" data-scramble data-reveal>( CE QUE FAIT VESTA )</p>
       <h2 class="manifesto-title" data-reveal data-reveal-delay="0.1">
-        Vos biens méritent mieux<br>
-        que <span class="fillword-box"><span class="fw-text">des photos figées.</span><span class="fw-strike"></span></span>
+        <span class="manifesto-lead">Vos biens méritent mieux<br>que </span><span class="fillword-box"><span class="fw-text">des photos figées.</span><span class="fw-strike"></span></span>
       </h2>
       <p class="manifesto-sub" data-reveal data-reveal-delay="0.2">
         Un studio au croisement de l'IA et de l'image. Chaque annonce qui
@@ -610,7 +611,8 @@
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 
-  <!-- Modules (ordre : scroll → animations → mascotte → visite → physique → particules → main) -->
+  <!-- Modules (ordre : i18n → scroll → animations → mascotte → visite → physique → particules → main) -->
+  <script src="js/i18n.js"></script>
   <script src="js/smooth-scroll.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/mascot.js"></script>

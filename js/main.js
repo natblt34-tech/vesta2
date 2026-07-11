@@ -12,6 +12,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   gsap.registerPlugin(ScrollTrigger);
 
+  // La traduction s'applique AVANT tout : la physique mesure la largeur des
+  // tags traduits, le scramble lira le texte final, etc.
+  window.VestaI18n.init();
+
   window.VestaAnimations.init();
   window.VestaMascot.init();
   window.VestaTour.init();

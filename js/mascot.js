@@ -145,7 +145,7 @@ window.VestaMascot = (() => {
     if (embarrassed) return;
     gsap.fromTo(body, { scale: 1.18 }, { scale: 1, duration: 0.45, ease: 'back.out(3)' });
     if (Math.random() < 0.5) {
-      say('Et hop ! ✦');
+      say(window.VestaI18n.t('mascot.hop', 'Et hop ! ✦'));
       hideBubble(900);
     }
   }
@@ -166,7 +166,16 @@ window.VestaMascot = (() => {
   }
 
   function getSkin() { return currentSkin; }
-  function skinData() { return SKINS[currentSkin]; }
+
+  /* Les textes du personnage passent par i18n (le FR inline sert de source) */
+  function skinData() {
+    const s = SKINS[currentSkin];
+    return {
+      name: s.name,
+      greeting: window.VestaI18n.t(`skin.${currentSkin}.greeting`, s.greeting),
+      self: window.VestaI18n.t(`skin.${currentSkin}.self`, s.self),
+    };
+  }
 
   /* Petit moment de fierté : sursaut, frétillement, et sa réplique signature */
   function celebrate(text) {
@@ -188,7 +197,7 @@ window.VestaMascot = (() => {
     excited = false;
     root.classList.remove('is-excited');
     root.classList.add('is-embarrassed');
-    say('Oops !');
+    say(window.VestaI18n.t('mascot.oops', 'Oops !'));
     hideBubble(1800);
     embarrassTimer = setTimeout(() => {
       embarrassed = false;

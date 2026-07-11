@@ -73,28 +73,27 @@ window.VestaAnimations = (() => {
   const FILL_WORDS = [
     { text: 'des photos figées.', strike: true },
     { text: 'des slideshows.', strike: true },
-    { text: 'des visites 360°.', strike: true },
-    { text: 'un simple lien.', strike: true },
     { text: 'ça : un film.', strike: false }, // le mot final, doré, tient plus longtemps
   ];
 
   function initFillword() {
     const box = document.querySelector('.fillword-box');
     if (!box) return;
+    const words = window.VestaI18n.t('fillwords', FILL_WORDS);
     const textEl = box.querySelector('.fw-text');
     const strikeEl = box.querySelector('.fw-strike');
     let index = 0;
     let running = false;
 
     function playWord() {
-      const word = FILL_WORDS[index];
+      const word = words[index];
       const isFinal = !word.strike;
       box.classList.toggle('is-final', isFinal);
       textEl.textContent = word.text;
 
       const tl = gsap.timeline({
         onComplete() {
-          index = (index + 1) % FILL_WORDS.length;
+          index = (index + 1) % words.length;
           playWord();
         },
       });
@@ -350,7 +349,8 @@ window.VestaAnimations = (() => {
       row.addEventListener('mouseenter', () => {
         visible = true;
         preview.dataset.tint = row.dataset.tint;
-        label.textContent = row.querySelector('.work-name').textContent + ' · film vesta';
+        label.textContent = row.querySelector('.work-name').textContent
+          + window.VestaI18n.t('works.preview', ' · film vesta');
         gsap.to(preview, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
       });
     });
