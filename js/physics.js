@@ -15,14 +15,26 @@ window.VestaPhysics = (() => {
 
   const WALL = 120;        // épaisseur des murs invisibles
   const BURN_DIST = 52;    // distance de contact direct : le tag brûle
-  const CATCH_DIST = 120;  // distance de "réception" d'un tag lancé
+  const CATCH_DIST = 130;  // distance de capture au lasso d'un tag lancé
   const CATCH_SPEED = 7;   // vitesse minimale pour compter comme un lancer
+  const REEL_TIME = 0.45;  // durée du remorquage au lasso (s)
+  const HOLD_TIME = 2000;  // elle garde le tag en main (ms)
 
   let arena, engine, mouseConstraint;
   let tags = [];      // { el, body, w, h, burned, lastCatch }
   let running = false;
   let built = false;
   let docked = false; // la mascotte est-elle installée dans l'arène ?
+
+  /* Capture au lasso en cours (une seule à la fois : elle n'a que deux mains) */
+  let capture = null; // { t, from:{x,y}, progress, holdUntil }
+  let lassoSvg = null;
+  let lassoRope = null;
+  let lassoLoop = null;
+
+  /* Vagabondage : elle se déplace dans l'arène pendant qu'on joue */
+  let wander = { fx: 0.82, fy: 0.3 };
+  let wanderTimer = null;
 
   /* --- Construction du monde ------------------------------------------------ */
 
@@ -84,6 +96,17 @@ window.VestaPhysics = (() => {
     mouse.element.removeEventListener('wheel', mouse.mousewheel);
     mouse.element.removeEventListener('DOMMouseScroll', mouse.mousewheel);
 
+    // Le lasso : une corde d'or en SVG par-dessus la page
+    lassoSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    lassoSvg.setAttribute('class', 'lasso-svg');
+    lassoRope = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    lassoRope.setAttribute('class', 'lasso-rope');
+    lassoLoop = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    lassoLoop.setAttribute('class', 'lasso-rope');
+    lassoSvg.append(lassoRope, lassoLoop);
+    lassoSvg.style.opacity = '0';
+    document.body.appendChild(lassoSvg);
+
     // Une seule boucle : le ticker GSAP (déjà utilisé par Lenis et les braises)
     gsap.ticker.add(step);
   }
@@ -106,14 +129,32 @@ window.VestaPhysics = (() => {
   }
 
   /* --- Le jeu avec la mascotte ---------------------------------------------------
-     Tag lancé qui passe près d'elle → elle l'attrape et le relance.
-     Tag qui la touche directement → il brûle, "Oops !" et mine gênée. */
+     Tag lancé qui passe près d'elle → capture au LASSO : la corde d'or part,
+     le tag est remorqué jusqu'à sa main, elle le garde deux secondes (il la
+     suit dans ses déplacements), puis elle le relance d'un grand arc.
+     Tag TENU À LA SOURIS qui la touche → il brûle, "Oops !" et mine gênée. */
+
+  /* Sa "main" : juste à côté d'elle, côté intérieur de l'arène (coordonnées arène) */
+  function handPos(mascotCenter, rect) {
+    const side = mascotCenter.x - rect.left > rect.width / 2 ? -1 : 1;
+    return {
+      x: mascotCenter.x - rect.left + side * 58,
+      y: mascotCenter.y - rect.top + 14,
+    };
+  }
 
   function interactWithMascot() {
     const mascot = window.VestaMascot;
     if (!mascot) return;
     const m = mascot.getCenter();
     const rect = arena.getBoundingClientRect();
+
+    // Capture en cours : le tag est remorqué puis tenu contre sa main
+    if (capture) {
+      updateCapture(m, rect);
+      return; // une prise à la fois, et pas de brûlure pendant le numéro
+    }
+
     // La mascotte ne joue que si elle se tient dans l'arène
     if (m.x < rect.left || m.x > rect.right || m.y < rect.top || m.y > rect.bottom) return;
 
@@ -121,31 +162,79 @@ window.VestaPhysics = (() => {
     for (let i = 0; i < tags.length; i++) {
       const t = tags[i];
       if (t.burned) continue;
-      // Position du tag en coordonnées viewport
       const tx = rect.left + t.body.position.x;
       const ty = rect.top + t.body.position.y;
       const dist = Math.hypot(tx - m.x, ty - m.y);
-
       const held = mouseConstraint.body === t.body;
 
       if (held && dist < BURN_DIST) {
-        // Seul un tag TENU À LA SOURIS peut la toucher et brûler — un tag en
-        // vol libre est toujours attrapé/relancé (sinon les rebonds sur les
-        // murs finissent en crémation collective).
+        // Seul un tag tenu à la souris peut la toucher et brûler : un tag en
+        // vol libre est toujours attrapé (sinon les rebonds sur les murs
+        // finissent en crémation collective).
         burnTag(t);
         mascot.embarrass();
-      } else if (!held && dist < CATCH_DIST && t.body.speed > CATCH_SPEED && now - t.lastCatch > 700) {
-        // Réception : renvoi vers le haut, à l'opposé de la mascotte
-        t.lastCatch = now;
-        const dir = tx < m.x ? -1 : 1;
-        Matter.Body.setVelocity(t.body, {
-          x: dir * (7 + Math.random() * 6),
-          y: -(9 + Math.random() * 5),
-        });
-        Matter.Body.setAngularVelocity(t.body, dir * 0.25);
-        mascot.catchReact();
+      } else if (!held && dist < CATCH_DIST && t.body.speed > CATCH_SPEED && now - t.lastCatch > 900) {
+        lassoTag(t);
       }
     }
+  }
+
+  function lassoTag(t) {
+    Matter.Body.setStatic(t.body, true);
+    t.el.classList.add('is-lassoed');
+    capture = {
+      t,
+      from: { x: t.body.position.x, y: t.body.position.y },
+      progress: 0,
+      holdUntil: performance.now() + REEL_TIME * 1000 + HOLD_TIME,
+    };
+    gsap.to(capture, { progress: 1, duration: REEL_TIME, ease: 'power2.out' });
+    lassoSvg.style.opacity = '1';
+    window.VestaMascot.express(true);
+  }
+
+  function updateCapture(m, rect) {
+    const { t } = capture;
+    const hand = handPos(m, rect);
+    // Le tag glisse du point de capture vers la main, puis la suit (elle bouge)
+    const x = capture.from.x + (hand.x - capture.from.x) * capture.progress;
+    const y = capture.from.y + (hand.y - capture.from.y) * capture.progress;
+    Matter.Body.setPosition(t.body, { x, y });
+    t.el.style.transform =
+      `translate(${x - t.w / 2}px, ${y - t.h / 2}px) rotate(${t.body.angle}rad)`;
+
+    // La corde relie sa main au tag, avec un léger ventre au milieu
+    const x1 = m.x;
+    const y1 = m.y + 8;
+    const x2 = rect.left + x;
+    const y2 = rect.top + y;
+    const sag = 26 * (1 - capture.progress * 0.7);
+    lassoRope.setAttribute('d',
+      `M ${x1} ${y1} Q ${(x1 + x2) / 2} ${Math.max(y1, y2) + sag} ${x2} ${y2}`);
+    lassoLoop.setAttribute('cx', x2);
+    lassoLoop.setAttribute('cy', y2);
+    lassoLoop.setAttribute('rx', t.w / 2 + 8);
+    lassoLoop.setAttribute('ry', t.h / 2 + 8);
+
+    if (performance.now() >= capture.holdUntil) releaseCapture(m, rect);
+  }
+
+  function releaseCapture(m, rect) {
+    const { t } = capture;
+    capture = null;
+    lassoSvg.style.opacity = '0';
+    t.el.classList.remove('is-lassoed');
+    Matter.Body.setStatic(t.body, false);
+    // Grand arc de relance vers l'intérieur de l'arène
+    const dir = m.x - rect.left > rect.width / 2 ? -1 : 1;
+    Matter.Body.setVelocity(t.body, {
+      x: dir * (8 + Math.random() * 6),
+      y: -(10 + Math.random() * 5),
+    });
+    Matter.Body.setAngularVelocity(t.body, dir * 0.3);
+    t.lastCatch = performance.now();
+    window.VestaMascot.express(false);
+    window.VestaMascot.catchReact();
   }
 
   function burnTag(t) {
@@ -185,14 +274,22 @@ window.VestaPhysics = (() => {
     t.lastCatch = performance.now(); // petit délai de grâce avant de rejouer
   }
 
-  /* --- Ancrage de la mascotte dans l'arène (même en scroll manuel) ----------------- */
+  /* --- Ancrage + vagabondage de la mascotte dans l'arène --------------------------- */
+
+  function pickWanderSpot() {
+    // Moitié haute de l'arène : jamais dans le tas de tags au sol
+    wander.fx = 0.15 + Math.random() * 0.7;
+    wander.fy = 0.15 + Math.random() * 0.35;
+  }
 
   function dockMascot() {
     // Pendant la visite guidée, tour.js gère les positions lui-même
     if (document.body.classList.contains('tour-active')) return;
     const rect = arena.getBoundingClientRect();
-    // Perchée en haut à droite de l'arène, au-dessus du tas de tags
-    window.VestaMascot.moveToPx(rect.left + rect.width * 0.82, rect.top + rect.height * 0.3);
+    window.VestaMascot.moveToPx(
+      rect.left + rect.width * wander.fx - 38,
+      rect.top + rect.height * wander.fy - 38
+    );
   }
 
   function initDocking() {
@@ -206,8 +303,12 @@ window.VestaPhysics = (() => {
         // Signale l'état "en jeu" : le clic sur la mascotte ne relance pas
         // la visite pendant qu'elle est dans l'arène (clic raté = frustration)
         document.getElementById('mascot').classList.toggle('is-docked', self.isActive);
+        clearInterval(wanderTimer);
         if (self.isActive) {
+          pickWanderSpot();
           dockMascot();
+          // Elle change de perchoir régulièrement pendant qu'on joue
+          wanderTimer = setInterval(() => { pickWanderSpot(); dockMascot(); }, 3400);
         } else if (!document.body.classList.contains('tour-active')) {
           window.VestaMascot.home();
         }

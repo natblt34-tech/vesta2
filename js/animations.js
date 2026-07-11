@@ -177,11 +177,12 @@ window.VestaAnimations = (() => {
   /* --- Intro du hero (lignes masquées) --------------------------------------------- */
 
   function heroIntro() {
-    gsap.timeline({ defaults: { ease: 'power3.out' } })
-      .from('.hero-pill', { y: 24, opacity: 0, duration: 0.7 })
-      .from('.hero-line-inner', { yPercent: 112, duration: 1.0, stagger: 0.12 }, '<0.1')
-      .from('.hero-foot', { y: 30, opacity: 0, duration: 0.8 }, '<0.5')
-      .from('.marquee', { opacity: 0, duration: 0.8 }, '<');
+    gsap.from('.hero-line-inner', {
+      yPercent: 112,
+      duration: 1.1,
+      stagger: 0.13,
+      ease: 'power3.out',
+    });
   }
 
   function initHeroIntro() {
@@ -192,36 +193,69 @@ window.VestaAnimations = (() => {
     }
   }
 
-  /* --- Séquence démo : Polaroïds → embrasement → vidéo ------------------------------ */
+  /* --- Séquence démo : la mascotte avale les photos, recrache la vidéo ---------------
+     Chorégraphie scrubbing sur DEMO_PIN px de scroll :
+       1. la mascotte vient se placer au centre de la scène (docking dédié)
+       2. chaque photo s'arme (anticipation), file dans sa bouche en spirale
+          et disparaît ; elle gonfle d'un cran à chaque bouchée
+       3. digestion : elle frétille
+       4. grande inspiration, expulsion : le lecteur vidéo jaillit d'elle
+          dans un éclat de lumière, avec un rebond élastique                      */
 
-  const FUSION_OFFSET = [
-    { x: 0,   y: 0,   r: -3 },
-    { x: 16,  y: -12, r: 5 },
-    { x: -18, y: 8,   r: 2 },
-    { x: 12,  y: 16,  r: -6 },
-    { x: -10, y: -16, r: 4 },
-  ];
+  const MOUTH = { fx: 0.5, fy: 0.36 }; // position de sa bouche dans la scène
 
   function initDemoSequence() {
     const stage = document.querySelector('.demo-stage');
     const polaroids = gsap.utils.toArray('.polaroid');
     const player = document.querySelector('.demo-player');
+    const video = document.querySelector('.demo-video');
+    const mascotEl = document.getElementById('mascot');
+
+    // Dès que la vraie vidéo est là, l'habillage factice (▶) disparaît
+    if (video) {
+      video.addEventListener('loadeddata', () => {
+        const ui = document.querySelector('.demo-player-ui');
+        if (ui) ui.style.display = 'none';
+      }, { once: true });
+    }
 
     polaroids.forEach((p) => gsap.set(p, { rotation: parseFloat(p.dataset.rotate) || 0 }));
-    gsap.set(player, { opacity: 0, scale: 0.85, yPercent: 4 });
-    gsap.set('.demo-flash', { opacity: 0, scale: 0.6 });
+    gsap.set(player, { opacity: 0, scale: 0.08, transformOrigin: '50% -12%' });
+    gsap.set('.demo-flash', { opacity: 0, scale: 0.5 });
 
-    const toCenter = (axis) => (i, el) => {
-      const s = stage.getBoundingClientRect();
-      const r = el.getBoundingClientRect();
-      const delta = axis === 'x'
-        ? (s.left + s.width / 2) - (r.left + r.width / 2)
-        : (s.top + s.height / 2) - (r.top + r.height / 2);
-      return delta + FUSION_OFFSET[i % FUSION_OFFSET.length][axis];
+    /* La mascotte tient la scène : ancrée bouche au centre pendant tout le pin.
+       is-performing suspend ses réactions au curseur (le spectacle d'abord). */
+    const dockDemo = () => {
+      const r = stage.getBoundingClientRect();
+      window.VestaMascot.moveToPx(
+        r.left + r.width * MOUTH.fx - 38,
+        r.top + r.height * MOUTH.fy - 38
+      );
     };
 
-    gsap.timeline({
-      defaults: { ease: 'power2.inOut' },
+    ScrollTrigger.create({
+      trigger: '#demo',
+      start: 'top top',
+      end: '+=' + DEMO_PIN,
+      onUpdate: dockDemo,
+      onToggle(self) {
+        mascotEl.classList.toggle('is-docked', self.isActive);
+        mascotEl.classList.toggle('is-performing', self.isActive);
+        if (self.isActive) dockDemo();
+        else if (!document.body.classList.contains('tour-active')) window.VestaMascot.home();
+      },
+    });
+
+    /* Delta d'une photo vers la bouche (recalculé au resize) */
+    const toMouth = (axis) => (i, el) => {
+      const s = stage.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return axis === 'x'
+        ? (s.left + s.width * MOUTH.fx) - (r.left + r.width / 2)
+        : (s.top + s.height * MOUTH.fy) - (r.top + r.height / 2);
+    };
+
+    const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#demo',
         start: 'top top',
@@ -231,23 +265,45 @@ window.VestaAnimations = (() => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
       },
-    })
-      .to('.demo-head', { opacity: 0, y: -40, duration: 0.5 }, 0.15)
-      .to(polaroids, {
-        x: toCenter('x'),
-        y: toCenter('y'),
-        rotation: (i) => FUSION_OFFSET[i % FUSION_OFFSET.length].r,
-        scale: 0.95,
-        duration: 1.1,
-        stagger: 0.07,
-      }, 0)
-      .to('.polaroid-burn', { opacity: 1, duration: 0.35, stagger: 0.05 }, 1.05)
-      .to(polaroids, { filter: 'brightness(1.9) saturate(1.6)', duration: 0.35 }, 1.05)
-      .to('.demo-flash', { opacity: 1, scale: 1.3, duration: 0.35, ease: 'power1.in' }, 1.35)
-      .to(polaroids, { opacity: 0, scale: 0.45, duration: 0.45 }, 1.5)
-      .to(player, { opacity: 1, scale: 1, yPercent: 0, duration: 0.7, ease: 'power3.out' }, 1.65)
-      .to('.demo-flash', { opacity: 0, scale: 2, duration: 0.5 }, 1.85)
-      .to({}, { duration: 0.4 });
+    });
+
+    tl.to('.demo-head', { opacity: 0, y: -40, duration: 0.4, ease: 'power2.inOut' }, 0.1);
+
+    // Les 4 photos avalées une à une
+    polaroids.forEach((p, i) => {
+      const t = 0.3 + i * 0.5;
+      tl
+        // anticipation : la photo se soulève et s'arme
+        .to(p, { y: '-=28', rotation: '+=5', scale: 1.06, duration: 0.16, ease: 'power2.out' }, t)
+        // aspiration : elle spirale vers la bouche et s'y engouffre
+        .to(p, {
+          x: toMouth('x'),
+          y: toMouth('y'),
+          rotation: (i % 2 ? 1 : -1) * 50,
+          scale: 0.04,
+          opacity: 0,
+          duration: 0.34,
+          ease: 'power3.in',
+        }, t + 0.16)
+        // gloup : elle gonfle un peu plus à chaque bouchée
+        .to('.mascot-body', { scale: 1 + 0.09 * (i + 1), duration: 0.1, ease: 'back.out(3)' }, t + 0.46)
+        .to('.mascot-body', { scale: 1 + 0.055 * (i + 1), duration: 0.14, ease: 'power2.out' }, t + 0.56);
+    });
+
+    // Digestion : elle frétille, pleine à craquer
+    const tShake = 0.3 + polaroids.length * 0.5 + 0.15;
+    tl.to('.mascot-body', { rotation: 5, duration: 0.055, yoyo: true, repeat: 7, ease: 'sine.inOut' }, tShake)
+      .set('.mascot-body', { rotation: 0 }, tShake + 0.45);
+
+    // L'expulsion : inspiration, compression, et la vidéo jaillit
+    const tSpit = tShake + 0.65;
+    tl.to('.mascot-body', { scale: 1.4, duration: 0.14, ease: 'power2.in' }, tSpit)
+      .to('.demo-flash', { opacity: 1, scale: 1.25, duration: 0.16, ease: 'power1.in' }, tSpit + 0.08)
+      .to('.mascot-body', { scale: 0.82, duration: 0.09, ease: 'power3.in' }, tSpit + 0.16)
+      .to(player, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.6)' }, tSpit + 0.2)
+      .to('.mascot-body', { scale: 1, duration: 0.45, ease: 'elastic.out(1, 0.45)' }, tSpit + 0.3)
+      .to('.demo-flash', { opacity: 0, scale: 1.9, duration: 0.4, ease: 'power2.out' }, tSpit + 0.42)
+      .to({}, { duration: 0.5 });
   }
 
   /* --- Statement : les lignes sortent de leurs masques --------------------------------- */
@@ -275,6 +331,15 @@ window.VestaAnimations = (() => {
     const label = preview.querySelector('.work-preview-label');
     const xTo = gsap.quickTo(preview, 'x', { duration: 0.5, ease: 'power3.out' });
     const yTo = gsap.quickTo(preview, 'y', { duration: 0.5, ease: 'power3.out' });
+    let visible = false;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const hide = () => {
+      if (!visible) return;
+      visible = false;
+      gsap.to(preview, { opacity: 0, scale: 0.92, duration: 0.3, ease: 'power3.in' });
+    };
 
     rows.addEventListener('mousemove', (e) => {
       xTo(e.clientX + 24);
@@ -283,14 +348,23 @@ window.VestaAnimations = (() => {
 
     rows.querySelectorAll('.work-row').forEach((row) => {
       row.addEventListener('mouseenter', () => {
+        visible = true;
         preview.dataset.tint = row.dataset.tint;
-        label.textContent = row.querySelector('.work-name').textContent + ' — film vesta';
+        label.textContent = row.querySelector('.work-name').textContent + ' · film vesta';
         gsap.to(preview, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
       });
     });
 
-    rows.addEventListener('mouseleave', () => {
-      gsap.to(preview, { opacity: 0, scale: 0.92, duration: 0.3, ease: 'power3.in' });
+    rows.addEventListener('mouseleave', hide);
+
+    /* Anti-fantôme : en scroll rapide, la section part sous un curseur immobile
+       et mouseleave ne tire jamais. À chaque frame de scroll, si le point sous
+       le curseur n'est plus une ligne de bien, l'aperçu s'efface. */
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
+    window.VestaScroll.lenis.on('scroll', () => {
+      if (!visible) return;
+      const under = document.elementFromPoint(mouseX, mouseY);
+      if (!under || !under.closest('#work-rows')) hide();
     });
 
     gsap.set(preview, { scale: 0.92 });

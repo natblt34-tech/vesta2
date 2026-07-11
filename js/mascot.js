@@ -45,6 +45,10 @@ window.VestaMascot = (() => {
     // La flamme se penche légèrement vers le curseur
     gsap.to(root.querySelector('.mascot-flame'), { rotation: nx * 8, duration: 0.5, ease: 'power2.out' });
 
+    // Pendant la séquence démo, la timeline scrubbing pilote son échelle :
+    // pas de réaction d'excitation qui viendrait la parasiter
+    if (root.classList.contains('is-performing')) return;
+
     // Curseur proche → excitation (sauf si elle est en pleine gêne)
     const near = Math.hypot(dx, dy) < EXCITE_DIST && !embarrassed;
     if (near !== excited) {
@@ -118,6 +122,12 @@ window.VestaMascot = (() => {
     }
   }
 
+  /* Expression jouée manuellement (ex. pendant qu'elle tient un tag au lasso) */
+  function express(on) {
+    if (embarrassed) return;
+    root.classList.toggle('is-excited', !!on);
+  }
+
   /* Un tag l'a touchée et a brûlé : "Oops !" et mine gênée. */
   function embarrass() {
     clearTimeout(embarrassTimer);
@@ -168,6 +178,6 @@ window.VestaMascot = (() => {
   return {
     init, show, moveTo, moveToPx, getCenter, home: goHome,
     say, hideBubble, setSkip, onBodyClick, onSkipClick,
-    catchReact, embarrass,
+    catchReact, embarrass, express,
   };
 })();

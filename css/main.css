@@ -203,18 +203,10 @@ button { font: inherit; color: inherit; }
     radial-gradient(ellipse 35% 30% at 78% 16%, rgba(212, 162, 78, 0.05), transparent 70%);
 }
 
-.hero-pill {
-  display: inline-block;
-  align-self: flex-start;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 0.6em 1.2em;
-  margin-bottom: 2rem;
-}
-
+/* Le titre remplit l'écran : c'est tout le hero */
 .hero-title {
   font-weight: 800;
-  font-size: clamp(3.2rem, 12.5vw, 10.5rem);
+  font-size: clamp(3.2rem, 16.5vw, 22rem);
   line-height: 0.92;
   letter-spacing: -0.035em;
 }
@@ -229,48 +221,6 @@ button { font: inherit; color: inherit; }
   background-clip: text;
   -webkit-background-clip: text;
 }
-
-.hero-foot {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 2.4rem;
-  margin-top: 3rem;
-}
-
-.hero-sub {
-  max-width: 30rem;
-  color: var(--muted);
-  font-size: 0.98rem;
-  line-height: 1.65;
-}
-
-/* Marquee bas de hero */
-.marquee {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  overflow: hidden;
-  border-top: 1px solid var(--line);
-  padding: 0.9rem 0;
-}
-
-.marquee-track {
-  display: flex;
-  align-items: center;
-  gap: 2.2rem;
-  width: max-content;
-  white-space: nowrap;
-  animation: marquee-scroll 30s linear infinite;
-  font-family: var(--font-m);
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.marquee-track i { color: var(--fire); font-style: normal; }
-
-@keyframes marquee-scroll { to { transform: translateX(-50%); } }
 
 /* 6. Manifeste (mots rotatifs) ------------------------------------------------------ */
 .manifesto {
@@ -503,27 +453,17 @@ button { font: inherit; color: inherit; }
 
 .polaroid-photo { aspect-ratio: 1; width: 100%; }
 
-.polaroid[data-room="salon"]    { top: 16%; left: 6%; }
-.polaroid[data-room="cuisine"]  { top: 12%; right: 8%; }
-.polaroid[data-room="chambre"]  { bottom: 16%; left: 12%; }
+.polaroid[data-room="salon"]    { top: 18%; left: 6%; }
+.polaroid[data-room="cuisine"]  { top: 14%; right: 8%; }
+.polaroid[data-room="chambre"]  { bottom: 14%; left: 12%; }
 .polaroid[data-room="bain"]     { bottom: 12%; right: 7%; }
-/* Mi-hauteur à droite : ne recouvre jamais le titre centré en haut */
-.polaroid[data-room="terrasse"] { top: 44%; right: 3%; }
 
-.polaroid[data-room="salon"]    .polaroid-photo { background: linear-gradient(135deg, #6b4a2b, #2c1c10); }
-.polaroid[data-room="cuisine"]  .polaroid-photo { background: linear-gradient(135deg, #8a6a3b, #3a2a14); }
-.polaroid[data-room="chambre"]  .polaroid-photo { background: linear-gradient(135deg, #5c3d2e, #241610); }
-.polaroid[data-room="bain"]     .polaroid-photo { background: linear-gradient(135deg, #4e5a5c, #1c2425); }
-.polaroid[data-room="terrasse"] .polaroid-photo { background: linear-gradient(135deg, #7a5a30, #33230e); }
-
-.polaroid-burn {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 50% 100%, rgba(255, 179, 71, 0.95), rgba(255, 122, 26, 0.75) 45%, rgba(120, 30, 0, 0.4) 75%, transparent);
-  mix-blend-mode: screen;
-}
+/* Vraies photos par-dessus un dégradé chaleureux : si le fichier manque,
+   le dégradé prend le relais (aucune icône d'image cassée) */
+.polaroid[data-room="salon"]    .polaroid-photo { background: url('../assets/img/salon.jpg') center/cover, linear-gradient(135deg, #6b4a2b, #2c1c10); }
+.polaroid[data-room="cuisine"]  .polaroid-photo { background: url('../assets/img/cuisine.jpg') center/cover, linear-gradient(135deg, #8a6a3b, #3a2a14); }
+.polaroid[data-room="chambre"]  .polaroid-photo { background: url('../assets/img/chambre.jpg') center/cover, linear-gradient(135deg, #5c3d2e, #241610); }
+.polaroid[data-room="bain"]     .polaroid-photo { background: url('../assets/img/bain.jpg') center/cover, linear-gradient(135deg, #4e5a5c, #1c2425); }
 
 .demo-flash {
   position: absolute;
@@ -1081,6 +1021,28 @@ button { font: inherit; color: inherit; }
 
 /* Tag en train de brûler dans la flamme de la mascotte */
 .tool-tag.is-burning { pointer-events: none; }
+
+/* Tag capturé au lasso : hors de portée de la souris pendant la prise */
+.tool-tag.is-lassoed { pointer-events: none; }
+
+/* Le lasso : une corde d'or dessinée en SVG par-dessus la page */
+.lasso-svg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 140; /* sous la mascotte (150), au-dessus du contenu */
+  pointer-events: none;
+}
+
+.lasso-rope {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(212, 162, 78, 0.6));
+}
 
 /* Conteneur fixe (positionné par GSAP en x/y) */
 .mascot {

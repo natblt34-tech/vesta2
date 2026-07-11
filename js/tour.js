@@ -16,55 +16,55 @@ window.VestaTour = (() => {
   const STEPS = [
     {
       target: '#top',
-      mascot: [68, 55],
+      mascot: [82, 76],   // coin bas droit : le titre plein écran reste lisible
       text: 'Bienvenue ✦ Je suis Vesta, l’esprit du foyer. Suivez-moi, je vous fais visiter.',
     },
     {
       target: '#work',
-      mascot: [76, 62],
+      mascot: [84, 66],   // le manifeste est calé à gauche
       text: 'Ici on dit les choses franchement : vos biens méritent mieux que des photos figées.',
     },
     /* Les trois phases : un arrêt par carte de la pile sticky, sinon le
        glissement traverse tout et seule la dernière reste visible. */
     {
       target: '#phases',
-      mascot: [5, 70],
+      mascot: [3, 82],    // coin bas gauche, sous le grand numéro
       text: 'Phase un : déposez une photo par pièce, brutes, au smartphone. Vesta lit les volumes et la lumière.',
     },
     {
       target: '#phases',
       offset: () => window.innerHeight,
       duration: 2.2,
-      mascot: [7, 58],
-      text: 'Phase deux : l’IA compose le plan-séquence — trajectoire de caméra, étalonnage, musique.',
+      mascot: [3, 82],
+      text: 'Phase deux : l’IA monte le film. Caméra, transitions, étalonnage, musique.',
     },
     {
       target: '#phases',
       offset: () => window.innerHeight * 2,
       duration: 2.2,
-      mascot: [5, 70],
-      text: 'Phase trois : un clic, et le film sort partout — portails, réseaux, vitrine.',
+      mascot: [3, 82],
+      text: 'Phase trois : un clic, et le film sort partout. Portails, réseaux, vitrine.',
     },
     {
       target: '#demo',
       offset: () => (window.VestaAnimations ? window.VestaAnimations.DEMO_PIN * 0.95 : 0),
       duration: 4.2,
-      mascot: [74, 68],
-      text: 'Et voici la magie : une photo par pièce, et tout fusionne en un plan-séquence continu.',
+      mascot: [50, 36],   // au centre : c'est elle qui fait le numéro
+      text: 'Et voici mon numéro préféré : je goûte vos photos, et je vous rends un film.',
     },
     {
       target: '#equipe',
-      mascot: [8, 55],
-      text: 'Votre équipe de tournage IA — cliquez sur les cartes pour la rencontrer.',
+      mascot: [6, 74],    // le deck et le titre sont centrés
+      text: 'Votre équipe de tournage IA. Cliquez sur les cartes pour la rencontrer.',
     },
     {
       target: '#toolkit',
-      mascot: [80, 30],
-      text: 'La boîte à outils. Attrapez un tag et lancez-le-moi — mais évitez de me toucher, tout brûle ici.',
+      mascot: [80, 26],   // en l'air dans l'arène, au-dessus du tas de tags
+      text: 'Lancez-moi un tag, je l’attrape au lasso ! Mais ne me touchez pas avec, tout brûle ici.',
     },
     {
       target: '#contact',
-      mascot: [18, 35],
+      mascot: [8, 74],    // le titre et le bouton sont centrés
       text: 'Prêt à donner vie à vos biens ? C’est par ici. Je vous laisse explorer ✦',
     },
   ];
