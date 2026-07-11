@@ -204,6 +204,22 @@ button { font: inherit; color: inherit; }
   overflow: hidden;
 }
 
+/* Nuage de points morphing : moitié droite du hero, derrière le titre */
+#morph {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 52%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-title { position: relative; z-index: 1; }
+
+@media (max-width: 900px) {
+  #morph { display: none; }
+}
+
 /* Lueur d'âtre derrière le titre */
 .hero::before {
   content: '';
@@ -1171,6 +1187,60 @@ button { font: inherit; color: inherit; }
 
 .mascot-skip:hover { color: var(--cream); }
 
+/* Panneau de conversation (ouvert au clic sur le guide) */
+.mascot-chat {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 0;
+  width: min(330px, 82vw);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 16px 16px 16px 4px;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.mascot.flip .mascot-chat {
+  left: auto;
+  right: 0;
+  border-radius: 16px 16px 4px 16px;
+}
+
+.chat-text {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin-bottom: 0.9rem;
+  min-height: 2.4em;
+}
+
+.chat-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.chat-opt {
+  font-family: var(--font-d);
+  font-weight: 600;
+  font-size: 0.76rem;
+  color: var(--cream);
+  background: rgba(255, 122, 26, 0.07);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.chat-opt:hover {
+  border-color: var(--fire);
+  background: rgba(255, 122, 26, 0.16);
+  transform: translateY(-1px);
+}
+
+/* Pendant la conversation, la bulle classique s'efface */
+.is-chatting .mascot-bubble { opacity: 0 !important; }
+
 /* 18. Overlay d'accueil --------------------------------------------------------------------------------------- */
 .tour-overlay {
   position: fixed;
@@ -1183,6 +1253,20 @@ button { font: inherit; color: inherit; }
 }
 
 .tour-overlay.is-closed { opacity: 0; visibility: hidden; }
+
+/* Bascule de langue posée sur l'overlay, accessible dès l'arrivée */
+.overlay-lang {
+  position: absolute;
+  top: 1.4rem;
+  right: var(--pad);
+  font-family: var(--font-m);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.overlay-lang:hover { color: var(--ember); }
 
 .tour-overlay-inner {
   display: flex;
@@ -1279,6 +1363,28 @@ button { font: inherit; color: inherit; }
   top: -26px; left: -26px;
   border-color: var(--fire);
 }
+
+/* Pastille "Parler" : le curseur devient une invitation sur le guide */
+.cursor-say {
+  position: fixed;
+  top: 14px; left: 14px;
+  font-family: var(--font-m);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #180c02;
+  background: linear-gradient(115deg, var(--ember), var(--fire));
+  border-radius: 999px;
+  padding: 0.55em 1.1em;
+  z-index: 501;
+  pointer-events: none;
+  opacity: 0 !important;
+  transform-origin: left top;
+  transition: opacity 0.2s ease;
+}
+
+.cursor-talk .cursor-say { opacity: 1 !important; }
+.cursor-talk .cursor-ring, .cursor-talk .cursor-dot { opacity: 0 !important; }
 
 /* 19. Responsive ------------------------------------------------------------------------------------------------ */
 @media (max-width: 860px) {

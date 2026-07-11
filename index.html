@@ -20,6 +20,8 @@
        OVERLAY D'ACCUEIL — "ce site est vivant"
        ====================================================== -->
   <div id="tour-overlay" class="tour-overlay">
+    <!-- La langue se choisit dès l'accueil, avant même le guide -->
+    <button class="lang-toggle overlay-lang" type="button" aria-label="Switch language">EN</button>
     <div class="tour-overlay-inner">
       <p class="mono-label">( CHOISISSEZ VOTRE GUIDE )</p>
       <h2 class="tour-overlay-title">Ce site est vivant.</h2>
@@ -84,7 +86,14 @@
        ====================================================== -->
   <div id="mascot" class="mascot" hidden>
     <div class="mascot-bubble" role="status" aria-live="polite"></div>
-    <button class="mascot-body" type="button" aria-label="Vesta — relancer la visite guidée">
+
+    <!-- Conversation par boutons (ouverte au clic sur le guide) -->
+    <div class="mascot-chat" hidden>
+      <p class="chat-text"></p>
+      <div class="chat-options"></div>
+    </div>
+
+    <button class="mascot-body" type="button" aria-label="Parler avec le guide">
       <span class="mascot-flame">
         <span class="mascot-face">
           <span class="mascot-eye l"><span class="mascot-pupil"></span></span>
@@ -113,8 +122,9 @@
     <!-- ======================================================
          HERO
          ====================================================== -->
-    <!-- HERO : uniquement le titre, plein écran -->
+    <!-- HERO : le titre plein écran + le nuage de points morphing à droite -->
     <header id="top" class="hero">
+      <canvas id="morph" aria-hidden="true"></canvas>
       <h1 class="hero-title">
         <span class="hero-line"><span class="hero-line-inner">Vos photos</span></span>
         <span class="hero-line"><span class="hero-line-inner">deviennent</span></span>
@@ -611,14 +621,16 @@
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 
-  <!-- Modules (ordre : i18n → scroll → animations → mascotte → visite → physique → particules → main) -->
+  <!-- Modules (ordre : i18n → scroll → animations → mascotte → visite → chat → physique → particules → morph → curseur → main) -->
   <script src="js/i18n.js"></script>
   <script src="js/smooth-scroll.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/mascot.js"></script>
   <script src="js/tour.js"></script>
+  <script src="js/chat.js"></script>
   <script src="js/physics.js"></script>
   <script src="js/particles.js"></script>
+  <script src="js/morph.js"></script>
   <script src="js/cursor.js"></script>
   <script src="js/main.js"></script>
 </body>

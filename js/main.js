@@ -19,8 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.VestaAnimations.init();
   window.VestaMascot.init();
   window.VestaTour.init();
+  window.VestaChat.init();
   window.VestaPhysics.init();
   window.VestaParticles.init();
+  window.VestaMorph.init();
   window.VestaCursor.init();
 
   console.info('[Vesta] Site complet — architecture calquée sur la référence.');

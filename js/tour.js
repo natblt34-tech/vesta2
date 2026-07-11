@@ -125,6 +125,7 @@ window.VestaTour = (() => {
     if (active) return;
     active = true;
     document.body.classList.add('tour-active');
+    window.VestaMascot.normalize();
     window.VestaMascot.setSkip(true);
     goToStep(0);
   }
@@ -198,12 +199,9 @@ window.VestaTour = (() => {
       if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) interrupt();
     });
 
+    // Le clic sur le guide ouvre la conversation (chat.js) ; la visite se
+    // relance depuis une option du chat.
     window.VestaMascot.onSkipClick(interrupt);
-    window.VestaMascot.onBodyClick(() => {
-      // Pas de relance pendant qu'elle joue dans l'arène du toolkit
-      const docked = document.getElementById('mascot').classList.contains('is-docked');
-      if (!active && !docked) start();
-    });
 
     // Accessibilité : pas de visite auto en mouvement réduit
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -211,5 +209,5 @@ window.VestaTour = (() => {
     }
   }
 
-  return { init };
+  return { init, start, interrupt };
 })();

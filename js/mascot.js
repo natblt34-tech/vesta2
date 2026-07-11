@@ -56,6 +56,20 @@ window.VestaMascot = (() => {
   /* Position de repos : coin bas-gauche, hors du contenu */
   const home = () => ({ x: 26, y: window.innerHeight - BODY_SIZE - 44 });
 
+  /* Perchoirs de balade libre : bords et coins, jamais le centre du contenu */
+  const ROAM_SPOTS = [
+    [4, 78], [45, 82], [86, 78], [88, 55], [86, 28], [5, 30], [4, 55], [8, 78],
+  ];
+
+  /* Le guide est-il occupé (visite, arène, démo, conversation) ? */
+  function isBusy() {
+    return document.body.classList.contains('tour-active')
+      || root.classList.contains('is-docked')
+      || root.classList.contains('is-performing')
+      || root.classList.contains('is-chatting')
+      || root.hidden;
+  }
+
   /* --- Regard & humeurs ----------------------------------------------------- */
 
   function onMouseMove(e) {
@@ -94,6 +108,76 @@ window.VestaMascot = (() => {
     }, 2200 + Math.random() * 3600);
   }
 
+  /* --- Un vrai petit bonhomme : balade, scroll, manies --------------------------- */
+
+  /* Balade libre : quand rien ne l'occupe, il change de perchoir et de taille.
+     Il s'immobilise dès que le curseur s'approche (sinon impossible à cliquer). */
+  function freeRoam() {
+    if (isBusy() || excited) return;
+    const spot = ROAM_SPOTS[(Math.random() * ROAM_SPOTS.length) | 0];
+    moveTo(spot[0], spot[1]);
+    gsap.to(root, { scale: 0.85 + Math.random() * 0.35, duration: 1.2, ease: 'power2.inOut' });
+  }
+
+  /* Réactions au scroll : il s'étire dans le mouvement et suit des yeux */
+  let settleTimer = null;
+
+  function onScroll(e) {
+    if (root.classList.contains('is-performing') || root.hidden) return;
+    const v = gsap.utils.clamp(-60, 60, e.velocity || 0);
+    const s = Math.abs(v) / 60;
+
+    // Étirement dans le sens du mouvement (squash & stretch)
+    gsap.to(body, {
+      scaleY: 1 + s * 0.22,
+      scaleX: 1 - s * 0.1,
+      duration: 0.2,
+      overwrite: 'auto',
+    });
+    // Le regard suit le défilement
+    pupils.forEach((p) => gsap.to(p, { y: v > 0 ? 2.2 : -2.2, duration: 0.25, overwrite: 'auto' }));
+
+    // Retour élastique dès que le scroll se calme
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      gsap.to(body, { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
+      pupils.forEach((p) => gsap.to(p, { y: 0, duration: 0.3 }));
+    }, 160);
+  }
+
+  /* Manies d'inactivité : de temps en temps, il vit sa vie */
+  const IDLE_ACTS = [
+    function lookAround() {
+      gsap.timeline()
+        .to(pupils, { x: -2.4, duration: 0.25 })
+        .to(pupils, { x: 2.4, duration: 0.4, delay: 0.35 })
+        .to(pupils, { x: 0, duration: 0.3, delay: 0.3 });
+    },
+    function doubleBlink() {
+      root.classList.add('is-blink');
+      setTimeout(() => root.classList.remove('is-blink'), 110);
+      setTimeout(() => root.classList.add('is-blink'), 220);
+      setTimeout(() => root.classList.remove('is-blink'), 330);
+    },
+    function hop() {
+      // yPercent : aucune collision avec le flottement (qui anime y)
+      gsap.timeline()
+        .to(body, { yPercent: -32, duration: 0.22, ease: 'power2.out' })
+        .to(body, { yPercent: 0, duration: 0.4, ease: 'bounce.out' });
+    },
+    function wiggle() {
+      gsap.timeline()
+        .to(body, { rotation: -8, duration: 0.09 })
+        .to(body, { rotation: 8, duration: 0.14, yoyo: true, repeat: 2 })
+        .to(body, { rotation: 0, duration: 0.18, ease: 'power2.out' });
+    },
+  ];
+
+  function idleAct() {
+    if (isBusy() || excited || embarrassed || document.hidden) return;
+    IDLE_ACTS[(Math.random() * IDLE_ACTS.length) | 0]();
+  }
+
   /* --- Déplacements ----------------------------------------------------------- */
 
   /* Déplace la mascotte vers un point en pixels viewport (coin haut-gauche du
@@ -123,6 +207,14 @@ window.VestaMascot = (() => {
     xTo(h.x);
     yTo(h.y);
     root.classList.remove('flip');
+  }
+
+  /* Retour à la taille de référence (la balade libre le laisse parfois
+     à 0.85× ou 1.2×) — appelé quand un rôle sérieux commence. */
+  function normalize() {
+    if (gsap.getProperty(root, 'scale') !== 1) {
+      gsap.to(root, { scale: 1, duration: 0.5, ease: 'power2.out' });
+    }
   }
 
   /* --- Bulle de dialogue --------------------------------------------------------- */
@@ -235,10 +327,16 @@ window.VestaMascot = (() => {
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('resize', () => { if (!document.body.classList.contains('tour-active')) goHome(); });
     scheduleBlink();
+
+    // Vie propre : balade toutes les ~8s, manies toutes les ~11s,
+    // réactions au scroll en continu
+    setInterval(freeRoam, 8000 + Math.random() * 3000);
+    setInterval(idleAct, 11000);
+    window.VestaScroll.lenis.on('scroll', onScroll);
   }
 
   return {
-    init, show, moveTo, moveToPx, getCenter, home: goHome,
+    init, show, moveTo, moveToPx, getCenter, home: goHome, normalize,
     say, hideBubble, setSkip, onBodyClick, onSkipClick,
     catchReact, embarrass, express,
     setSkin, getSkin, skinData, celebrate,

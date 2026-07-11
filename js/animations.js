@@ -240,7 +240,7 @@ window.VestaAnimations = (() => {
       onToggle(self) {
         mascotEl.classList.toggle('is-docked', self.isActive);
         mascotEl.classList.toggle('is-performing', self.isActive);
-        if (self.isActive) dockDemo();
+        if (self.isActive) { window.VestaMascot.normalize(); dockDemo(); }
         else if (!document.body.classList.contains('tour-active')) window.VestaMascot.home();
       },
     });

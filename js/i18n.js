@@ -223,6 +223,42 @@ window.VestaI18n = (() => {
     'skin.scribe.greeting': 'Welcome ✦ SCRIBE-04, Vesta\'s official quill. Let me tell you the story of this site.',
     'skin.scribe.self': 'And the SCRIBE-04 card… yours truly! ✦',
 
+    // Curseur & nuage de points
+    'cursor.talk': 'Talk',
+    'morph.words': ['VESTA', 'A FILM', '48H', 'HOME'],
+
+    // Conversation avec le guide
+    'chat.root': 'I\'m listening ✦ What would you like to know?',
+    'chat.how': 'You upload one photo per room, the AI crew shoots and edits the film, and you get it within 48 hours, ready to publish everywhere.',
+    'chat.price': '10 to 50 times less than a videographer: an agency subscription or pay-per-film, set upfront. No travel, no surprises.',
+    'chat.photos': 'Yes! Your smartphone photos are enough: backlight, dark rooms and rough angles are fixed automatically. One roughly straight photo per room, that\'s all.',
+    'chat.jokes': [
+      'Why did the flame fail her casting? She skipped too many steps and burned the rest.',
+      'Our editor never sleeps. Then again, neither does a campfire.',
+      'They told me to stay cool during negotiations. Tricky, in my situation.',
+      'What\'s the worst thing for a real-estate videographer? Losing the production house.',
+      'I asked for a raise. They said I was already too hot.',
+    ],
+    'chat.who.cadre': 'CADRE-01, director of photography. I compute perfect dolly moves without ever spilling my coffee. I don\'t have coffee.',
+    'chat.who.lumen': 'LUMEN-02, on lights. My trick: making every room look south-facing at 6pm. It\'s a gift.',
+    'chat.who.cut': 'CUT-03. Editing. Three words are enough.',
+    'chat.who.scribe': 'SCRIBE-04, the quill. I write your listings while the others fuss around. Someone has to keep the record.',
+    'chat.opt.how': 'How does it work?',
+    'chat.opt.price': 'What does it cost?',
+    'chat.opt.photos': 'Are my photos enough?',
+    'chat.opt.joke': 'Tell me a joke 🔥',
+    'chat.opt.who': 'Who are you?',
+    'chat.opt.tour': 'Run the tour again ✦',
+    'chat.opt.contact': 'Request access →',
+    'chat.opt.another': 'Another one!',
+    'chat.opt.back': '↩ Another question',
+    'chat.opt.close': 'Close ✕',
+    'chat.teasers': [
+      'Still scrolling? Click me, let\'s chat ✦',
+      'A question about Vesta? I\'m right here ✦',
+      'Psst… I know jokes. Click and see.',
+    ],
+
     // Visite guidée
     'tour.work': 'Let\'s say it plainly: your listings deserve better than still photos.',
     'tour.phase1': 'Phase one: upload one photo per room, raw, from your phone. Vesta reads the volumes and the light.',
@@ -260,16 +296,16 @@ window.VestaI18n = (() => {
   function init() {
     if (lang === 'en') applyDom();
 
-    // Le bouton affiche la langue CIBLE et recharge (seul moyen d'avoir un
-    // état 100% cohérent : physique, scramble, rotateur…)
-    const btn = document.getElementById('lang-toggle');
-    if (btn) {
+    // Les bascules (nav + overlay d'accueil) affichent la langue CIBLE et
+    // rechargent la page (seul moyen d'avoir un état 100% cohérent :
+    // physique, scramble, rotateur…)
+    document.querySelectorAll('.lang-toggle').forEach((btn) => {
       btn.textContent = lang === 'fr' ? 'EN' : 'FR';
       btn.addEventListener('click', () => {
         try { localStorage.setItem('vesta-lang', lang === 'fr' ? 'en' : 'fr'); } catch (e) { /* tant pis */ }
         window.location.reload();
       });
-    }
+    });
   }
 
   return { init, t, get lang() { return lang; } };

@@ -305,6 +305,7 @@ window.VestaPhysics = (() => {
         document.getElementById('mascot').classList.toggle('is-docked', self.isActive);
         clearInterval(wanderTimer);
         if (self.isActive) {
+          window.VestaMascot.normalize();
           pickWanderSpot();
           dockMascot();
           // Elle change de perchoir régulièrement pendant qu'on joue
