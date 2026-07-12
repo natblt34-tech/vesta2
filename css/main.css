@@ -686,6 +686,16 @@ body.skin-lumen .hero::before {
 
 .deck-hint { text-align: center; margin-top: 2.2rem; }
 
+/* Le mini-guide qui surgit de derrière le deck pour faire coucou */
+.deck-hello {
+  position: absolute;
+  top: -62px;
+  right: -30px;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* 11. Statement — inversé or -------------------------------------------------------------- */
 .statement {
   padding: clamp(70px, 13vw, 180px) var(--pad);

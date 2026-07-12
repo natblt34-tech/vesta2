@@ -399,6 +399,56 @@ window.VestaAnimations = (() => {
     let order = gsap.utils.toArray(deck.querySelectorAll('.staff-card'));
     let animating = false;
 
+    /* Le guide de la carte visible surgit de derrière le deck pour faire
+       coucou — chacun a sa propre gestuelle. */
+    const hello = deck.querySelector('.deck-hello');
+    const helloFlame = hello ? hello.querySelector('.mascot-flame') : null;
+    const helloEyes = hello ? hello.querySelectorAll('.mascot-eye') : [];
+    let helloTl = null;
+
+    function sayHello(worker) {
+      if (!hello) return;
+      helloFlame.className = 'mascot-flame flame-skin--' + worker;
+      if (helloTl) helloTl.kill();
+      gsap.set(hello, { opacity: 0, x: 0, y: 0, rotation: 0, scale: 1, yPercent: 0 });
+      gsap.set(helloEyes, { scaleY: 1 });
+      const tl = gsap.timeline({ onComplete: () => gsap.set(hello, { opacity: 0 }) });
+
+      if (worker === 'lumen') {
+        // LUMEN-02 : monte en douceur et rayonne par pulsations
+        tl.fromTo(hello, { y: 26, opacity: 0, scale: 0.8 }, { y: 0, opacity: 1, scale: 1, duration: 0.45, ease: 'power2.out' })
+          .to(hello, { scale: 1.15, duration: 0.26, yoyo: true, repeat: 3, ease: 'sine.inOut' })
+          .to(hello, { y: 26, opacity: 0, duration: 0.35, ease: 'power2.in' }, '+=0.25');
+      } else if (worker === 'cut') {
+        // CUT-03 : entrée sèche par le côté, double clignement, sortie cut
+        tl.fromTo(hello, { x: 70, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: 'power4.out' })
+          .to(helloEyes, { scaleY: 0.1, duration: 0.06, yoyo: true, repeat: 3 }, '+=0.2')
+          .to(hello, { x: 70, opacity: 0, duration: 0.2, ease: 'power4.in' }, '+=0.55');
+      } else if (worker === 'scribe') {
+        // SCRIBE-04 : pirouette complète puis petit saut fier
+        tl.fromTo(hello, { y: 30, opacity: 0, rotation: -40 }, { y: 0, opacity: 1, rotation: 0, duration: 0.4, ease: 'back.out(2)' })
+          .to(hello, { rotation: 360, duration: 0.6, ease: 'power2.inOut' })
+          .to(hello, { yPercent: -26, duration: 0.16, yoyo: true, repeat: 1, ease: 'power2.out' })
+          .to(hello, { y: 30, opacity: 0, duration: 0.3, ease: 'power2.in' }, '+=0.35');
+      } else {
+        // CADRE-01 : surgit et salue en se penchant, bien cadré
+        tl.fromTo(hello, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'back.out(2)' })
+          .to(hello, { rotation: -14, duration: 0.12 }, '+=0.05')
+          .to(hello, { rotation: 14, duration: 0.17, yoyo: true, repeat: 2 })
+          .to(hello, { rotation: 0, duration: 0.14 })
+          .to(hello, { y: 30, opacity: 0, duration: 0.3, ease: 'power2.in' }, '+=0.4');
+      }
+      helloTl = tl;
+    }
+
+    // Premier coucou quand la section entre à l'écran
+    ScrollTrigger.create({
+      trigger: deck,
+      start: 'top 75%',
+      once: true,
+      onEnter: () => sayHello(order[0].dataset.worker),
+    });
+
     // Éventail : la carte 0 est dessus, les suivantes dépassent derrière
     function layout(animate) {
       order.forEach((card, i) => {
@@ -415,7 +465,8 @@ window.VestaAnimations = (() => {
       });
     }
 
-    // Clic : la carte du dessus est "jetée" et se range derrière
+    // Clic : la carte du dessus est "jetée" et se range derrière,
+    // et le guide de la nouvelle carte visible fait coucou
     deck.addEventListener('click', () => {
       if (animating) return;
       animating = true;
@@ -424,7 +475,7 @@ window.VestaAnimations = (() => {
 
       gsap.timeline({ onComplete: () => { animating = false; } })
         .to(top, { x: 300, rotation: 16, opacity: 0, duration: 0.32, ease: 'power2.in' })
-        .add(() => layout(true))
+        .add(() => { layout(true); sayHello(order[0].dataset.worker); })
         .to(top, { opacity: 1, duration: 0.3 }, '<0.15');
     });
 
@@ -434,10 +485,13 @@ window.VestaAnimations = (() => {
        "Ça, c'est moi !" de la visite guidée) */
     deckShowFn = (workerKey) => {
       const target = order.find((c) => c.dataset.worker === workerKey);
-      if (!target || order[0] === target) return;
-      order = [target, ...order.filter((c) => c !== target)];
-      layout(true);
-      gsap.fromTo(target, { scale: 1.07 }, { scale: 1, duration: 0.55, ease: 'back.out(2.5)' });
+      if (!target) return;
+      if (order[0] !== target) {
+        order = [target, ...order.filter((c) => c !== target)];
+        layout(true);
+        gsap.fromTo(target, { scale: 1.07 }, { scale: 1, duration: 0.55, ease: 'back.out(2.5)' });
+      }
+      sayHello(workerKey);
     };
   }
 

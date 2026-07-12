@@ -56,31 +56,35 @@ window.VestaMascot = (() => {
   /* Position de repos : coin bas-gauche, hors du contenu */
   const home = () => ({ x: 26, y: window.innerHeight - BODY_SIZE - 44 });
 
-  /* Compagnon de lecture : pour chaque section, une place "naturelle" à
-     côté du contenu (jamais dessus). Le guide s'y rend quand la section
-     occupe l'écran, comme s'il lisait avec nous. */
-  const READ_SPOTS = [
-    ['#contact', [10, 72]],
-    ['#toolkit', null],          // l'arène a son propre ancrage (physics.js)
-    ['.stats', [86, 66]],
-    ['#biens', [86, 22]],
-    ['.statement', [9, 68]],
-    ['#equipe', [7, 70]],
-    ['#demo', null],             // la démo aussi (il fait le spectacle)
-    ['#phases', [4, 80]],
-    ['#work', [85, 62]],
-    ['#top', [82, 74]],
-  ];
+  /* Compagnon de lecture : le guide s'ancre sur les BLOCS DE CONTENU
+     eux-mêmes (titres, paragraphes, listes). À chaque frame de scroll il
+     rejoint le bloc le plus proche du centre de l'écran et se place juste
+     à côté, comme un doigt qui suit les lignes. */
+  let readEls = [];
 
-  /* La section qui occupe le centre de l'écran → sa place de lecture */
-  function readingSpot() {
-    for (const [selector, spot] of READ_SPOTS) {
-      const el = document.querySelector(selector);
-      if (!el) continue;
+  function collectReadTargets() {
+    readEls = [...document.querySelectorAll(
+      '.manifesto-title, .manifesto-sub, .bucket-chips, ' +
+      '.phase-title, .phase-text, .arrow-list, ' +
+      '.workforce-title, .workforce-sub, .deck, ' +
+      '.statement-title, .statement-sub, ' +
+      '.works-title, .work-row, .stat, ' +
+      '.contact-title, .contact-actions, .footer-brand'
+    )];
+  }
+
+  /* Le bloc lisible le plus proche du centre de l'écran */
+  function readingAnchor() {
+    const mid = window.innerHeight * 0.45;
+    let best = null;
+    let bestDist = Infinity;
+    for (const el of readEls) {
       const r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5) return spot;
+      if (r.bottom < 70 || r.top > window.innerHeight - 70) continue;
+      const d = Math.abs((r.top + r.bottom) / 2 - mid);
+      if (d < bestDist) { bestDist = d; best = r; }
     }
-    return null;
+    return best;
   }
 
   /* Le guide est-il occupé (visite, arène, démo, conversation) ? */
@@ -132,26 +136,30 @@ window.VestaMascot = (() => {
 
   /* --- Un vrai petit bonhomme : balade, scroll, manies --------------------------- */
 
-  /* Il accompagne la lecture : rejoint la place de la section visible,
-     avec un léger désaxage pour rester vivant. S'immobilise dès que le
-     curseur s'approche (sinon impossible à cliquer). */
-  function readAlong() {
+  /* Il se place à CÔTÉ du bloc en cours de lecture : à sa droite si la
+     place existe, sinon à sa gauche, à hauteur du texte. Rappelé en continu
+     (throttlé) pendant le scroll → il glisse le long du contenu.
+     Il s'immobilise dès que le curseur s'approche (pour rester cliquable). */
+  let lastFollow = 0;
+
+  function readAlong(force) {
     if (isBusy() || excited) return;
-    const spot = readingSpot();
-    if (!spot) return; // section gérée ailleurs (démo, arène)
-    moveTo(
-      spot[0] + (Math.random() - 0.5) * 5,
-      spot[1] + (Math.random() - 0.5) * 7
-    );
-    gsap.to(root, { scale: 0.92 + Math.random() * 0.18, duration: 1.2, ease: 'power2.inOut' });
+    const now = performance.now();
+    if (!force && now - lastFollow < 140) return; // throttle : fluide sans spam
+    lastFollow = now;
+
+    const r = readingAnchor();
+    if (!r) return;
+
+    const margin = 42;
+    const fitsRight = r.right + margin + BODY_SIZE < window.innerWidth - 12;
+    const px = fitsRight ? r.right + margin : Math.max(12, r.left - margin - BODY_SIZE);
+    const py = r.top + r.height / 2 - BODY_SIZE / 2;
+    moveToPx(px, py);
   }
 
-  /* Dès que le scroll se pose sur une nouvelle section, il la rejoint */
-  let readTimer = null;
-
   function onScrollForReading() {
-    clearTimeout(readTimer);
-    readTimer = setTimeout(readAlong, 220); // à la fin du geste de scroll
+    readAlong(false);
   }
 
   /* Réactions au scroll : il s'étire dans le mouvement et suit des yeux */
@@ -371,10 +379,11 @@ window.VestaMascot = (() => {
     window.addEventListener('resize', () => { if (!document.body.classList.contains('tour-active')) goHome(); });
     scheduleBlink();
 
-    // Vie propre : il suit la lecture (fin de chaque geste de scroll +
-    // micro-repositionnement régulier), manies toutes les ~11s,
-    // squash & stretch au scroll en continu
-    setInterval(readAlong, 9000 + Math.random() * 3000);
+    // Vie propre : il suit la lecture EN CONTINU pendant le scroll
+    // (ancré aux blocs de texte), se recale régulièrement, fait ses manies,
+    // et s'étire dans le sens du scroll
+    collectReadTargets();
+    setInterval(() => readAlong(true), 6000 + Math.random() * 3000);
     setInterval(idleAct, 11000);
     window.VestaScroll.lenis.on('scroll', onScroll);
     window.VestaScroll.lenis.on('scroll', onScrollForReading);
