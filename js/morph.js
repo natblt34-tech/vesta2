@@ -47,25 +47,45 @@ window.VestaMorph = (() => {
     g.fillText(word, w / 2, h / 2);
   };
 
+  /* Pictos Vesta : grands, pleins, sans ambiguïté à la résolution des points */
   const drawFlame = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w, h) * 0.36;
+    const s = Math.min(w * 0.62, h * 0.42);
     g.beginPath();
     g.moveTo(cx, cy - s);
-    g.bezierCurveTo(cx + s * 0.9, cy - s * 0.15, cx + s * 0.75, cy + s * 0.7, cx, cy + s * 0.85);
-    g.bezierCurveTo(cx - s * 0.75, cy + s * 0.7, cx - s * 0.9, cy - s * 0.15, cx, cy - s);
+    g.bezierCurveTo(cx + s * 0.95, cy - s * 0.1, cx + s * 0.8, cy + s * 0.72, cx, cy + s * 0.9);
+    g.bezierCurveTo(cx - s * 0.8, cy + s * 0.72, cx - s * 0.95, cy - s * 0.1, cx, cy - s);
     g.fill();
+    // cœur évidé : silhouette de flamme reconnaissable, pas une patate
+    const prev = g.globalCompositeOperation;
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath();
+    g.moveTo(cx, cy + s * 0.05);
+    g.bezierCurveTo(cx + s * 0.38, cy + s * 0.35, cx + s * 0.3, cy + s * 0.72, cx, cy + s * 0.8);
+    g.bezierCurveTo(cx - s * 0.3, cy + s * 0.72, cx - s * 0.38, cy + s * 0.35, cx, cy + s * 0.05);
+    g.fill();
+    g.globalCompositeOperation = prev;
   };
 
   const drawPlay = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w, h) * 0.34;
+    const s = Math.min(w * 0.55, h * 0.4);
+    // cercle de lecteur + triangle évidé : le bouton "lecture" universel
     g.beginPath();
-    g.moveTo(cx - s * 0.6, cy - s);
-    g.lineTo(cx + s, cy);
-    g.lineTo(cx - s * 0.6, cy + s);
+    g.arc(cx, cy, s, 0, Math.PI * 2);
+    g.fill();
+    const prev = g.globalCompositeOperation;
+    g.globalCompositeOperation = 'destination-out';
+    g.beginPath();
+    g.arc(cx, cy, s * 0.72, 0, Math.PI * 2);
+    g.fill();
+    g.globalCompositeOperation = prev;
+    g.beginPath();
+    g.moveTo(cx - s * 0.28, cy - s * 0.42);
+    g.lineTo(cx + s * 0.5, cy);
+    g.lineTo(cx - s * 0.28, cy + s * 0.42);
     g.closePath();
     g.fill();
   };
@@ -73,64 +93,33 @@ window.VestaMorph = (() => {
   const drawHouse = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w, h) * 0.32;
+    const s = Math.min(w * 0.5, h * 0.36);
     g.beginPath(); // toit
-    g.moveTo(cx - s * 1.15, cy - s * 0.1);
-    g.lineTo(cx, cy - s * 1.05);
-    g.lineTo(cx + s * 1.15, cy - s * 0.1);
+    g.moveTo(cx - s * 1.3, cy - s * 0.05);
+    g.lineTo(cx, cy - s * 1.15);
+    g.lineTo(cx + s * 1.3, cy - s * 0.05);
     g.closePath();
     g.fill();
-    g.fillRect(cx - s * 0.85, cy - s * 0.05, s * 1.7, s * 1.1); // murs
-    g.clearRect(cx - s * 0.22, cy + s * 0.35, s * 0.44, s * 0.7); // porte
-  };
-
-  const drawCamera = (g, w, h) => {
-    const cx = w / 2;
-    const cy = h / 2;
-    const s = Math.min(w, h) * 0.3;
-    // boîtier
-    g.fillRect(cx - s * 1.25, cy - s * 0.7, s * 2.5, s * 1.5);
-    // bosse du viseur
-    g.fillRect(cx - s * 0.5, cy - s * 1.0, s, s * 0.35);
-    // objectif (anneau : disque évidé)
-    g.beginPath();
-    g.arc(cx, cy + s * 0.05, s * 0.55, 0, Math.PI * 2);
-    g.fill();
+    g.fillRect(cx - s * 0.95, cy, s * 1.9, s * 1.15); // murs
     const prev = g.globalCompositeOperation;
     g.globalCompositeOperation = 'destination-out';
-    g.beginPath();
-    g.arc(cx, cy + s * 0.05, s * 0.28, 0, Math.PI * 2);
-    g.fill();
+    g.fillRect(cx - s * 0.25, cy + s * 0.4, s * 0.5, s * 0.75); // porte
     g.globalCompositeOperation = prev;
-  };
-
-  const drawPolaroid = (g, w, h) => {
-    const cx = w / 2;
-    const cy = h / 2;
-    const s = Math.min(w, h) * 0.4;
-    g.save();
-    g.translate(cx, cy);
-    g.rotate(-0.09);
-    // cadre : photo évidée, gros bord bas — le polaroïd de la démo
-    g.fillRect(-s, -s * 1.05, s * 2, s * 2.35);
-    const prev = g.globalCompositeOperation;
-    g.globalCompositeOperation = 'destination-out';
-    g.fillRect(-s * 0.78, -s * 0.83, s * 1.56, s * 1.56);
-    g.globalCompositeOperation = prev;
-    g.restore();
   };
 
   function shapeList() {
-    const words = window.VestaI18n.t('morph.words', ['VESTA', 'UN FILM', '48H', 'FOYER']);
-    const icons = [drawFlame, drawCamera, drawPlay, drawPolaroid, drawHouse];
-    // Alternance mot / picto : toujours quelque chose de Vesta à raconter
-    const shapes = [];
-    const n = Math.max(words.length, icons.length);
-    for (let i = 0; i < n; i++) {
-      if (icons[i]) shapes.push(icons[i]);
-      if (words[i]) shapes.push(drawWord(words[i]));
-    }
-    return shapes;
+    const words = window.VestaI18n.t('morph.words', ['VESTA', 'UN FILM', '48H', 'FOYER', 'IA']);
+    // Priorité aux mots (toujours lisibles), entrecoupés de trois pictos sûrs
+    return [
+      drawWord(words[0] || 'VESTA'),
+      drawFlame,
+      drawWord(words[1] || 'UN FILM'),
+      drawPlay,
+      drawWord(words[2] || '48H'),
+      drawHouse,
+      drawWord(words[3] || 'FOYER'),
+      drawWord(words[4] || 'IA'),
+    ];
   }
 
   /* --- Échantillonnage : une forme → des cibles pour chaque point --------------- */
@@ -157,12 +146,16 @@ window.VestaMorph = (() => {
     if (!pts.length) return;
 
     // Chaque point reçoit une cible ; s'il y a plus de points que de pixels,
-    // plusieurs points partagent une cible avec un léger désaxage
+    // plusieurs points partagent une cible avec un léger désaxage.
+    // Le départ est étalé (vague organique : les points partent en nappes
+    // successives plutôt que tous d'un bloc, comme sur la référence).
+    const now = performance.now();
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
       const target = pts[(Math.random() * pts.length) | 0];
-      p.tx = target.x + (Math.random() - 0.5) * 3;
-      p.ty = target.y + (Math.random() - 0.5) * 3;
+      p.ntx = target.x + (Math.random() - 0.5) * 3;
+      p.nty = target.y + (Math.random() - 0.5) * 3;
+      p.swapAt = now + Math.random() * 650;
     }
   }
 
@@ -214,8 +207,16 @@ window.VestaMorph = (() => {
     const FOCAL = 850;
 
     ctx.clearRect(0, 0, W, H);
+    const now = performance.now();
     for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
+
+      // Départ en vague : la nouvelle cible ne prend effet qu'à son tour
+      if (p.swapAt && now >= p.swapAt) {
+        p.tx = p.ntx;
+        p.ty = p.nty;
+        p.swapAt = 0;
+      }
 
       // Ressort vers la cible (dans l'espace "modèle", non tourné)
       p.vx += (p.tx - p.x) * SPRING;

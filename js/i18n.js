@@ -163,8 +163,23 @@ window.VestaI18n = (() => {
     ['#contact .mono-label', '( YOUR NEXT LISTING )'],
     ['.contact-title', 'Bring your<br>listings to life.', true],
     ['.contact-actions .btn-solid', 'Request access →'],
-    ['.footer span.mono-label:nth-of-type(2)', 'AI FOR REAL ESTATE'],
+    ['.footer-tag', 'The spirit of the hearth that puts your listings on screen.'],
+    ['.footer-col:nth-child(1) .mono-label', 'EXPLORE'],
+    ['.footer-col:nth-child(1) a:nth-of-type(1)', 'The demo'],
+    ['.footer-col:nth-child(1) a:nth-of-type(2)', 'The crew'],
+    ['.footer-col:nth-child(1) a:nth-of-type(3)', 'The toolbox'],
+    ['.footer-col:nth-child(2) .mono-label', 'CONTACT'],
+    ['.footer-col:nth-child(2) a:nth-of-type(2)', 'Book a demo'],
+    ['.footer-meta .mono-label', '© 2026 VESTA · AI FOR REAL ESTATE'],
     ['.footer .mono-link', 'BACK TO TOP ↑'],
+
+    // Popup de pause de la visite
+    ['.tour-pause-text', 'Taking the wheel?'],
+    ['#pause-resume', 'Continue the tour →'],
+    ['#pause-manual', 'I\'ll browse on my own'],
+
+    // Bouton nav "changer de guide"
+    ['.guide-switch-label', 'GUIDE'],
   ];
 
   /* --- Chaînes utilisées par les modules JS ------------------------------------ */
@@ -231,6 +246,18 @@ window.VestaI18n = (() => {
       'A question about Vesta? I\'m right here ✦',
       'Psst… I know jokes. Click and see.',
     ],
+    'chat.switch': 'Who takes the torch?',
+    'chat.opt.switch': 'Change guide',
+    'chat.hello': 'At your service ✦',
+    'chat.reactions': {
+      work: ['Ah, the part where we\'re honest.', 'Slideshows… we\'ve all been there.'],
+      phases: ['Three phases, zero camera. My favorite bit.', 'Look how nicely the cards stack.'],
+      equipe: ['My coworkers! Click, they love it.', 'Small crew, but what a crew.'],
+      statement: ['This part is serious.', 'We wrote it big so it\'s clear.'],
+      biens: ['Hover around, the previews are worth it.', 'Real listings, real films.'],
+      stats: ['The numbers speak for themselves.', '48 hours. Clock it.'],
+      contact: ['Almost there… one little click?', 'After this, your listings won\'t be the same.'],
+    },
 
     // Visite guidée
     'tour.work': 'Let\'s say it plainly: your listings deserve better than still photos.',

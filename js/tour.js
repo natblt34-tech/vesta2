@@ -93,6 +93,8 @@ window.VestaTour = (() => {
 
   let overlay;
   let active = false;
+  let paused = false;
+  let currentIndex = 0;
   let stepTimer = null;
   let followTimer = null;
 
@@ -101,6 +103,7 @@ window.VestaTour = (() => {
   function goToStep(index) {
     if (!active) return;
     if (index >= STEPS.length) return end();
+    currentIndex = index;
 
     const step = STEPS[index];
     const duration = step.duration || SCROLL_DURATION;
@@ -143,6 +146,8 @@ window.VestaTour = (() => {
   function interrupt() {
     if (!active) return;
     active = false;
+    paused = false;
+    hidePausePopup();
     clearTimeout(stepTimer);
     clearTimeout(followTimer);
     document.body.classList.remove('tour-active');
@@ -150,6 +155,35 @@ window.VestaTour = (() => {
     window.VestaMascot.say(window.VestaI18n.t('mascot.handover', 'Je vous laisse la main ✦'));
     window.VestaMascot.hideBubble(2000);
     window.VestaMascot.home();
+  }
+
+  /* --- Pause sur scroll manuel -----------------------------------------------
+     Un geste de scroll pendant la visite ne l'interrompt plus brutalement :
+     la visite se met en pause et une popup demande qui conduit. */
+
+  function showPausePopup() {
+    document.getElementById('tour-pause').hidden = false;
+    gsap.from('.tour-pause-box', { scale: 0.9, opacity: 0, duration: 0.35, ease: 'back.out(2)' });
+  }
+
+  function hidePausePopup() {
+    document.getElementById('tour-pause').hidden = true;
+  }
+
+  function pauseTour() {
+    if (!active || paused) return;
+    paused = true;
+    clearTimeout(stepTimer);
+    clearTimeout(followTimer);
+    window.VestaMascot.hideBubble(0);
+    showPausePopup();
+  }
+
+  function resumeTour() {
+    if (!active || !paused) return;
+    paused = false;
+    hidePausePopup();
+    goToStep(currentIndex); // reprend l'étape en cours depuis son début
   }
 
   /* --- Overlay d'accueil --------------------------------------------------------- */
@@ -176,48 +210,77 @@ window.VestaTour = (() => {
       return;
     }
 
+    const skin = window.VestaMascot.getSkin();
     const selected = document.querySelector('.mascot-choice.is-selected') || overlay;
     const r = selected.getBoundingClientRect();
     const cx = r.left + r.width / 2;
     const cy = r.top + r.height / 2;
-    // Rayon couvrant le coin d'écran le plus lointain
-    const radius = Math.hypot(
-      Math.max(cx, window.innerWidth - cx),
-      Math.max(cy, window.innerHeight - cy)
-    ) + 60;
 
-    const ring = document.createElement('div');
-    ring.className = 'overlay-ring';
-    overlay.appendChild(ring);
-    gsap.set(ring, { left: cx, top: cy });
-    gsap.set(overlay, { clipPath: `circle(${radius}px at ${cx}px ${cy}px)` });
+    const make = (cls) => {
+      const el = document.createElement('div');
+      el.className = cls;
+      overlay.appendChild(el);
+      return el;
+    };
 
-    gsap.timeline({
+    const tl = gsap.timeline({
       onComplete() {
         overlay.remove();
         if (onDone) onDone();
       },
-    })
-      // 1. Tout le contenu s'efface… sauf le guide choisi
-      .to(
-        ['.tour-overlay-inner > .mono-label', '.tour-overlay-title', '.tour-overlay-actions', '#tour-skip-intro', '.overlay-lang'],
-        { y: 26, opacity: 0, duration: 0.32, stagger: 0.05, ease: 'power2.in' }
-      )
+    });
+
+    // Prologue commun : tout s'efface… sauf le guide choisi, qui s'embrase
+    tl.to(
+      ['.tour-overlay-inner > .mono-label', '.tour-overlay-title', '.tour-overlay-actions', '#tour-skip-intro', '.overlay-lang'],
+      { y: 26, opacity: 0, duration: 0.32, stagger: 0.05, ease: 'power2.in' }
+    )
       .to('.mascot-choice:not(.is-selected)', { scale: 0.8, opacity: 0, duration: 0.3, ease: 'power2.in' }, '<')
-      // 2. Le guide choisi s'embrase, sa carte se dissout autour de lui
       .to(selected, {
         scale: 1.2,
-        borderColor: 'rgba(255, 122, 26, 0)',
-        backgroundColor: 'rgba(255, 122, 26, 0)',
+        borderColor: 'rgba(255, 255, 255, 0)',
+        backgroundColor: 'rgba(255, 255, 255, 0)',
         duration: 0.4,
         ease: 'back.out(2)',
-      })
-      // 3. Le site se révèle pendant que le rideau est aspiré dans la flamme
-      .add(reveal)
-      .to(overlay, { clipPath: `circle(0px at ${cx}px ${cy}px)`, duration: 0.85, ease: 'power3.inOut' }, '<')
-      .fromTo(ring,
-        { width: radius * 2, height: radius * 2, opacity: 0 },
-        { width: 0, height: 0, opacity: 1, duration: 0.85, ease: 'power3.inOut' }, '<');
+      });
+
+    /* Chaque guide a SA sortie de scène. */
+    if (skin === 'lumen') {
+      // LUMEN-02 : l'écran s'embrase de lumière dorée, puis l'éclat retombe
+      const flash = make('overlay-flash');
+      tl.to(flash, { opacity: 1, duration: 0.3, ease: 'power2.in' })
+        .add(reveal)
+        .to(overlay, { opacity: 0, duration: 0.65, ease: 'power2.out' });
+    } else if (skin === 'cut') {
+      // CUT-03 : un éclair bleu balaie l'écran, et l'accueil est coupé au montage
+      const slice = make('overlay-slice');
+      gsap.set(slice, { rotation: -14 });
+      tl.fromTo(slice, { xPercent: -180 }, { xPercent: 420, duration: 0.4, ease: 'power3.in' })
+        .add(reveal)
+        .to(overlay, { yPercent: -100, skewY: 1.6, duration: 0.55, ease: 'power4.inOut' });
+    } else if (skin === 'scribe') {
+      // SCRIBE-04 : la page se tourne, balayée de gauche à droite par sa plume
+      const quill = make('overlay-quill');
+      gsap.set(quill, { left: 0 });
+      gsap.set(overlay, { clipPath: 'inset(0px 0px 0px 0px)' });
+      tl.add(reveal)
+        .to(overlay, { clipPath: 'inset(0px 0px 0px 100%)', duration: 0.8, ease: 'power3.inOut' }, '<')
+        .to(quill, { left: '100%', duration: 0.8, ease: 'power3.inOut' }, '<');
+    } else {
+      // CADRE-01 : l'accueil est aspiré dans sa flamme (iris + anneau de feu)
+      const radius = Math.hypot(
+        Math.max(cx, window.innerWidth - cx),
+        Math.max(cy, window.innerHeight - cy)
+      ) + 60;
+      const ring = make('overlay-ring');
+      gsap.set(ring, { left: cx, top: cy });
+      gsap.set(overlay, { clipPath: `circle(${radius}px at ${cx}px ${cy}px)` });
+      tl.add(reveal)
+        .to(overlay, { clipPath: `circle(0px at ${cx}px ${cy}px)`, duration: 0.85, ease: 'power3.inOut' }, '<')
+        .fromTo(ring,
+          { width: radius * 2, height: radius * 2, opacity: 0 },
+          { width: 0, height: 0, opacity: 1, duration: 0.85, ease: 'power3.inOut' }, '<');
+    }
   }
 
   /* --- Init ------------------------------------------------------------------------ */
@@ -247,13 +310,16 @@ window.VestaTour = (() => {
     document.getElementById('tour-start').addEventListener('click', () => closeOverlay(start));
     document.getElementById('tour-skip-intro').addEventListener('click', () => closeOverlay());
 
-    // Reprise de main : tout geste de scroll manuel interrompt la visite
+    // Un geste de scroll manuel met la visite en PAUSE et demande qui conduit
     ['wheel', 'touchmove'].forEach((evt) =>
-      window.addEventListener(evt, interrupt, { passive: true })
+      window.addEventListener(evt, pauseTour, { passive: true })
     );
     window.addEventListener('keydown', (e) => {
-      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) interrupt();
+      if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '].includes(e.key)) pauseTour();
     });
+
+    document.getElementById('pause-resume').addEventListener('click', resumeTour);
+    document.getElementById('pause-manual').addEventListener('click', interrupt);
 
     // Le clic sur le guide ouvre la conversation (chat.js) ; la visite se
     // relance depuis une option du chat.

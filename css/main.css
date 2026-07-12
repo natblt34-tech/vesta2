@@ -131,6 +131,39 @@ button { font: inherit; color: inherit; }
 /* Thèmes de section */
 .s-paper { background: var(--paper); }
 .s-deep { background: var(--ink); }
+
+/* Ambiance du site selon le guide choisi : le fond se teinte de sa couleur */
+body.skin-lumen { --bg: #0e0b05; --paper: #171205; }
+body.skin-cut {
+  --bg: #08090f;
+  --paper: #0f1119;
+  --line: rgba(110, 170, 255, 0.16);
+  --line-strong: rgba(110, 170, 255, 0.4);
+}
+body.skin-scribe {
+  --bg: #090c08;
+  --paper: #10160e;
+  --line: rgba(150, 210, 120, 0.16);
+  --line-strong: rgba(150, 210, 120, 0.4);
+}
+
+body.skin-cut .hero::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(80, 150, 255, 0.1), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(110, 170, 255, 0.05), transparent 70%);
+}
+
+body.skin-scribe .hero::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(110, 200, 90, 0.09), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(150, 210, 120, 0.05), transparent 70%);
+}
+
+body.skin-lumen .hero::before {
+  background:
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(255, 200, 80, 0.13), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(255, 215, 106, 0.06), transparent 70%);
+}
 .s-gold {
   background: linear-gradient(125deg, #e9b45c 0%, #f0983a 55%, #ff7a1a 100%);
   color: #180c02;
@@ -855,69 +888,200 @@ button { font: inherit; color: inherit; }
   margin-top: 3rem;
 }
 
+/* Footer riche : marque, colonnes, méta, et wordmark géant rogné */
 .footer {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(3rem, 6vw, 5rem) var(--pad) 1.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.footer-main {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.footer-logo {
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.footer-tag {
+  color: var(--muted);
+  margin-top: 0.7rem;
+  max-width: 22rem;
+  line-height: 1.6;
+}
+
+.footer-cols { display: flex; gap: clamp(2.5rem, 6vw, 6rem); }
+
+.footer-col { display: flex; flex-direction: column; gap: 0.7rem; }
+
+.footer-col .mono-label { margin-bottom: 0.4rem; }
+
+.footer-col a {
+  color: var(--cream);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.footer-col a:hover { color: var(--ember); }
+
+.footer-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.8rem var(--pad);
+  padding-top: 1.4rem;
   border-top: 1px solid var(--line);
+}
+
+/* VESTA géant en contour, rogné par le bas du footer */
+.footer-giant {
+  display: block;
+  font-weight: 800;
+  font-size: clamp(6rem, 19vw, 22rem);
+  line-height: 0.72;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--line-strong);
+  margin-top: 2.2rem;
+  margin-bottom: calc(clamp(6rem, 19vw, 22rem) * -0.28);
+  user-select: none;
+  pointer-events: none;
 }
 
 /* 17. Mascotte — l'esprit du foyer -------------------------------------------------------------------------- */
 
-/* La flamme (corps) — dessinée en pur CSS.
-   Couleurs et silhouette pilotées par variables : chaque agent de l'équipe
-   a son propre skin (voir .flame-skin--*). Par défaut : CADRE-01. */
+/* L'avatar-personnage — dessiné en pur CSS : une tête de flamme, deux
+   langues qui dansent, un corps rond et des petits bras. Couleurs et
+   silhouette pilotées par variables : chaque agent a son skin. */
 .mascot-flame {
   --m-core: #fff3d6;
   --m-mid: var(--ember);
   --m-outer: var(--fire);
+  --m-deep: #a8420a;
   --m-glow: rgba(255, 122, 26, 0.75);
   position: relative;
   display: block;
-  width: 36px;
-  height: 48px;
-  background: radial-gradient(ellipse at 50% 78%, var(--m-core) 0%, var(--m-mid) 38%, var(--m-outer) 72%, transparent 100%);
-  border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+  width: 46px;
+  height: 58px;
   filter: drop-shadow(0 0 14px var(--m-glow));
-  animation: flame-flicker 1.7s ease-in-out infinite;
-  transform-origin: 50% 92%;
 }
+
+/* Tête : la grande flamme (centrée par marges auto, la transform reste
+   libre pour l'animation de flicker) */
+.av-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 78%;
+  height: 66%;
+  background: radial-gradient(ellipse at 50% 82%, var(--m-core) 0%, var(--m-mid) 44%, var(--m-outer) 80%, transparent 100%);
+  border-radius: 50% 50% 46% 46% / 72% 72% 30% 30%;
+  animation: flame-flicker 1.6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+/* Langues de feu latérales, déphasées */
+.av-tongue {
+  position: absolute;
+  top: -8%;
+  width: 24%;
+  height: 40%;
+  background: linear-gradient(180deg, var(--m-mid), var(--m-outer));
+  border-radius: 50% 50% 50% 50% / 78% 78% 22% 22%;
+  opacity: 0.95;
+  animation: flame-flicker 1.25s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.av-tongue.t1 { left: 4%; animation-delay: -0.45s; }
+.av-tongue.t2 { right: 2%; height: 32%; animation-delay: -0.9s; }
+
+/* Corps : rond, plus sombre à la base, avec un léger balancement */
+.av-body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 84%;
+  height: 46%;
+  background: linear-gradient(180deg, var(--m-outer) 0%, var(--m-deep) 90%);
+  border-radius: 48% 48% 44% 44% / 62% 62% 50% 50%;
+  animation: av-sway 2.3s ease-in-out infinite;
+}
+
+@keyframes av-sway {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.05) translateY(1px); }
+}
+
+/* Petits bras */
+.av-arm {
+  position: absolute;
+  top: 20%;
+  width: 26%;
+  height: 44%;
+  background: var(--m-outer);
+  border-radius: 50%;
+}
+
+.av-arm.l { left: -11%; transform: rotate(18deg); }
+.av-arm.r { right: -11%; transform: rotate(-18deg); }
 
 /* LUMEN-02 · lumière : dorée, ronde, rayonnante */
 .flame-skin--lumen {
   --m-core: #fffbe6;
   --m-mid: #ffd76a;
   --m-outer: #f0a91f;
+  --m-deep: #b97a10;
   --m-glow: rgba(255, 208, 90, 0.8);
-  width: 42px;
-  height: 44px;
-  border-radius: 50% 50% 48% 48% / 58% 58% 42% 42%;
+  width: 50px;
+  height: 54px;
 }
+
+.flame-skin--lumen .av-head { width: 88%; height: 60%; border-radius: 50% 50% 48% 48% / 62% 62% 38% 38%; }
+.flame-skin--lumen .av-body { width: 96%; height: 50%; }
 
 /* CUT-03 · montage : bleue, haute, effilée comme une lame */
 .flame-skin--cut {
   --m-core: #eaf6ff;
   --m-mid: #6ec4ff;
   --m-outer: #2465d6;
+  --m-deep: #16346e;
   --m-glow: rgba(90, 165, 255, 0.8);
-  width: 28px;
-  height: 54px;
-  border-radius: 46% 54% 50% 50% / 76% 76% 24% 24%;
+  width: 38px;
+  height: 62px;
 }
+
+.flame-skin--cut .av-head { width: 70%; height: 72%; border-radius: 46% 54% 50% 50% / 78% 78% 22% 22%; }
+.flame-skin--cut .av-body { width: 74%; height: 40%; }
+.flame-skin--cut .av-tongue.t2 { display: none; }
 
 /* SCRIBE-04 · textes : verte, penchée, malicieuse */
 .flame-skin--scribe {
   --m-core: #f2ffe8;
   --m-mid: #a9dd6d;
   --m-outer: #3f9e46;
+  --m-deep: #26602c;
   --m-glow: rgba(130, 215, 105, 0.75);
-  width: 33px;
-  height: 42px;
-  border-radius: 62% 38% 52% 48% / 66% 58% 42% 34%;
+  width: 42px;
+  height: 54px;
 }
+
+.flame-skin--scribe .av-head { border-radius: 64% 36% 52% 48% / 70% 58% 42% 30%; }
+.flame-skin--scribe .av-tongue.t1 { height: 48%; left: 0; }
 
 @keyframes flame-flicker {
   0%, 100% { transform: scaleY(1) scaleX(1) rotate(-1.5deg); }
@@ -926,12 +1090,14 @@ button { font: inherit; color: inherit; }
   80%      { transform: scaleY(1.05) scaleX(0.97) rotate(2deg); }
 }
 
-/* Le visage */
+/* Le visage : posé à la jonction tête/corps, gros yeux attendrissants */
 .mascot-face {
   position: absolute;
-  left: 50%;
-  top: 58%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  right: 0;
+  top: 42%;
+  margin: auto;
+  width: max-content;
   display: grid;
   grid-template-columns: auto auto;
   gap: 5px;
@@ -940,8 +1106,8 @@ button { font: inherit; color: inherit; }
 
 .mascot-eye {
   position: relative;
-  width: 8px;
-  height: 11px;
+  width: 10px;
+  height: 13px;
   background: #fff8ea;
   border-radius: 50%;
   overflow: hidden;
@@ -950,10 +1116,10 @@ button { font: inherit; color: inherit; }
 
 .mascot-pupil {
   position: absolute;
-  left: 2px;
-  top: 3.5px;
-  width: 4px;
-  height: 4.5px;
+  left: 2.5px;
+  top: 4px;
+  width: 5px;
+  height: 5.5px;
   background: #351a08;
   border-radius: 50%;
 }
@@ -1146,6 +1312,73 @@ button { font: inherit; color: inherit; }
 /* Pendant la conversation, la bulle classique s'efface */
 .is-chatting .mascot-bubble { opacity: 0 !important; }
 
+/* Popup de pause : un scroll pendant la visite demande confirmation */
+.tour-pause {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: grid;
+  place-items: center;
+  background: rgba(7, 5, 4, 0.55);
+}
+
+/* display:grid écraserait l'attribut hidden : on le rétablit explicitement */
+.tour-pause[hidden] { display: none; }
+
+.tour-pause-box {
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  padding: 1.8rem 2rem;
+  text-align: center;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  max-width: min(420px, 88vw);
+}
+
+.tour-pause-text {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.3rem;
+}
+
+.tour-pause-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+/* Bouton nav "changer de guide" : mini-avatar du guide actuel */
+.guide-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25em 0.9em 0.25em 0.4em;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.guide-switch:hover { border-color: var(--fire); }
+
+.guide-switch-avatar {
+  display: block;
+  width: 26px;
+  height: 28px;
+  overflow: visible;
+}
+
+.guide-switch-avatar .mascot-flame {
+  transform: scale(0.48);
+  transform-origin: top left;
+  filter: drop-shadow(0 0 6px var(--m-glow));
+}
+
+.guide-switch-label { font-size: 0.58rem; }
+
 /* 18. Overlay d'accueil --------------------------------------------------------------------------------------- */
 /* Fond totalement opaque : le site est invisible tant qu'on choisit son
    guide. La sortie est un iris wipe piloté par GSAP (clip-path). */
@@ -1158,6 +1391,38 @@ button { font: inherit; color: inherit; }
   background:
     radial-gradient(ellipse 70% 55% at 50% 40%, #191209 0%, var(--bg) 62%, #060504 100%);
   will-change: clip-path;
+}
+
+/* Éclat doré de LUMEN-02 : l'écran s'embrase de lumière avant de révéler */
+.overlay-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, #fff4d2 0%, #ffd76a 42%, rgba(255, 170, 60, 0.96) 75%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Lame de CUT-03 : un éclair bleu balaie l'écran avant la coupe */
+.overlay-slice {
+  position: absolute;
+  top: -25%;
+  left: 0;
+  width: 30%;
+  height: 150%;
+  background: linear-gradient(90deg, transparent, rgba(120, 185, 255, 0.9), transparent);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Plume de SCRIBE-04 : un liseré vert suit le balayage d'écriture */
+.overlay-quill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(150, 220, 120, 0.95);
+  box-shadow: 0 0 24px rgba(130, 215, 105, 0.8);
+  pointer-events: none;
 }
 
 /* Anneau de feu qui souligne le bord du rideau pendant l'aspiration */

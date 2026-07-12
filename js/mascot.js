@@ -255,6 +255,14 @@ window.VestaMascot = (() => {
     currentSkin = key;
     const flame = root.querySelector('.mascot-flame');
     flame.className = 'mascot-flame flame-skin--' + key;
+
+    // L'ambiance du site (fond, filets, lueur du hero) suit le guide
+    document.body.classList.remove('skin-cadre', 'skin-lumen', 'skin-cut', 'skin-scribe');
+    document.body.classList.add('skin-' + key);
+
+    // Le mini-avatar du bouton nav suit aussi
+    const navFlame = document.querySelector('#guide-switch .mascot-flame');
+    if (navFlame) navFlame.className = 'mascot-flame flame-skin--' + key;
   }
 
   function getSkin() { return currentSkin; }

@@ -44,6 +44,7 @@ window.VestaChat = (() => {
           { label: t('chat.opt.photos', 'Mes photos suffisent ?'), to: 'photos' },
           { label: t('chat.opt.joke', 'Raconte une blague 🔥'), to: 'joke' },
           { label: t('chat.opt.who', 'Qui es-tu ?'), to: 'who' },
+          { label: t('chat.opt.switch', 'Changer de guide'), to: 'switch' },
           { label: t('chat.opt.tour', 'Refais-moi la visite ✦'), action: 'tour' },
           close,
         ],
@@ -80,6 +81,16 @@ window.VestaChat = (() => {
         text: () => t('chat.who.' + window.VestaMascot.getSkin(), BIOS_FR[window.VestaMascot.getSkin()]),
         options: [back, close],
       },
+      switch: {
+        text: t('chat.switch', 'Qui reprend le flambeau ?'),
+        options: [
+          { label: 'CADRE-01 🔥', action: 'skin', skin: 'cadre' },
+          { label: 'LUMEN-02 ✨', action: 'skin', skin: 'lumen' },
+          { label: 'CUT-03 🎬', action: 'skin', skin: 'cut' },
+          { label: 'SCRIBE-04 ✍️', action: 'skin', skin: 'scribe' },
+          back, close,
+        ],
+      },
     };
   }
 
@@ -89,6 +100,17 @@ window.VestaChat = (() => {
     'Une question sur Vesta ? Je suis là ✦',
     'Psst… je connais des blagues. Cliquez pour voir.',
   ];
+
+  /* Le guide lit avec vous : petites réactions quand une section arrive */
+  const REACTIONS_FR = {
+    work: ['Ah, la partie où on est francs.', 'Des slideshows… on a tous connu ça.'],
+    phases: ['Trois phases, zéro caméra. Mon passage préféré.', 'Regardez comme les cartes s’empilent bien.'],
+    equipe: ['Mes collègues ! Cliquez, ils adorent ça.', 'On est une petite équipe, mais quelle équipe.'],
+    statement: ['Là, c’est du sérieux.', 'On l’a écrit en grand pour que ce soit clair.'],
+    biens: ['Survolez, les aperçus valent le détour.', 'De vraies annonces, de vrais films.'],
+    stats: ['Les chiffres parlent d’eux-mêmes.', '48 heures. Montre en main.'],
+    contact: ['On y est presque… un petit clic ?', 'Après ça, vos annonces ne seront plus les mêmes.'],
+  };
 
   const TEASE_EVERY = 26000;   // au plus une taquinerie toutes les 26s
   const TEASE_SHOW = 4200;     // affichée ~4s
@@ -118,6 +140,12 @@ window.VestaChat = (() => {
         if (opt.action === 'contact') {
           closeChat();
           window.VestaScroll.lenis.scrollTo('#contact', { duration: 1.4 });
+          return;
+        }
+        if (opt.action === 'skin') {
+          window.VestaMascot.setSkin(opt.skin);
+          closeChat();
+          window.VestaMascot.celebrate(t('chat.hello', 'À votre service ✦'));
           return;
         }
         render(opt.to);
@@ -163,6 +191,47 @@ window.VestaChat = (() => {
     teaseIndex++;
   }
 
+  /* --- Réactions de lecture ------------------------------------------------------ */
+
+  let lastReaction = 0;
+
+  function react(sectionKey) {
+    const now = performance.now();
+    if (open || document.hidden) return;
+    if (document.body.classList.contains('tour-active')) return;
+    if (root.classList.contains('is-performing')) return;
+    if (now - lastReaction < 14000) return;   // pas de moulin à paroles
+    if (Math.random() < 0.35) return;         // parfois, il lit en silence
+    lastReaction = now;
+    const bank = t('chat.reactions', REACTIONS_FR)[sectionKey];
+    if (!bank) return;
+    window.VestaMascot.say(bank[(Math.random() * bank.length) | 0]);
+    window.VestaMascot.hideBubble(3600);
+  }
+
+  function initReactions() {
+    const map = {
+      '#work': 'work', '#phases': 'phases', '#equipe': 'equipe',
+      '.statement': 'statement', '#biens': 'biens', '.stats': 'stats',
+      '#contact': 'contact',
+    };
+    Object.entries(map).forEach(([selector, key]) => {
+      ScrollTrigger.create({
+        trigger: selector,
+        start: 'top 60%',
+        onEnter: () => react(key),
+        onEnterBack: () => react(key),
+      });
+    });
+  }
+
+  /* --- Ouverture directe du sélecteur de guide (bouton nav) ----------------------- */
+
+  function openSwitch() {
+    openChat();
+    render('switch');
+  }
+
   /* --- Init --------------------------------------------------------------------- */
 
   function init() {
@@ -175,12 +244,15 @@ window.VestaChat = (() => {
 
     // Un clic ailleurs sur la page referme la conversation
     document.addEventListener('click', (e) => {
-      if (open && !e.target.closest('#mascot')) closeChat();
+      if (open && !e.target.closest('#mascot') && !e.target.closest('#guide-switch')) closeChat();
     });
+
+    document.getElementById('guide-switch')?.addEventListener('click', openSwitch);
 
     window.VestaScroll.lenis.on('scroll', () => { lastScroll = performance.now(); });
     setInterval(maybeTease, 4000);
+    initReactions();
   }
 
-  return { init, get isOpen() { return open; } };
+  return { init, openSwitch, get isOpen() { return open; } };
 })();
