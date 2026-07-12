@@ -225,8 +225,23 @@ window.VestaChat = (() => {
     });
   }
 
-  /* --- Ouverture directe du sélecteur de guide (bouton nav) ----------------------- */
+  /* --- Changement de guide express (bouton nav) ------------------------------------ */
 
+  const SKIN_ORDER = ['cadre', 'lumen', 'cut', 'scribe'];
+
+  /* Un clic = le guide suivant, immédiatement (rotation circulaire) */
+  function cycleSkin() {
+    const current = window.VestaMascot.getSkin();
+    const next = SKIN_ORDER[(SKIN_ORDER.indexOf(current) + 1) % SKIN_ORDER.length];
+    window.VestaMascot.setSkin(next);
+    try { localStorage.setItem('vesta-skin', next); } catch (e) { /* nav. privée */ }
+    window.VestaMascot.say(window.VestaMascot.skinData().name + ' ✦');
+    window.VestaMascot.hideBubble(1200);
+    // petit pop du bouton nav
+    gsap.fromTo('#guide-switch', { scale: 0.85 }, { scale: 1, duration: 0.4, ease: 'back.out(3)' });
+  }
+
+  /* Le sélecteur complet reste accessible depuis la conversation */
   function openSwitch() {
     openChat();
     render('switch');
@@ -247,7 +262,7 @@ window.VestaChat = (() => {
       if (open && !e.target.closest('#mascot') && !e.target.closest('#guide-switch')) closeChat();
     });
 
-    document.getElementById('guide-switch')?.addEventListener('click', openSwitch);
+    document.getElementById('guide-switch')?.addEventListener('click', cycleSkin);
 
     window.VestaScroll.lenis.on('scroll', () => { lastScroll = performance.now(); });
     setInterval(maybeTease, 4000);

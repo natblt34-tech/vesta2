@@ -17,9 +17,9 @@ window.VestaMorph = (() => {
   'use strict';
 
   const COUNT = 1100;         // points dans le nuage (dense : les mots se lisent)
-  const SHAPE_EVERY = 5000;   // nouvelle forme toutes les 5s
-  const SPRING = 0.055;       // rappel vers la cible
-  const FRICTION = 0.86;
+  const SHAPE_EVERY = 7500;   // une forme tient ~6s une fois posée
+  const SPRING = 0.085;       // rappel vif : la forme se constitue en ~1s
+  const FRICTION = 0.85;
   const REPULSE_R = 90;       // rayon de répulsion du curseur (px)
 
   let canvas, ctx, spriteSharp, spriteSoft;
@@ -109,16 +109,17 @@ window.VestaMorph = (() => {
 
   function shapeList() {
     const words = window.VestaI18n.t('morph.words', ['VESTA', 'UN FILM', '48H', 'FOYER', 'IA']);
-    // Priorité aux mots (toujours lisibles), entrecoupés de trois pictos sûrs
+    // Priorité aux mots (toujours lisibles), entrecoupés de trois pictos sûrs.
+    // calm : les mots tournent deux fois moins pour rester nets.
     return [
-      drawWord(words[0] || 'VESTA'),
-      drawFlame,
-      drawWord(words[1] || 'UN FILM'),
-      drawPlay,
-      drawWord(words[2] || '48H'),
-      drawHouse,
-      drawWord(words[3] || 'FOYER'),
-      drawWord(words[4] || 'IA'),
+      { draw: drawWord(words[0] || 'VESTA'), calm: 0.45 },
+      { draw: drawFlame, calm: 1 },
+      { draw: drawWord(words[1] || 'UN FILM'), calm: 0.45 },
+      { draw: drawPlay, calm: 1 },
+      { draw: drawWord(words[2] || '48H'), calm: 0.45 },
+      { draw: drawHouse, calm: 1 },
+      { draw: drawWord(words[3] || 'FOYER'), calm: 0.45 },
+      { draw: drawWord(words[4] || 'IA'), calm: 0.45 },
     ];
   }
 
@@ -155,14 +156,19 @@ window.VestaMorph = (() => {
       const target = pts[(Math.random() * pts.length) | 0];
       p.ntx = target.x + (Math.random() - 0.5) * 3;
       p.nty = target.y + (Math.random() - 0.5) * 3;
-      p.swapAt = now + Math.random() * 650;
+      p.swapAt = now + Math.random() * 400;
     }
   }
+
+  let calmTarget = 0.45; // la première forme est un mot
+  let calm = 0.45;
 
   function nextShape() {
     if (!zone.ok) return;
     const shapes = shapeList();
-    sampleShape(shapes[shapeIndex % shapes.length]);
+    const shape = shapes[shapeIndex % shapes.length];
+    sampleShape(shape.draw);
+    calmTarget = shape.calm;
     shapeIndex++;
   }
 
@@ -198,8 +204,9 @@ window.VestaMorph = (() => {
        proches grossissent et brillent, les lointains s'estompent. */
     const cx = zone.left + zone.width / 2;
     const cy = H * 0.52;
-    const rotY = 0.3 * Math.sin(time * 0.38);
-    const rotX = 0.13 * Math.sin(time * 0.26 + 1.3);
+    calm += (calmTarget - calm) * 0.02; // transition douce mot ↔ picto
+    const rotY = 0.3 * calm * Math.sin(time * 0.38);
+    const rotX = 0.13 * calm * Math.sin(time * 0.26 + 1.3);
     const cosY = Math.cos(rotY);
     const sinY = Math.sin(rotY);
     const cosX = Math.cos(rotX);

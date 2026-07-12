@@ -78,7 +78,9 @@ window.VestaPhysics = (() => {
         }
       );
       Matter.Body.setAngle(body, (Math.random() - 0.5) * 0.5);
-      return { el, body, w, h, burned: false, lastCatch: 0 };
+      // catchable : seul un tag LANCÉ PAR L'UTILISATEUR peut être attrapé
+      // au lasso (la pluie initiale et les relances du guide ne comptent pas)
+      return { el, body, w, h, burned: false, lastCatch: 0, catchable: false };
     });
 
     Composite.add(engine.world, [...bounds, ...tags.map((t) => t.body)]);
@@ -95,6 +97,13 @@ window.VestaPhysics = (() => {
     // page continue de scroller au-dessus de l'arène
     mouse.element.removeEventListener('wheel', mouse.mousewheel);
     mouse.element.removeEventListener('DOMMouseScroll', mouse.mousewheel);
+
+    // Un tag devient attrapable au lasso UNIQUEMENT quand l'utilisateur le
+    // relâche avec de l'élan (= un vrai lancer)
+    Matter.Events.on(mouseConstraint, 'enddrag', (e) => {
+      const t = tags.find((tag) => tag.body === e.body);
+      if (t && !t.burned && e.body.speed > CATCH_SPEED * 0.7) t.catchable = true;
+    });
 
     // Le lasso : une corde d'or en SVG par-dessus la page
     lassoSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -134,12 +143,13 @@ window.VestaPhysics = (() => {
      suit dans ses déplacements), puis elle le relance d'un grand arc.
      Tag TENU À LA SOURIS qui la touche → il brûle, "Oops !" et mine gênée. */
 
-  /* Sa "main" : juste à côté d'elle, côté intérieur de l'arène (coordonnées arène) */
+  /* Le bout de sa laisse : à bonne distance d'elle, côté intérieur de
+     l'arène, légèrement plus bas — le tag pend, il n'est pas collé. */
   function handPos(mascotCenter, rect) {
     const side = mascotCenter.x - rect.left > rect.width / 2 ? -1 : 1;
     return {
-      x: mascotCenter.x - rect.left + side * 58,
-      y: mascotCenter.y - rect.top + 14,
+      x: mascotCenter.x - rect.left + side * 110,
+      y: mascotCenter.y - rect.top + 38,
     };
   }
 
@@ -173,18 +183,21 @@ window.VestaPhysics = (() => {
         // finissent en crémation collective).
         burnTag(t);
         mascot.embarrass();
-      } else if (!held && dist < CATCH_DIST && t.body.speed > CATCH_SPEED && now - t.lastCatch > 900) {
+      } else if (!held && t.catchable && dist < CATCH_DIST && now - t.lastCatch > 900) {
         lassoTag(t);
       }
     }
   }
 
   function lassoTag(t) {
+    t.catchable = false; // consommé : sa propre relance ne se rattrape pas
     Matter.Body.setStatic(t.body, true);
     t.el.classList.add('is-lassoed');
     capture = {
       t,
-      from: { x: t.body.position.x, y: t.body.position.y },
+      // position courante du tag, pilotée en douceur vers le bout de laisse
+      cx: t.body.position.x,
+      cy: t.body.position.y,
       progress: 0,
       holdUntil: performance.now() + REEL_TIME * 1000 + HOLD_TIME,
     };
@@ -195,20 +208,32 @@ window.VestaPhysics = (() => {
 
   function updateCapture(m, rect) {
     const { t } = capture;
+    const now = performance.now();
     const hand = handPos(m, rect);
-    // Le tag glisse du point de capture vers la main, puis la suit (elle bouge)
-    const x = capture.from.x + (hand.x - capture.from.x) * capture.progress;
-    const y = capture.from.y + (hand.y - capture.from.y) * capture.progress;
-    Matter.Body.setPosition(t.body, { x, y });
-    t.el.style.transform =
-      `translate(${x - t.w / 2}px, ${y - t.h / 2}px) rotate(${t.body.angle}rad)`;
 
-    // La corde relie sa main au tag, avec un léger ventre au milieu
+    // Le tag pend au bout de la laisse et se balance doucement ;
+    // la position est LERPÉE à chaque frame : tout est fluide, même
+    // quand le guide se déplace en le tenant.
+    const sway = capture.progress; // le balancement ne démarre qu'une fois remorqué
+    const target = {
+      x: hand.x + Math.sin(now * 0.0021) * 16 * sway,
+      y: hand.y + Math.cos(now * 0.0017) * 10 * sway,
+    };
+    const ease = 0.06 + capture.progress * 0.06;
+    capture.cx += (target.x - capture.cx) * ease;
+    capture.cy += (target.y - capture.cy) * ease;
+    Matter.Body.setPosition(t.body, { x: capture.cx, y: capture.cy });
+    // Le tag s'incline dans le sens du balancement
+    Matter.Body.setAngle(t.body, Math.sin(now * 0.0021) * 0.14 * sway);
+    t.el.style.transform =
+      `translate(${capture.cx - t.w / 2}px, ${capture.cy - t.h / 2}px) rotate(${t.body.angle}rad)`;
+
+    // La corde relie sa main au tag, avec un ventre qui respire
     const x1 = m.x;
-    const y1 = m.y + 8;
-    const x2 = rect.left + x;
-    const y2 = rect.top + y;
-    const sag = 26 * (1 - capture.progress * 0.7);
+    const y1 = m.y + 10;
+    const x2 = rect.left + capture.cx;
+    const y2 = rect.top + capture.cy;
+    const sag = 18 + Math.sin(now * 0.0019) * 8;
     lassoRope.setAttribute('d',
       `M ${x1} ${y1} Q ${(x1 + x2) / 2} ${Math.max(y1, y2) + sag} ${x2} ${y2}`);
     lassoLoop.setAttribute('cx', x2);
@@ -216,7 +241,20 @@ window.VestaPhysics = (() => {
     lassoLoop.setAttribute('rx', t.w / 2 + 8);
     lassoLoop.setAttribute('ry', t.h / 2 + 8);
 
-    if (performance.now() >= capture.holdUntil) releaseCapture(m, rect);
+    if (now >= capture.holdUntil) releaseCapture(m, rect);
+  }
+
+  /* Libération immédiate et silencieuse (l'arène sort de l'écran en pleine
+     prise : sans ça, le lasso resterait affiché sur tout le site) */
+  function forceReleaseCapture() {
+    if (!capture) return;
+    const { t } = capture;
+    capture = null;
+    lassoSvg.style.opacity = '0';
+    t.el.classList.remove('is-lassoed');
+    Matter.Body.setStatic(t.body, false);
+    t.lastCatch = performance.now();
+    window.VestaMascot.express(false);
   }
 
   function releaseCapture(m, rect) {
@@ -331,6 +369,7 @@ window.VestaPhysics = (() => {
       onToggle(self) {
         running = self.isActive;
         if (self.isActive) build();   // construit au premier passage seulement
+        else forceReleaseCapture();   // jamais de lasso fantôme hors de l'arène
       },
     });
 

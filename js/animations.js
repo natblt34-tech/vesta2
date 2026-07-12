@@ -357,15 +357,34 @@ window.VestaAnimations = (() => {
 
     rows.addEventListener('mouseleave', hide);
 
-    /* Anti-fantôme : en scroll rapide, la section part sous un curseur immobile
-       et mouseleave ne tire jamais. À chaque frame de scroll, si le point sous
-       le curseur n'est plus une ligne de bien, l'aperçu s'efface. */
+    /* Anti-fantôme, ceinture ET bretelles :
+       1. à chaque frame de scroll, si le point sous le curseur n'est plus
+          une ligne de bien, l'aperçu s'efface ;
+       2. dès que la section quitte l'écran (dans un sens ou l'autre),
+          extinction forcée ;
+       3. un chien de garde re-vérifie toutes les 400ms quoi qu'il arrive. */
     window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; }, { passive: true });
-    window.VestaScroll.lenis.on('scroll', () => {
-      if (!visible) return;
+
+    const underCursorIsRow = () => {
       const under = document.elementFromPoint(mouseX, mouseY);
-      if (!under || !under.closest('#work-rows')) hide();
+      return under && under.closest('#work-rows');
+    };
+
+    window.VestaScroll.lenis.on('scroll', () => {
+      if (visible && !underCursorIsRow()) hide();
     });
+
+    ScrollTrigger.create({
+      trigger: '#biens',
+      start: 'top bottom',
+      end: 'bottom top',
+      onLeave: hide,
+      onLeaveBack: hide,
+    });
+
+    setInterval(() => {
+      if (visible && !underCursorIsRow()) hide();
+    }, 400);
 
     gsap.set(preview, { scale: 0.92 });
   }
