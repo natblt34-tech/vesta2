@@ -37,10 +37,10 @@ window.VestaMorph = (() => {
   /* --- Les formes ------------------------------------------------------------- */
 
   const drawWord = (word) => (g, w, h) => {
-    // Taille mesurée pour remplir le canvas au maximum sans déborder
+    // Taille mesurée pour REMPLIR l'espace au maximum sans déborder
     g.font = '900 100px "Bricolage Grotesque", sans-serif';
     const at100 = g.measureText(word).width;
-    const size = Math.min(((w * 0.92) / at100) * 100, h * 0.36);
+    const size = Math.min(((w * 0.94) / at100) * 100, h * 0.6);
     g.font = `900 ${size}px "Bricolage Grotesque", sans-serif`;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
@@ -51,7 +51,7 @@ window.VestaMorph = (() => {
   const drawFlame = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w * 0.62, h * 0.42);
+    const s = Math.min(w * 0.5, h * 0.48);
     g.beginPath();
     g.moveTo(cx, cy - s);
     g.bezierCurveTo(cx + s * 0.95, cy - s * 0.1, cx + s * 0.8, cy + s * 0.72, cx, cy + s * 0.9);
@@ -71,7 +71,7 @@ window.VestaMorph = (() => {
   const drawPlay = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w * 0.55, h * 0.4);
+    const s = Math.min(w * 0.45, h * 0.44);
     // cercle de lecteur + triangle évidé : le bouton "lecture" universel
     g.beginPath();
     g.arc(cx, cy, s, 0, Math.PI * 2);
@@ -93,7 +93,7 @@ window.VestaMorph = (() => {
   const drawHouse = (g, w, h) => {
     const cx = w / 2;
     const cy = h / 2;
-    const s = Math.min(w * 0.5, h * 0.36);
+    const s = Math.min(w * 0.36, h * 0.42);
     g.beginPath(); // toit
     g.moveTo(cx - s * 1.3, cy - s * 0.05);
     g.lineTo(cx, cy - s * 1.15);
@@ -283,7 +283,7 @@ window.VestaMorph = (() => {
       // Relief : taille et transparence combinent la profondeur "matière"
       // (p.z), la perspective (persp) et une respiration sinusoïdale
       const breathe = 1 + 0.12 * Math.sin(time * 1.4 + p.phase);
-      const size = p.size * (0.4 + p.z * 0.95) * breathe * persp;
+      const size = p.size * (0.4 + p.z * 0.95) * breathe * persp * (zone.scale || 1);
       ctx.globalAlpha = Math.min(1, (0.22 + p.z * 0.78) * persp * persp);
       ctx.drawImage(
         p.z > 0.62 ? spriteSharp : spriteSoft,
@@ -311,25 +311,42 @@ window.VestaMorph = (() => {
     const rects = lines.map((l) => l.getBoundingClientRect());
     const heroRect = canvas.getBoundingClientRect();
 
-    // Bord droit de la DERNIÈRE ligne (courte) et bas de l'avant-dernière
+    // Deux espaces candidats, on prend LE PLUS GRAND :
+    // 1. la colonne à droite de TOUTES les lignes (immense sur grand écran)
+    const allRight = Math.max(...rects.map((r) => r.right)) - heroRect.left;
+    const colonne = {
+      left: allRight + 44,
+      top: 90,
+      width: W - allRight - 64,
+      height: H - 130,
+    };
+    // 2. la bande sous "deviennent", à droite de "un film." (le cas laptop)
     const lastRight = rects[rects.length - 1].right - heroRect.left;
     const aboveBottom = rects[rects.length - 2].bottom - heroRect.top;
+    const bande = {
+      left: lastRight + 40,
+      top: aboveBottom + 10,
+      width: W - lastRight - 60,
+      height: H - aboveBottom - 38,
+    };
 
-    zone.left = lastRight + 40;
-    zone.top = aboveBottom + 10;
-    zone.width = W - zone.left - 20;
-    zone.height = H - zone.top - 28;
-
-    // Repli : si même cet espace manque (fenêtre minuscule), on centre
-    // les formes plein cadre — mieux que rien du tout
-    zone.ok = zone.width >= 240 && zone.height >= 150;
-    if (!zone.ok && W >= 500) {
-      zone.left = W * 0.1;
-      zone.top = H * 0.55;
-      zone.width = W * 0.8;
-      zone.height = H * 0.4;
-      zone.ok = true;
+    const utilisable = (r) => r.width >= 240 && r.height >= 150;
+    const candidats = [colonne, bande].filter(utilisable);
+    if (candidats.length) {
+      const best = candidats.reduce((a, b) => (a.width * a.height >= b.width * b.height ? a : b));
+      Object.assign(zone, best, { ok: true });
+    } else if (W >= 500) {
+      // Repli : fenêtre minuscule → formes centrées plein cadre en bas
+      Object.assign(zone, { left: W * 0.1, top: H * 0.55, width: W * 0.8, height: H * 0.4, ok: true });
+    } else {
+      zone.ok = false;
     }
+
+    // Les points grossissent avec l'espace : une grande forme reste dense
+    zone.scale = zone.ok
+      ? gsap.utils.clamp(1, 1.8, Math.sqrt(zone.width * zone.height) / 470)
+      : 1;
+
     canvas.style.display = zone.ok ? '' : 'none';
   }
 
