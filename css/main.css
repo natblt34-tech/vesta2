@@ -1490,6 +1490,7 @@ body.skin-lumen .hero::before {
   z-index: 300;
   display: grid;
   place-items: center;
+  overflow: hidden; /* les éléments de transition (lame, éclat…) restent dedans */
   background:
     radial-gradient(ellipse 70% 55% at 50% 40%, #191209 0%, var(--bg) 62%, #060504 100%);
   will-change: clip-path;
@@ -1672,27 +1673,104 @@ body.skin-lumen .hero::before {
 .cursor-talk .cursor-ring, .cursor-talk .cursor-dot { opacity: 0 !important; }
 
 /* 19. Responsive ------------------------------------------------------------------------------------------------ */
+
+/* --- Tablette (≤ 860px) --- */
 @media (max-width: 860px) {
+  /* Phases : une colonne, vignette masquée, respiration recalculée */
   .phase-inner {
     grid-template-columns: 1fr;
-    gap: 1.2rem;
+    gap: 1.1rem;
     align-content: center;
-    padding-top: 90px;
+    padding: 84px 5vw 32px;
   }
   .phase-num { font-size: 3rem; -webkit-text-stroke-width: 1px; }
   .phase-meta { flex-direction: row; align-items: baseline; gap: 1.2rem; }
   .phase-visual { display: none; }
+  .phase-title { margin: 0.6rem 0 0.8rem; }
+  .phase-text { font-size: 0.95rem; }
+  .badge-live { margin-top: 1.2rem; }
+
   .stats { grid-template-columns: repeat(2, 1fr); }
+
+  /* Biens : l'aperçu suit le curseur — pas de curseur au doigt */
   .work-preview { display: none; }
+  .work-row { grid-template-columns: 2rem 1fr; row-gap: 0.15rem; padding: 1.2rem 0; }
+  .work-meta { grid-column: 2; font-size: 0.6rem; }
+
+  .footer-cols { gap: 2rem; }
 }
 
+/* --- Mobile (≤ 640px) --- */
 @media (max-width: 640px) {
+  /* Nav compacte : liens masqués, guide en avatar seul, CTA resserré */
   .nav-link { display: none; }
-  .polaroid[data-room="terrasse"] { display: none; }
-  .hero-foot { gap: 1.4rem; }
+  .nav-right { gap: 0.55rem; }
+  .logo { font-size: 1.15rem; }
+  .guide-switch { padding: 0.2em 0.5em 0.2em 0.35em; }
+  .guide-switch-label { display: none; }
+  .lang-toggle { padding: 0.45em 0.7em; font-size: 0.62rem; }
+  .site-nav .btn-pill { font-size: 0.58rem; padding: 0.7em 1em; }
+
+  /* Hero : le titre reprend toute la largeur du portrait */
+  .hero { padding: 70px var(--pad) 30px; }
+  .hero-title { font-size: clamp(2.6rem, min(17vw, 24svh), 8rem); }
+
+  /* Phases : soupape pour les petits écrans — la carte peut dépasser
+     100svh si le contenu l'exige (l'empilement sticky reste correct) */
+  .phase-card { height: auto; min-height: 100svh; }
+  .phase-inner { height: auto; min-height: 100svh; }
+
+  /* Overlay : sélecteur en grille 2×2 confortable au pouce */
+  .tour-overlay-inner { gap: 1.1rem; }
+  .mascot-picker { gap: 0.7rem; }
+  .mascot-choice { min-width: 42%; min-height: 128px; padding: 0.9rem 0.8rem 0.8rem; }
+  .overlay-lang { top: 1rem; }
+
+  /* Démo : Polaroïds réduits, poussés dans les coins */
+  .demo-head { top: 8vh; }
+  .polaroid { width: 96px; padding: 6px 6px 20px; font-size: 0.5rem; }
+  .polaroid[data-room="salon"]   { top: 13%; left: 3%; }
+  .polaroid[data-room="cuisine"] { top: 11%; right: 3%; }
+  .polaroid[data-room="chambre"] { bottom: 24%; left: 4%; }
+  .polaroid[data-room="entree"]  { bottom: 22%; right: 4%; }
+  .demo-player { margin-top: 10vh; }
+
+  /* Équipe */
+  .deck { height: 400px; }
+  .staff-name { font-size: 2rem; }
+  .workforce-sub { font-size: 0.95rem; }
+  .deck-hello { right: -8px; top: -56px; }
+
+  /* Biens & stats */
+  .work-name { font-size: 1.25rem; }
+  .stats { gap: 1.2rem; padding: 2.4rem var(--pad); }
+  .stat-num { font-size: 2.2rem; }
+
+  /* Boîte à outils */
+  .toolkit-arena { height: 340px; }
+  .tool-tag { font-size: 0.8rem; }
+
+  /* Contact & footer */
+  .contact-actions { margin-top: 2rem; }
+  .footer-logo { font-size: 1.6rem; }
+  .footer-giant { -webkit-text-stroke-width: 1px; }
+
+  /* Guide : bulle et conversation à l'échelle de l'écran */
+  .mascot-bubble { max-width: 68vw; font-size: 0.85rem; }
+  .mascot-chat { width: min(300px, 88vw); }
+  .tour-pause-box { padding: 1.3rem 1.4rem; }
+  .tour-pause-text { font-size: 1.05rem; }
+}
+
+/* --- Très petits écrans (≤ 400px) --- */
+@media (max-width: 400px) {
+  .btn-solid { font-size: 0.9rem; padding: 0.85em 1.5em; }
+  .mascot-choice { min-width: 40%; min-height: 118px; }
+  .statement-title { font-size: 2.2rem; }
 }
 
 /* 20. prefers-reduced-motion -------------------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .mascot-flame, .marquee-track, .mock-bar-fill { animation: none; }
+  .av-head, .av-head-mid, .av-head-core, .av-tongue, .av-body, .av-spark,
+  .mock-bar-fill { animation: none; }
 }

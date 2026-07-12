@@ -144,6 +144,8 @@ window.VestaMascot = (() => {
 
   function readAlong(force) {
     if (isBusy() || excited) return;
+    // Mobile : pas de marge à côté des textes — il reste sagement en bas
+    if (window.innerWidth < 760) return;
     const now = performance.now();
     if (!force && now - lastFollow < 140) return; // throttle : fluide sans spam
     lastFollow = now;
