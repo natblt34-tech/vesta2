@@ -109,17 +109,20 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 14px 40px rgba(255, 122, 26, 0.35);
 }
 
-/* Bouton contour — pill discret */
+/* Bouton contour — pill discret (background explicite : sur un <button>,
+   le fond natif du navigateur est blanc) */
 .btn-pill {
   font-family: var(--font-m);
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--cream);
+  background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
   padding: 0.85em 1.5em;
   text-decoration: none;
+  cursor: pointer;
   transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
 }
 

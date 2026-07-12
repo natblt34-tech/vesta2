@@ -126,22 +126,23 @@ window.VestaMorph = (() => {
   /* --- Échantillonnage : une forme → des cibles pour chaque point --------------- */
 
   function sampleShape(drawFn) {
-    // La forme est dessinée aux dimensions de la ZONE (droite du titre)
-    // puis décalée : les cibles ne recouvrent jamais le texte
-    const ZW = zone.width;
+    // La forme est dessinée aux dimensions de la ZONE libre, puis décalée :
+    // les cibles ne recouvrent jamais le texte du titre
+    const ZW = Math.round(zone.width);
+    const ZH = Math.round(zone.height);
     const off = document.createElement('canvas');
     off.width = ZW;
-    off.height = H;
+    off.height = ZH;
     const g = off.getContext('2d', { willReadFrequently: true });
     g.fillStyle = '#fff';
-    drawFn(g, ZW, H);
+    drawFn(g, ZW, ZH);
 
-    const data = g.getImageData(0, 0, ZW, H).data;
+    const data = g.getImageData(0, 0, ZW, ZH).data;
     const pts = [];
     const step = 3; // échantillonnage fin : contours nets, lettres lisibles
-    for (let y = 0; y < H; y += step) {
+    for (let y = 0; y < ZH; y += step) {
       for (let x = 0; x < ZW; x += step) {
-        if (data[(y * ZW + x) * 4 + 3] > 128) pts.push({ x: x + zone.left, y });
+        if (data[(y * ZW + x) * 4 + 3] > 128) pts.push({ x: x + zone.left, y: y + zone.top });
       }
     }
     if (!pts.length) return;
@@ -163,10 +164,32 @@ window.VestaMorph = (() => {
   let calmTarget = 0.45; // la première forme est un mot
   let calm = 0.45;
 
+  /* Ordre ALÉATOIRE : un sac mélangé, rebattu quand il est vide, sans
+     jamais rejouer deux fois de suite la même forme */
+  let bag = [];
+  let lastShape = -1;
+
+  function drawFromBag(count) {
+    if (!bag.length) {
+      bag = Array.from({ length: count }, (_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = (Math.random() * (i + 1)) | 0;
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      if (bag[bag.length - 1] === lastShape && bag.length > 1) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    return bag.pop();
+  }
+
   function nextShape() {
     if (!zone.ok) return;
     const shapes = shapeList();
-    const shape = shapes[shapeIndex % shapes.length];
+    // Toute première forme : toujours le mot VESTA, ensuite l'aléatoire
+    const index = shapeIndex === 0 ? 0 : drawFromBag(shapes.length);
+    lastShape = index;
+    const shape = shapes[index];
     sampleShape(shape.draw);
     calmTarget = shape.calm;
     shapeIndex++;
@@ -203,7 +226,7 @@ window.VestaMorph = (() => {
        les mots restent lisibles. Projection perspective : les points
        proches grossissent et brillent, les lointains s'estompent. */
     const cx = zone.left + zone.width / 2;
-    const cy = H * 0.52;
+    const cy = zone.top + zone.height / 2;
     calm += (calmTarget - calm) * 0.02; // transition douce mot ↔ picto
     const rotY = 0.3 * calm * Math.sin(time * 0.38);
     const rotX = 0.13 * calm * Math.sin(time * 0.26 + 1.3);
@@ -276,17 +299,37 @@ window.VestaMorph = (() => {
 
   /* Le canvas couvre tout le hero (les points voyagent librement pendant
      les transitions, même derrière le titre) mais les FORMES se posent
-     dans la zone libre à droite du texte, mesurée au pixel. */
-  let zone = { left: 0, width: 0, ok: false };
+     dans le grand espace libre EN BAS À DROITE : sous la ligne la plus
+     large ("deviennent") et à droite de la dernière ("un film."), qui est
+     courte. Spacieux sur tous les écrans, laptop compris — contrairement
+     à la fine colonne de droite qui disparaissait sous 1600px. */
+  let zone = { left: 0, top: 0, width: 0, height: 0, ok: false };
 
   function layout() {
-    // La ligne de titre la plus large (les inners sont inline-block :
-    // leur boîte colle au texte, contrairement au h1 qui prend tout)
     const lines = [...document.querySelectorAll('.hero-line-inner')];
-    const textRight = Math.max(...lines.map((l) => l.getBoundingClientRect().right));
-    zone.left = textRight + 36;
-    zone.width = window.innerWidth - zone.left - 12;
-    zone.ok = zone.width >= 250;
+    if (lines.length < 3) { zone.ok = false; return; }
+    const rects = lines.map((l) => l.getBoundingClientRect());
+    const heroRect = canvas.getBoundingClientRect();
+
+    // Bord droit de la DERNIÈRE ligne (courte) et bas de l'avant-dernière
+    const lastRight = rects[rects.length - 1].right - heroRect.left;
+    const aboveBottom = rects[rects.length - 2].bottom - heroRect.top;
+
+    zone.left = lastRight + 40;
+    zone.top = aboveBottom + 10;
+    zone.width = W - zone.left - 20;
+    zone.height = H - zone.top - 28;
+
+    // Repli : si même cet espace manque (fenêtre minuscule), on centre
+    // les formes plein cadre — mieux que rien du tout
+    zone.ok = zone.width >= 240 && zone.height >= 150;
+    if (!zone.ok && W >= 500) {
+      zone.left = W * 0.1;
+      zone.top = H * 0.55;
+      zone.width = W * 0.8;
+      zone.height = H * 0.4;
+      zone.ok = true;
+    }
     canvas.style.display = zone.ok ? '' : 'none';
   }
 

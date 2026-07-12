@@ -56,10 +56,32 @@ window.VestaMascot = (() => {
   /* Position de repos : coin bas-gauche, hors du contenu */
   const home = () => ({ x: 26, y: window.innerHeight - BODY_SIZE - 44 });
 
-  /* Perchoirs de balade libre : bords et coins, jamais le centre du contenu */
-  const ROAM_SPOTS = [
-    [4, 78], [45, 82], [86, 78], [88, 55], [86, 28], [5, 30], [4, 55], [8, 78],
+  /* Compagnon de lecture : pour chaque section, une place "naturelle" à
+     côté du contenu (jamais dessus). Le guide s'y rend quand la section
+     occupe l'écran, comme s'il lisait avec nous. */
+  const READ_SPOTS = [
+    ['#contact', [10, 72]],
+    ['#toolkit', null],          // l'arène a son propre ancrage (physics.js)
+    ['.stats', [86, 66]],
+    ['#biens', [86, 22]],
+    ['.statement', [9, 68]],
+    ['#equipe', [7, 70]],
+    ['#demo', null],             // la démo aussi (il fait le spectacle)
+    ['#phases', [4, 80]],
+    ['#work', [85, 62]],
+    ['#top', [82, 74]],
   ];
+
+  /* La section qui occupe le centre de l'écran → sa place de lecture */
+  function readingSpot() {
+    for (const [selector, spot] of READ_SPOTS) {
+      const el = document.querySelector(selector);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5) return spot;
+    }
+    return null;
+  }
 
   /* Le guide est-il occupé (visite, arène, démo, conversation) ? */
   function isBusy() {
@@ -110,13 +132,26 @@ window.VestaMascot = (() => {
 
   /* --- Un vrai petit bonhomme : balade, scroll, manies --------------------------- */
 
-  /* Balade libre : quand rien ne l'occupe, il change de perchoir et de taille.
-     Il s'immobilise dès que le curseur s'approche (sinon impossible à cliquer). */
-  function freeRoam() {
+  /* Il accompagne la lecture : rejoint la place de la section visible,
+     avec un léger désaxage pour rester vivant. S'immobilise dès que le
+     curseur s'approche (sinon impossible à cliquer). */
+  function readAlong() {
     if (isBusy() || excited) return;
-    const spot = ROAM_SPOTS[(Math.random() * ROAM_SPOTS.length) | 0];
-    moveTo(spot[0], spot[1]);
-    gsap.to(root, { scale: 0.85 + Math.random() * 0.35, duration: 1.2, ease: 'power2.inOut' });
+    const spot = readingSpot();
+    if (!spot) return; // section gérée ailleurs (démo, arène)
+    moveTo(
+      spot[0] + (Math.random() - 0.5) * 5,
+      spot[1] + (Math.random() - 0.5) * 7
+    );
+    gsap.to(root, { scale: 0.92 + Math.random() * 0.18, duration: 1.2, ease: 'power2.inOut' });
+  }
+
+  /* Dès que le scroll se pose sur une nouvelle section, il la rejoint */
+  let readTimer = null;
+
+  function onScrollForReading() {
+    clearTimeout(readTimer);
+    readTimer = setTimeout(readAlong, 220); // à la fin du geste de scroll
   }
 
   /* Réactions au scroll : il s'étire dans le mouvement et suit des yeux */
@@ -336,11 +371,13 @@ window.VestaMascot = (() => {
     window.addEventListener('resize', () => { if (!document.body.classList.contains('tour-active')) goHome(); });
     scheduleBlink();
 
-    // Vie propre : balade toutes les ~8s, manies toutes les ~11s,
-    // réactions au scroll en continu
-    setInterval(freeRoam, 8000 + Math.random() * 3000);
+    // Vie propre : il suit la lecture (fin de chaque geste de scroll +
+    // micro-repositionnement régulier), manies toutes les ~11s,
+    // squash & stretch au scroll en continu
+    setInterval(readAlong, 9000 + Math.random() * 3000);
     setInterval(idleAct, 11000);
     window.VestaScroll.lenis.on('scroll', onScroll);
+    window.VestaScroll.lenis.on('scroll', onScrollForReading);
   }
 
   return {
