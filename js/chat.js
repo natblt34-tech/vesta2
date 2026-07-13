@@ -27,7 +27,7 @@ window.VestaChat = (() => {
   const BIOS_FR = {
     cadre: 'CADRE-01, chef opérateur. Je calcule des travellings parfaits sans jamais renverser mon café. Je n’ai pas de café.',
     lumen: 'LUMEN-02, à la lumière. Mon truc : faire croire que chaque pièce donne plein sud à 18h. C’est un don.',
-    cut: 'CUT-03. Montage. Trois mots suffisent.',
+    cut: 'CUT-03. Assistant monteur. Je prépare les coupes, le réalisateur tranche.',
     scribe: 'SCRIBE-04, la plume. J’écris vos annonces pendant que les autres s’agitent. Quelqu’un doit bien tenir le journal.',
   };
 
@@ -50,7 +50,7 @@ window.VestaChat = (() => {
         ],
       },
       how: {
-        text: t('chat.how', 'Vous déposez une photo par pièce, l’équipe IA tourne et monte le film, et vous le recevez sous 48h, prêt à publier partout.'),
+        text: t('chat.how', 'Vous déposez une photo par pièce et votre brief d’agencement. L’IA tourne les plans, fidèles au bien, puis un réalisateur humain monte, étalonne et signe. Livré sous 48 h, prêt à publier.'),
         options: [
           { label: t('chat.opt.price', 'Combien ça coûte ?'), to: 'price' },
           back, close,
@@ -104,12 +104,13 @@ window.VestaChat = (() => {
 
   /* Le guide lit avec vous : petites réactions quand une section arrive */
   const REACTIONS_FR = {
-    work: ['Ah, la partie où on est francs.', 'Des slideshows… on a tous connu ça.'],
-    phases: ['Trois phases, zéro caméra. Mon passage préféré.', 'Regardez comme les cartes s’empilent bien.'],
-    equipe: ['Mes collègues ! Cliquez, ils adorent ça.', 'On est une petite équipe, mais quelle équipe.'],
+    work: ['Ah, la partie où on est francs.', 'Un studio, pas une usine. Retenez ça.'],
+    phases: ['Cinq minutes de brief, et la caméra sait où passer.', 'Le réalisateur refait tout plan douteux. Je l’ai vu faire.'],
+    traversees: ['Ma section préférée. La caméra pousse la porte…', 'Un diaporama montre. Une traversée fait visiter.'],
+    equipe: ['Mes collègues ! Et le patron, en carte sombre.', 'Rien ne part sans sa signature. Rien.'],
     statement: ['Là, c’est du sérieux.', 'On l’a écrit en grand pour que ce soit clair.'],
-    biens: ['Survolez, les aperçus valent le détour.', 'De vraies annonces, de vrais films.'],
-    stats: ['Les chiffres parlent d’eux-mêmes.', '48 heures. Montre en main.'],
+    biens: ['Des démonstrations, tournées sur de vrais volumes.', 'Survolez, les aperçus valent le détour.'],
+    stats: ['48 heures. Montre en main.', 'Cent pour cent validés par un œil humain. Le sien.'],
     formules: ['Le premier film est offert, au passage.', 'Mon conseil : Flamme. Mais je suis payé en tokens.'],
     contact: ['On y est presque… un petit clic ?', 'Après ça, vos annonces ne seront plus les mêmes.'],
   };
@@ -218,9 +219,9 @@ window.VestaChat = (() => {
 
   function initReactions() {
     const map = {
-      '#work': 'work', '#phases': 'phases', '#equipe': 'equipe',
-      '.statement': 'statement', '#biens': 'biens', '.stats': 'stats',
-      '#formules': 'formules', '#contact': 'contact',
+      '#work': 'work', '#phases': 'phases', '#traversees': 'traversees',
+      '#equipe': 'equipe', '.statement': 'statement', '#biens': 'biens',
+      '.stats': 'stats', '#formules': 'formules', '#contact': 'contact',
     };
     Object.entries(map).forEach(([selector, key]) => {
       ScrollTrigger.create({

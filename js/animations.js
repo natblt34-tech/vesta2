@@ -182,6 +182,13 @@ window.VestaAnimations = (() => {
       stagger: 0.13,
       ease: 'power3.out',
     });
+    gsap.from('.hero-tagline', {
+      y: 24,
+      opacity: 0,
+      duration: 0.9,
+      delay: 0.55,
+      ease: 'power3.out',
+    });
   }
 
   function initHeroIntro() {
@@ -350,7 +357,7 @@ window.VestaAnimations = (() => {
         visible = true;
         preview.dataset.tint = row.dataset.tint;
         label.textContent = row.querySelector('.work-name').textContent
-          + window.VestaI18n.t('works.preview', ' · film vesta');
+          + window.VestaI18n.t('works.preview', ' · film de démonstration');
         gsap.to(preview, { opacity: 1, scale: 1, duration: 0.35, ease: 'power3.out' });
       });
     });
@@ -408,6 +415,8 @@ window.VestaAnimations = (() => {
 
     function sayHello(worker) {
       if (!hello) return;
+      // Le réalisateur est humain : pas d'avatar-flamme pour lui
+      if (!['cadre', 'lumen', 'cut', 'scribe'].includes(worker)) return;
       helloFlame.className = 'mascot-flame flame-skin--' + worker;
       if (helloTl) helloTl.kill();
       gsap.set(hello, { opacity: 0, x: 0, y: 0, rotation: 0, scale: 1, yPercent: 0 });

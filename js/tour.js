@@ -24,7 +24,7 @@ window.VestaTour = (() => {
       target: '#work',
       mascot: [84, 66],   // le manifeste est calé à gauche
       text: () => window.VestaI18n.t('tour.work',
-        'Ici on dit les choses franchement : vos biens méritent mieux que des photos figées.'),
+        'Ici on dit les choses franchement : Vesta est un studio. L’IA filme, un humain réalise.'),
     },
     /* Les trois phases : un arrêt par carte de la pile sticky, sinon le
        glissement traverse tout et seule la dernière reste visible. */
@@ -32,7 +32,7 @@ window.VestaTour = (() => {
       target: '#phases',
       mascot: [3, 82],    // coin bas gauche, sous le grand numéro
       text: () => window.VestaI18n.t('tour.phase1',
-        'Phase un : déposez une photo par pièce, brutes, au smartphone. Vesta lit les volumes et la lumière.'),
+        'Phase un : une photo par pièce, et votre brief d’agencement. Cinq minutes, pas plus.'),
     },
     {
       target: '#phases',
@@ -40,7 +40,7 @@ window.VestaTour = (() => {
       duration: 2.2,
       mascot: [3, 82],
       text: () => window.VestaI18n.t('tour.phase2',
-        'Phase deux : l’IA monte le film. Caméra, transitions, étalonnage, musique.'),
+        'Phase deux : l’IA tourne les plans, fidèles au bien. Et un réalisateur humain monte, étalonne et signe.'),
     },
     {
       target: '#phases',
@@ -48,7 +48,7 @@ window.VestaTour = (() => {
       duration: 2.2,
       mascot: [3, 82],
       text: () => window.VestaI18n.t('tour.phase3',
-        'Phase trois : un clic, et le film sort partout. Portails, réseaux, vitrine.'),
+        'Phase trois : livré prêt à publier. Portails en 16:9, réseaux en 9:16, musique incluse.'),
     },
     {
       target: '#demo',
@@ -59,10 +59,16 @@ window.VestaTour = (() => {
         'Et voici mon numéro préféré : je goûte vos photos, et je vous rends un film.'),
     },
     {
+      target: '#traversees',
+      mascot: [85, 66],   // le texte est calé à gauche
+      text: () => window.VestaI18n.t('tour.traversees',
+        'Notre signature : les traversées. La caméra passe de pièce en pièce par les vrais passages du bien.'),
+    },
+    {
       target: '#equipe',
       mascot: [6, 74],    // le deck et le titre sont centrés
       text: () => window.VestaI18n.t('tour.equipe',
-        'Votre équipe de tournage IA. Cliquez sur les cartes pour la rencontrer.'),
+        'L’équipe : quatre IA aux caméras… et un réalisateur humain qui signe chaque film. Cliquez sur les cartes.'),
       // Sa propre carte remonte du deck : petit sursaut de fierté
       followUp: {
         delay: 2600,
@@ -77,7 +83,7 @@ window.VestaTour = (() => {
       target: '#formules',
       mascot: [85, 60],   // les cartes sont à gauche et au centre
       text: () => window.VestaI18n.t('tour.formules',
-        'Trois formules selon votre appétit. Le premier film est offert, et le tarif se découvre en rendez-vous ✦'),
+        'Trois formules selon votre volume de mandats. Le premier film est offert, et le tarif se découvre en rendez-vous ✦'),
     },
     {
       target: '#toolkit',

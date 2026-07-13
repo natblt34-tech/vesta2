@@ -66,9 +66,11 @@ window.VestaMascot = (() => {
     readEls = [...document.querySelectorAll(
       '.manifesto-title, .manifesto-sub, .bucket-chips, ' +
       '.phase-title, .phase-text, .arrow-list, ' +
+      '.traversees-title, .traversees-lead, .traversees-text, ' +
       '.workforce-title, .workforce-sub, .deck, ' +
       '.statement-title, .statement-sub, ' +
       '.works-title, .work-row, .stat, ' +
+      '.plans-title, .plan-card, ' +
       '.contact-title, .contact-actions, .footer-brand'
     )];
   }
