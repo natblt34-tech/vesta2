@@ -818,6 +818,104 @@ body.skin-lumen .hero::before {
   line-height: 1;
 }
 
+/* 13b. Formules — trois ambitions, zéro prix affiché ----------------------------------------------- */
+.plans {
+  padding: var(--sect) var(--pad);
+  border-top: 1px solid var(--line);
+}
+
+.plans-head { max-width: 46rem; }
+
+.plans-title {
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  margin-top: 1.4rem;
+}
+
+.plans-sub {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 1.6rem;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.4rem;
+  margin-top: 3.5rem;
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(245, 239, 230, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 2rem 1.8rem;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.plan-card:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-4px);
+}
+
+/* La formule du milieu : celle qu'on choisit */
+.plan-card.is-featured {
+  border-color: var(--fire);
+  background: rgba(255, 122, 26, 0.05);
+}
+
+.plan-flag {
+  position: absolute;
+  top: -0.7em;
+  left: 1.6rem;
+  background: linear-gradient(115deg, var(--ember), var(--fire));
+  color: #180c02;
+  border-radius: 999px;
+  padding: 0.45em 1em;
+  font-size: 0.58rem;
+}
+
+.plan-tier { color: var(--gold); }
+
+.plan-name {
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  margin-top: 0.7rem;
+}
+
+.plan-for {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+}
+
+.plan-card .arrow-list {
+  margin-top: 1.4rem;
+  flex-grow: 1;
+}
+
+.plan-card .arrow-list li {
+  font-size: 0.92rem;
+  padding: 0.32em 0;
+}
+
+.plan-card .badge-live { align-self: flex-start; }
+
+.plans-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3.2rem;
+  text-align: center;
+}
+
 /* 14. Toolkit — arène physique -------------------------------------------------------------------- */
 .toolkit { padding: var(--sect) var(--pad); }
 

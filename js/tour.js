@@ -74,6 +74,12 @@ window.VestaTour = (() => {
       extra: 3200, // le temps de savourer son moment
     },
     {
+      target: '#formules',
+      mascot: [85, 60],   // les cartes sont à gauche et au centre
+      text: () => window.VestaI18n.t('tour.formules',
+        'Trois formules selon votre appétit. Le premier film est offert, et le tarif se découvre en rendez-vous ✦'),
+    },
+    {
       target: '#toolkit',
       mascot: [80, 26],   // en l'air dans l'arène, au-dessus du tas de tags
       text: () => window.VestaI18n.t('tour.toolkit',

@@ -26,6 +26,7 @@ window.VestaI18n = (() => {
     // Nav
     ['.nav-link[href="#demo"]', 'Demo'],
     ['.nav-link[href="#equipe"]', 'Crew'],
+    ['.nav-link[href="#formules"]', 'Plans'],
     ['.site-nav .btn-pill', 'Book a demo →'],
 
     // Overlay d'accueil
@@ -145,6 +146,35 @@ window.VestaI18n = (() => {
     ['.stat:nth-child(3) .stat-label', 'DELIVERY TIME'],
     ['.stat:nth-child(4) .stat-label', 'TRIES PER FILM'],
 
+    // Formules (aucun prix : il se découvre en rendez-vous)
+    ['.plans-head .mono-label', '( THE PLANS )'],
+    ['.plans-title', 'A plan for<br>every ambition.', true],
+    ['.plans-sub', 'Three tiers, built around your listing volume. Exact pricing is shared in a meeting. And whichever plan you pick, your first film is free.'],
+    ['.plan-card:nth-child(1) .plan-tier', 'PLAN 01'],
+    ['.plan-card:nth-child(1) .plan-name', 'Spark'],
+    ['.plan-card:nth-child(1) .plan-for', 'The agent with a few listings'],
+    ['.plan-card:nth-child(1) .arrow-list li:nth-child(1)', '→ Cinematic films every month'],
+    ['.plan-card:nth-child(1) .arrow-list li:nth-child(2)', '→ Delivered within 48h'],
+    ['.plan-card:nth-child(1) .arrow-list li:nth-child(3)', '→ Exports for portals and storefront'],
+    ['.plan-flag', 'MOST POPULAR ✦'],
+    ['.plan-card:nth-child(2) .plan-tier', 'PLAN 02'],
+    ['.plan-card:nth-child(2) .plan-name', 'Flame'],
+    ['.plan-card:nth-child(2) .plan-for', 'The active agency'],
+    ['.plan-card:nth-child(2) .arrow-list li:nth-child(1)', '→ A real monthly rhythm of films'],
+    ['.plan-card:nth-child(2) .arrow-list li:nth-child(2)', '→ 9:16 cuts for social media'],
+    ['.plan-card:nth-child(2) .arrow-list li:nth-child(3)', '→ Virtual staging for empty homes'],
+    ['.plan-card:nth-child(2) .arrow-list li:nth-child(4)', '→ Signature room-to-room walkthroughs'],
+    ['.plan-card:nth-child(3) .plan-tier', 'PLAN 03'],
+    ['.plan-card:nth-child(3) .plan-name', 'Blaze'],
+    ['.plan-card:nth-child(3) .plan-for', 'The agency that delegates everything'],
+    ['.plan-card:nth-child(3) .arrow-list li:nth-child(1)', '→ Maximum film volume'],
+    ['.plan-card:nth-child(3) .arrow-list li:nth-child(2)', '→ Priority 24h delivery'],
+    ['.plan-card:nth-child(3) .arrow-list li:nth-child(3)', '→ Unlimited virtual staging'],
+    ['.plan-card:nth-child(3) .arrow-list li:nth-child(4)', '→ Ready-to-post visuals and captions'],
+    ['.plan-card .badge-live', 'FIRST FILM FREE'],
+    ['.plans-cta .btn-solid', 'Get your price in a meeting →'],
+    ['.plans-cta .mono-label', '30 MINUTES · NO COMMITMENT'],
+
     // Toolkit
     ['.toolkit-title', 'The toolbox'],
     ['#toolkit > .mono-label', 'DRAG & THROW · EVERY TOOL RUNS IN PRODUCTION'],
@@ -162,12 +192,14 @@ window.VestaI18n = (() => {
     // Contact & footer
     ['#contact .mono-label', '( YOUR NEXT LISTING )'],
     ['.contact-title', 'Bring your<br>listings to life.', true],
-    ['.contact-actions .btn-solid', 'Request access →'],
+    ['.contact-actions .btn-solid', 'Book a meeting →'],
+    ['.contact-actions .mono-label', 'YOUR FIRST FILM IS FREE'],
     ['.footer-tag', 'The spirit of the hearth that puts your listings on screen.'],
     ['.footer-col:nth-child(1) .mono-label', 'EXPLORE'],
     ['.footer-col:nth-child(1) a:nth-of-type(1)', 'The demo'],
     ['.footer-col:nth-child(1) a:nth-of-type(2)', 'The crew'],
-    ['.footer-col:nth-child(1) a:nth-of-type(3)', 'The toolbox'],
+    ['.footer-col:nth-child(1) a:nth-of-type(3)', 'The plans'],
+    ['.footer-col:nth-child(1) a:nth-of-type(4)', 'The toolbox'],
     ['.footer-col:nth-child(2) .mono-label', 'CONTACT'],
     ['.footer-col:nth-child(2) a:nth-of-type(2)', 'Book a demo'],
     ['.footer-meta .mono-label', '© 2026 VESTA · AI FOR REAL ESTATE'],
@@ -218,7 +250,8 @@ window.VestaI18n = (() => {
     // Conversation avec le guide
     'chat.root': 'I\'m listening ✦ What would you like to know?',
     'chat.how': 'You upload one photo per room, the AI crew shoots and edits the film, and you get it within 48 hours, ready to publish everywhere.',
-    'chat.price': '10 to 50 times less than a videographer: an agency subscription or pay-per-film, set upfront. No travel, no surprises.',
+    'chat.price': 'Three plans built around your listing volume: Spark, Flame and Blaze. Expect 10 to 50 times less than a videographer, and your first film is free. The exact price? We share it in a meeting, no runaround.',
+    'chat.opt.plans': 'See the plans',
     'chat.photos': 'Yes! Your smartphone photos are enough: backlight, dark rooms and rough angles are fixed automatically. One roughly straight photo per room, that\'s all.',
     'chat.jokes': [
       'Why did the flame fail her casting? She skipped too many steps and burned the rest.',
@@ -256,6 +289,7 @@ window.VestaI18n = (() => {
       statement: ['This part is serious.', 'We wrote it big so it\'s clear.'],
       biens: ['Hover around, the previews are worth it.', 'Real listings, real films.'],
       stats: ['The numbers speak for themselves.', '48 hours. Clock it.'],
+      formules: ['First film\'s free, by the way.', 'My advice: Flame. But I\'m paid in tokens.'],
       contact: ['Almost there… one little click?', 'After this, your listings won\'t be the same.'],
     },
 
@@ -266,6 +300,7 @@ window.VestaI18n = (() => {
     'tour.phase3': 'Phase three: one click, and the film ships everywhere. Portals, social, storefront.',
     'tour.demo': 'And here comes my favorite trick: I taste your photos, and hand you back a film.',
     'tour.equipe': 'Your AI film crew. Click the cards to meet everyone.',
+    'tour.formules': 'Three plans, depending on your appetite. The first film is free, and the price is revealed in a meeting ✦',
     'tour.toolkit': 'Throw me a tag, I\'ll catch it with my lasso! Just don\'t touch me with one, everything burns around here.',
     'tour.contact': 'Ready to bring your listings to life? Right this way. I\'ll let you explore ✦',
   };

@@ -57,9 +57,10 @@ window.VestaChat = (() => {
         ],
       },
       price: {
-        text: t('chat.price', '10 à 50 fois moins qu’un vidéaste : abonnement agence ou paiement au film, cadré dès le départ. Zéro déplacement, zéro surprise.'),
+        text: t('chat.price', 'Trois formules selon votre volume de mandats : Étincelle, Flamme et Brasier. Comptez 10 à 50 fois moins qu’un vidéaste, et votre premier film est offert. Le tarif exact ? On vous le donne en rendez-vous, sans détour.'),
         options: [
-          { label: t('chat.opt.contact', 'Demander un accès →'), action: 'contact' },
+          { label: t('chat.opt.contact', 'Réserver un rendez-vous →'), action: 'contact' },
+          { label: t('chat.opt.plans', 'Voir les formules'), action: 'plans' },
           back, close,
         ],
       },
@@ -109,6 +110,7 @@ window.VestaChat = (() => {
     statement: ['Là, c’est du sérieux.', 'On l’a écrit en grand pour que ce soit clair.'],
     biens: ['Survolez, les aperçus valent le détour.', 'De vraies annonces, de vrais films.'],
     stats: ['Les chiffres parlent d’eux-mêmes.', '48 heures. Montre en main.'],
+    formules: ['Le premier film est offert, au passage.', 'Mon conseil : Flamme. Mais je suis payé en tokens.'],
     contact: ['On y est presque… un petit clic ?', 'Après ça, vos annonces ne seront plus les mêmes.'],
   };
 
@@ -140,6 +142,11 @@ window.VestaChat = (() => {
         if (opt.action === 'contact') {
           closeChat();
           window.VestaScroll.lenis.scrollTo('#contact', { duration: 1.4 });
+          return;
+        }
+        if (opt.action === 'plans') {
+          closeChat();
+          window.VestaScroll.lenis.scrollTo('#formules', { duration: 1.4 });
           return;
         }
         if (opt.action === 'skin') {
@@ -213,7 +220,7 @@ window.VestaChat = (() => {
     const map = {
       '#work': 'work', '#phases': 'phases', '#equipe': 'equipe',
       '.statement': 'statement', '#biens': 'biens', '.stats': 'stats',
-      '#contact': 'contact',
+      '#formules': 'formules', '#contact': 'contact',
     };
     Object.entries(map).forEach(([selector, key]) => {
       ScrollTrigger.create({
