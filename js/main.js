@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // tags traduits, le scramble lira le texte final, etc.
   window.VestaI18n.init();
 
+  // Les avatars SVG remplissent leurs conteneurs AVANT que mascotte et
+  // animations ne cherchent les yeux/pupilles à l'intérieur
+  window.VestaAvatars.init();
+
   window.VestaAnimations.init();
   window.VestaMascot.init();
   window.VestaTour.init();

@@ -313,6 +313,8 @@ window.VestaMascot = (() => {
     currentSkin = key;
     const flame = root.querySelector('.mascot-flame');
     flame.className = 'mascot-flame flame-skin--' + key;
+    flame.innerHTML = window.VestaAvatars.svg(key); // recharge le SVG du guide
+    pupils = [...root.querySelectorAll('.mascot-pupil')]; // les yeux ont changé
 
     // L'ambiance du site (fond, filets, lueur du hero) suit le guide
     document.body.classList.remove('skin-cadre', 'skin-lumen', 'skin-cut', 'skin-scribe');
@@ -320,7 +322,10 @@ window.VestaMascot = (() => {
 
     // Le mini-avatar du bouton nav suit aussi
     const navFlame = document.querySelector('#guide-switch .mascot-flame');
-    if (navFlame) navFlame.className = 'mascot-flame flame-skin--' + key;
+    if (navFlame) {
+      navFlame.className = 'mascot-flame flame-skin--' + key;
+      navFlame.innerHTML = window.VestaAvatars.svg(key);
+    }
   }
 
   function getSkin() { return currentSkin; }

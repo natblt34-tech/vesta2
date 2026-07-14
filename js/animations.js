@@ -410,7 +410,6 @@ window.VestaAnimations = (() => {
        coucou — chacun a sa propre gestuelle. */
     const hello = deck.querySelector('.deck-hello');
     const helloFlame = hello ? hello.querySelector('.mascot-flame') : null;
-    const helloEyes = hello ? hello.querySelectorAll('.mascot-eye') : [];
     let helloTl = null;
 
     function sayHello(worker) {
@@ -418,6 +417,8 @@ window.VestaAnimations = (() => {
       // Le réalisateur est humain : pas d'avatar-flamme pour lui
       if (!['cadre', 'lumen', 'cut', 'scribe'].includes(worker)) return;
       helloFlame.className = 'mascot-flame flame-skin--' + worker;
+      helloFlame.innerHTML = window.VestaAvatars.svg(worker); // SVG du bon skin
+      const helloEyes = helloFlame.querySelectorAll('.mascot-eye');
       if (helloTl) helloTl.kill();
       gsap.set(hello, { opacity: 0, x: 0, y: 0, rotation: 0, scale: 1, yPercent: 0 });
       gsap.set(helloEyes, { scaleY: 1 });
