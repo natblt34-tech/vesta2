@@ -14,8 +14,10 @@
 window.VestaMascot = (() => {
   'use strict';
 
-  const BODY_SIZE = 76;      // diamètre du médaillon (voir CSS .mascot-body)
+  const BODY_SIZE = 84;      // encombrement du personnage (voir CSS .mascot-body)
   const EXCITE_DIST = 130;   // distance curseur → mascotte qui déclenche l'excitation
+
+  let dropHoldUntil = 0;     // après un lâcher, il reste sur place un instant
 
   /* Les quatre agents jouables : apparence (classe CSS) et caractère (textes).
      `greeting` ouvre la visite, `self` est son petit moment de fierté quand
@@ -95,6 +97,8 @@ window.VestaMascot = (() => {
       || root.classList.contains('is-docked')
       || root.classList.contains('is-performing')
       || root.classList.contains('is-chatting')
+      || root.classList.contains('is-dragging')
+      || performance.now() < dropHoldUntil   // il savoure là où on l'a posé
       || root.hidden;
   }
 
@@ -377,8 +381,88 @@ window.VestaMascot = (() => {
   }
 
   function setSkip(visible) { skipBtn.hidden = !visible; }
-  function onBodyClick(cb) { body.addEventListener('click', cb); }
   function onSkipClick(cb) { skipBtn.addEventListener('click', cb); }
+
+  /* Clic sur le guide → ouvre le chat, SAUF si on vient de le glisser
+     (le drag consomme le clic pour ne pas ouvrir la conversation par erreur) */
+  function onBodyClick(cb) {
+    body.addEventListener('click', (e) => {
+      if (dragMoved) { dragMoved = false; return; } // c'était un glissé
+      cb(e);
+    });
+  }
+
+  /* --- Cliqué-glissé : on attrape le guide et on le déplace, il adore ça --- */
+
+  let dragging = false;
+  let dragMoved = false;
+  let pointerStart = { x: 0, y: 0 };
+  let grabOffset = { x: 0, y: 0 };
+
+  function initDrag() {
+    body.addEventListener('pointerdown', (e) => {
+      if (e.button && e.button !== 0) return;
+      dragging = true;
+      dragMoved = false;
+      pointerStart = { x: e.clientX, y: e.clientY };
+      grabOffset = {
+        x: e.clientX - (gsap.getProperty(root, 'x') || 0),
+        y: e.clientY - (gsap.getProperty(root, 'y') || 0),
+      };
+      try { body.setPointerCapture(e.pointerId); } catch (_) { /* ok */ }
+    });
+
+    body.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - pointerStart.x;
+      const dy = e.clientY - pointerStart.y;
+
+      // Seuil : en-deçà, c'est un clic (on n'interrompt rien)
+      if (!dragMoved && Math.hypot(dx, dy) < 5) return;
+
+      if (!dragMoved) {
+        // Début réel du glissé : il jubile (l'auto-déplacement se suspend
+        // tout seul via isBusy() tant que .is-dragging est posé)
+        dragMoved = true;
+        root.classList.add('is-dragging', 'is-excited');
+        excited = true;
+        say(pickGrab());
+        hideBubble(1600);
+      }
+
+      // Suivi direct du pointeur (1:1) — la dérive interne ajoute un micro-flottement
+      gsap.set(root, {
+        x: Math.max(6, Math.min(window.innerWidth - BODY_SIZE, e.clientX - grabOffset.x)),
+        y: Math.max(6, Math.min(window.innerHeight - BODY_SIZE, e.clientY - grabOffset.y)),
+      });
+    });
+
+    const endDrag = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      try { body.releasePointerCapture(e.pointerId); } catch (_) { /* ok */ }
+      if (!dragMoved) return;
+
+      // Atterrissage élastique, puis il reste sur place quelques secondes
+      root.classList.remove('is-dragging');
+      excited = false;
+      root.classList.remove('is-excited');
+      gsap.fromTo(body, { scale: 0.82 }, { scale: 1, duration: 0.6, ease: 'elastic.out(1, 0.45)' });
+      say(pickDrop());
+      hideBubble(1800);
+      dropHoldUntil = performance.now() + 4500; // il savoure avant de repartir
+    };
+
+    body.addEventListener('pointerup', endDrag);
+    body.addEventListener('pointercancel', endDrag);
+  }
+
+  /* Petites répliques du jeu de déplacement */
+  const GRABS_FR = ['Wiii ✦', 'Ouah, on décolle !', 'Emmenez-moi ✦', 'Héhé !'];
+  const DROPS_FR = ['Atterrissage réussi ✦', 'On refait un tour ?', 'Merci du voyage !', 'Pouf.'];
+  const pickFrom = (key, fr) => { const a = window.VestaI18n.t(key, fr); return a[(Math.random() * a.length) | 0]; };
+  const pickGrab = () => pickFrom('mascot.grabs', GRABS_FR);
+  const pickDrop = () => pickFrom('mascot.drops', DROPS_FR);
 
   function init() {
     root = document.getElementById('mascot');
@@ -408,6 +492,7 @@ window.VestaMascot = (() => {
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('resize', () => { if (!document.body.classList.contains('tour-active')) goHome(); });
     scheduleBlink();
+    initDrag();
 
     // Vie propre : il suit la lecture EN CONTINU pendant le scroll
     // (ancré aux blocs de texte), se recale régulièrement, fait ses manies,

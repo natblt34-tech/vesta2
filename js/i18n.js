@@ -254,6 +254,8 @@ window.VestaI18n = (() => {
     'mascot.handover': 'All yours ✦',
     'mascot.hop': 'Gotcha! ✦',
     'mascot.oops': 'Oops!',
+    'mascot.grabs': ['Wheee ✦', 'Ooh, lift-off!', 'Take me along ✦', 'Hehe!'],
+    'mascot.drops': ['Nice landing ✦', 'Another ride?', 'Thanks for the trip!', 'Poof.'],
     'works.preview': ' · demo film',
 
     // Les quatre agents

@@ -1145,16 +1145,16 @@ body.skin-lumen .hero::before {
 
 /* 17. Mascotte — l'esprit du foyer -------------------------------------------------------------------------- */
 
-/* Les avatars des guides — SVG vectoriels (js/avatars.js) inspirés de la
-   "famille de flammes". Le conteneur .mascot-flame dimensionne le SVG ;
-   celui-ci respire, ses flammes dansent, ses yeux suivent le curseur. */
+/* Les avatars des guides — SVG vectoriels (js/avatars.js) : une flamme en
+   goutte unifiée (corps + flamme dans un seul dégradé), qui respire, dont
+   la pointe ondule et lâche des flammèches. Plus gros qu'avant. */
 .mascot-flame {
   --m-glow: rgba(255, 122, 26, 0.7);
   position: relative;
   display: block;
-  width: 54px;
-  height: 65px;
-  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.32)) drop-shadow(0 0 14px var(--m-glow));
+  width: 78px;
+  height: 114px;
+  filter: drop-shadow(0 6px 9px rgba(0, 0, 0, 0.34)) drop-shadow(0 0 16px var(--m-glow));
 }
 
 /* Halo coloré par skin (renforcé à l'excitation) */
@@ -1179,20 +1179,46 @@ body.skin-lumen .hero::before {
   62%      { transform: translateY(0.5px) scale(1.025, 0.975); }
 }
 
-/* Les flammes dansent (léchage latéral) */
-.av-flames {
+/* Les langues de flamme ondulent — trois licks déphasés donnent une vraie
+   flamme qui vacille (chacun pivote/s'étire depuis sa base) */
+.av-lick {
+  transform-box: fill-box;
   transform-origin: 50% 100%;
-  animation: av-dance 1.7s ease-in-out infinite;
+  animation: av-lick 1.15s ease-in-out infinite;
 }
 
-@keyframes av-dance {
-  0%, 100% { transform: rotate(-2deg) scaleY(1); }
-  35%      { transform: rotate(2.6deg) scaleY(1.06); }
-  70%      { transform: rotate(-1deg) scaleY(0.96); }
+.av-lick.l1 { animation-delay: -0.1s; }
+.av-lick.l2 { animation-delay: -0.55s; animation-duration: 0.95s; }
+.av-lick.l3 { animation-delay: -0.85s; animation-duration: 1.35s; }
+
+@keyframes av-lick {
+  0%, 100% { transform: scaleY(1) skewX(0deg) translateX(0); }
+  30%      { transform: scaleY(1.16) skewX(-7deg) translateX(-1px); }
+  65%      { transform: scaleY(0.9) skewX(6deg) translateX(1px); }
+}
+
+/* Flammèches qui montent et s'éteignent */
+.av-ember {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation: av-ember-fly 2.4s ease-in infinite;
+}
+
+.av-ember.e1 { animation-delay: 0s; }
+.av-ember.e2 { animation-delay: -0.9s; }
+.av-ember.e3 { animation-delay: -1.7s; }
+
+@keyframes av-ember-fly {
+  0%   { transform: translateY(0) scale(0.9); opacity: 0; }
+  20%  { opacity: 0.95; }
+  70%  { opacity: 0.5; }
+  100% { transform: translateY(-26px) scale(0.3); opacity: 0; }
 }
 
 /* Balancement des jambes, en rythme avec le bob */
 .av-legs {
+  transform-box: fill-box;
   transform-origin: 50% 0%;
   animation: av-legswing 2.6s ease-in-out infinite;
 }
@@ -1216,7 +1242,7 @@ body.skin-lumen .hero::before {
 
 /* Joues : discrètes au repos, rouges quand un tag la touche */
 .av-cheek {
-  opacity: 0.45;
+  opacity: 0.5;
   transition: opacity 0.25s ease;
 }
 
@@ -1227,12 +1253,16 @@ body.skin-lumen .hero::before {
 .is-excited .mascot-eye { transform: scale(1.16); }
 .is-excited .av-svg { animation-duration: 1.5s; }
 .is-excited .mascot-flame {
-  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.32)) drop-shadow(0 0 24px var(--m-glow));
+  filter: drop-shadow(0 6px 9px rgba(0, 0, 0, 0.34)) drop-shadow(0 0 26px var(--m-glow));
 }
 
 /* Gêne (un tag l'a touchée) : yeux mi-clos, joues rouges */
 .is-embarrassed .mascot-eye { transform: scaleY(0.45); }
 .is-embarrassed .av-cheek { opacity: 1; }
+
+/* Attrapé et déplacé : le guide s'étire de surprise, ravi */
+.mascot.is-dragging .av-svg { animation-duration: 0.9s; }
+.mascot.is-dragging .mascot-body { cursor: grabbing; }
 
 /* Tag en train de brûler dans la flamme de la mascotte */
 .tool-tag.is-burning { pointer-events: none; }
@@ -1267,21 +1297,20 @@ body.skin-lumen .hero::before {
   will-change: transform;
 }
 
-/* Pas de backdrop-filter ici : la mascotte flotte en continu, et flouter
-   l'arrière-plan d'un élément mobile se paie à chaque frame (60fps → 37). */
+/* Le personnage flotte librement (plus de médaillon) : le conteneur est
+   transparent, juste assez grand pour la flamme + une zone de préhension.
+   cursor grab : on peut l'attraper et le déplacer. */
 .mascot-body {
-  width: 76px;
-  height: 76px;
+  width: 82px;
+  height: 118px;
   display: grid;
   place-items: center;
-  background: rgba(13, 10, 8, 0.92);
-  border: 1px solid var(--line-strong);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: grab;
+  touch-action: none; /* le drag ne déclenche pas le scroll tactile */
 }
-
-.mascot-body:hover { border-color: var(--fire); }
 
 .mascot-bubble {
   position: absolute;
@@ -1435,15 +1464,15 @@ body.skin-lumen .hero::before {
 
 .guide-switch-avatar {
   display: block;
-  width: 26px;
-  height: 28px;
+  width: 22px;
+  height: 30px;
   overflow: visible;
 }
 
 .guide-switch-avatar .mascot-flame {
-  transform: scale(0.42);
+  transform: scale(0.26);
   transform-origin: top left;
-  filter: drop-shadow(0 0 6px var(--m-glow));
+  filter: drop-shadow(0 0 5px var(--m-glow));
 }
 
 .guide-switch-label { font-size: 0.58rem; }
