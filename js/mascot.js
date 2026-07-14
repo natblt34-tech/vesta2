@@ -138,15 +138,16 @@ window.VestaMascot = (() => {
 
   /* --- Un vrai petit bonhomme : balade, scroll, manies --------------------------- */
 
-  /* Il se place à CÔTÉ du bloc en cours de lecture : à sa droite si la
-     place existe, sinon à sa gauche, à hauteur du texte. Rappelé en continu
-     (throttlé) pendant le scroll → il glisse le long du contenu.
-     Il s'immobilise dès que le curseur s'approche (pour rester cliquable). */
+  /* Il se place à CÔTÉ du bloc en cours de lecture, à hauteur du texte.
+     Il COLLE À SON CÔTÉ tant que la place existe (pas de ping-pong
+     gauche-droite d'un bloc à l'autre) et glisse en continu pendant le
+     scroll. Il s'immobilise dès que le curseur s'approche. */
   let lastFollow = 0;
+  let lastSide = 'right';
 
   function readAlong(force) {
     if (isBusy() || excited) return;
-    // Mobile : pas de marge à côté des textes — il reste sagement en bas
+    // Mobile : pas de marge à côté des textes, il reste sagement en bas
     if (window.innerWidth < 760) return;
     const now = performance.now();
     if (!force && now - lastFollow < 140) return; // throttle : fluide sans spam
@@ -156,8 +157,18 @@ window.VestaMascot = (() => {
     if (!r) return;
 
     const margin = 42;
-    const fitsRight = r.right + margin + BODY_SIZE < window.innerWidth - 12;
-    const px = fitsRight ? r.right + margin : Math.max(12, r.left - margin - BODY_SIZE);
+    const rightFits = r.right + margin + BODY_SIZE < window.innerWidth - 12;
+    const leftFits = r.left - margin - BODY_SIZE > 12;
+
+    // Adhérence : il ne change de côté que si le sien ne passe plus
+    if (lastSide === 'right' && !rightFits && leftFits) lastSide = 'left';
+    else if (lastSide === 'left' && !leftFits && rightFits) lastSide = 'right';
+
+    const px = lastSide === 'right' && rightFits
+      ? r.right + margin
+      : leftFits
+        ? r.left - margin - BODY_SIZE
+        : r.right + margin; // le clamp de moveToPx fera le reste
     const py = r.top + r.height / 2 - BODY_SIZE / 2;
     moveToPx(px, py);
   }
@@ -373,11 +384,21 @@ window.VestaMascot = (() => {
 
     const h = home();
     gsap.set(root, { x: h.x, y: h.y });
-    xTo = gsap.quickTo(root, 'x', { duration: 1.3, ease: 'power3.out' });
-    yTo = gsap.quickTo(root, 'y', { duration: 1.3, ease: 'power3.out' });
+    // Trajets paresseux : il glisse, il ne saute pas
+    xTo = gsap.quickTo(root, 'x', { duration: 1.8, ease: 'power2.out' });
+    yTo = gsap.quickTo(root, 'y', { duration: 1.8, ease: 'power2.out' });
 
-    // Respiration : léger flottement vertical permanent
-    gsap.to(body, { y: -6, duration: 1.9, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    // Dérive organique PERMANENTE : sinusoïdes lentes et déphasées sur le
+    // médaillon, il flotte et dérive sans jamais s'immobiliser, même sans
+    // scroll (x/y du médaillon : aucune collision avec les autres tweens,
+    // qui animent scale, rotation ou yPercent)
+    gsap.ticker.add((time) => {
+      if (root.hidden || document.hidden) return;
+      gsap.set(body, {
+        x: Math.sin(time * 0.55) * 9 + Math.sin(time * 0.23 + 2) * 5,
+        y: Math.sin(time * 0.8) * 6 + Math.cos(time * 0.31) * 4,
+      });
+    });
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('resize', () => { if (!document.body.classList.contains('tour-active')) goHome(); });

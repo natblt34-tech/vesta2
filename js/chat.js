@@ -57,7 +57,7 @@ window.VestaChat = (() => {
         ],
       },
       price: {
-        text: t('chat.price', 'Trois formules selon votre volume de mandats : Étincelle, Flamme et Brasier. Comptez 10 à 50 fois moins qu’un vidéaste, et votre premier film est offert. Le tarif exact ? On vous le donne en rendez-vous, sans détour.'),
+        text: t('chat.price', 'Trois formules selon votre volume de mandats : Étincelle, Flamme et Brasier. Comptez 10 à 50 fois moins qu’un vidéaste, devis sur demande, réponse rapide. Et votre premier film est offert.'),
         options: [
           { label: t('chat.opt.contact', 'Réserver un rendez-vous →'), action: 'contact' },
           { label: t('chat.opt.plans', 'Voir les formules'), action: 'plans' },

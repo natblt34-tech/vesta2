@@ -50,7 +50,7 @@ window.VestaI18n = (() => {
     // Manifeste
     ['#work > .mono-label', '( WHAT VESTA DOES )'],
     ['.manifesto-lead', 'Your listings deserve more<br>than ', true],
-    ['.manifesto-sub', 'Vesta is a studio, not a factory. AI holds the cameras; a human director edits, grades and signs every film before it reaches you. Your listings come out with a real film — the kind that makes the seller say: wait, that\'s my place?'],
+    ['.manifesto-sub', 'Vesta is a studio, not a factory. AI holds the cameras; a human director edits, grades and signs every film before it reaches you. Your listings come out with a real film. The kind that makes the seller say: wait, that\'s my place?'],
     ['.bucket-chip:nth-child(1)', '◆ UPLOAD & BRIEF'],
     ['.bucket-chip:nth-child(2)', '◆ AI CINEMATOGRAPHY'],
     ['.bucket-chip:nth-child(3)', '◆ SIGNED EDIT'],
@@ -58,7 +58,7 @@ window.VestaI18n = (() => {
     // Phase 1 — dépôt & brief
     ['.phase-card:nth-child(1) .mono-label.gold', '( PHOTOS · BRIEF · VISIT ORDER )'],
     ['.phase-card:nth-child(1) .phase-title', 'Upload & layout brief'],
-    ['.phase-card:nth-child(1) .phase-text', 'One photo per room, taken on a smartphone. Then you describe the layout: which rooms connect, in what order the visit flows. That brief is what lets the camera walk the property like a visitor — not like a slideshow.'],
+    ['.phase-card:nth-child(1) .phase-text', 'One photo per room, taken on a smartphone. Then you describe the layout: which rooms connect, in what order the visit flows. That brief is what lets the camera walk the property like a visitor, not like a slideshow.'],
     ['.phase-card:nth-child(1) .arrow-list li:nth-child(1)', '→ One photo per room, no gear'],
     ['.phase-card:nth-child(1) .arrow-list li:nth-child(2)', '→ Your brief: which rooms connect'],
     ['.phase-card:nth-child(1) .arrow-list li:nth-child(3)', '→ The visit order you want buyers to feel'],
@@ -72,7 +72,7 @@ window.VestaI18n = (() => {
     // Phase 2 — tournage IA + réalisation humaine
     ['.phase-card:nth-child(2) .mono-label.gold', '( AI CAMERAS · HUMAN DIRECTOR )'],
     ['.phase-card:nth-child(2) .phase-title', 'AI cinematography, human direction'],
-    ['.phase-card:nth-child(2) .phase-text', 'The AI shoots dolly moves as if on rails, strictly faithful to your photos: nothing invented, nothing distorted. Then a human editor with a film background assembles, sets the pacing and the music, grades the color — and reshoots any take that doesn\'t convince him, before you ever see it.'],
+    ['.phase-card:nth-child(2) .phase-text', 'The AI shoots dolly moves as if on rails, strictly faithful to your photos: nothing invented, nothing distorted. Then a human editor with a film background assembles, sets the pacing and the music, grades the color. And he reshoots any take that doesn\'t convince him, before you ever see it.'],
     ['.phase-card:nth-child(2) .arrow-list li:nth-child(1)', '→ Photorealistic camera moves, faithful to the property'],
     ['.phase-card:nth-child(2) .arrow-list li:nth-child(2)', '→ Editing, music and grading by hand'],
     ['.phase-card:nth-child(2) .arrow-list li:nth-child(3)', '→ Every shot approved or redone by the director'],
@@ -85,7 +85,7 @@ window.VestaI18n = (() => {
     // Phase 3 — livré prêt à publier
     ['.phase-card:nth-child(3) .mono-label.gold', '( PORTALS · SOCIAL · STOREFRONT )'],
     ['.phase-card:nth-child(3) .phase-title', 'Delivered ready to publish'],
-    ['.phase-card:nth-child(3) .phase-text', 'The film arrives finished, ready to go live: 16:9 for the portals, 9:16 for social, royalty-free music included. Nothing to set up, nothing to export — your listing stands out the same day.'],
+    ['.phase-card:nth-child(3) .phase-text', 'The film arrives finished, ready to go live: 16:9 for the portals, 9:16 for social, royalty-free music included. Nothing to set up, nothing to export. Your listing stands out the same day.'],
     ['.phase-card:nth-child(3) .arrow-list li:nth-child(1)', '→ 16:9 portals, 9:16 social'],
     ['.phase-card:nth-child(3) .arrow-list li:nth-child(2)', '→ Royalty-free music included'],
     ['.phase-card:nth-child(3) .arrow-list li:nth-child(3)', '→ Share links ready to send'],
@@ -95,7 +95,7 @@ window.VestaI18n = (() => {
     ['#traversees > .mono-label', '( THE VESTA SIGNATURE )'],
     ['.traversees-title', 'Walkthroughs.'],
     ['.traversees-lead', 'The camera pushes the living-room door, follows the hallway, and steps into the kitchen still lit by the evening.'],
-    ['.traversees-text', 'A slideshow shows rooms. A walkthrough gives a visit. Guided by your layout brief, the camera moves from room to room through the property\'s real passages — doors, hallways, enfilades. Buyers stop looking at photos: they project themselves. They already live there.'],
+    ['.traversees-text', 'A slideshow shows rooms. A walkthrough gives a visit. Guided by your layout brief, the camera moves from room to room through the property\'s real passages: doors, hallways, enfilades. Buyers stop looking at photos, they project themselves. They already live there.'],
     ['.traversees-note', 'INCLUDED FROM THE FLAME PLAN'],
     ['.phase-card:nth-child(3) .mock-title', 'delivery · your film'],
     ['.phase-card:nth-child(3) .mock-log', '16:9 + 9:16 · music included · signed by the director'],
@@ -170,7 +170,7 @@ window.VestaI18n = (() => {
     // Formules (aucun prix : il se découvre en rendez-vous)
     ['.plans-head .mono-label', '( THE PLANS )'],
     ['.plans-title', 'A plan for<br>every ambition.', true],
-    ['.plans-sub', 'Three tiers, built around your listing volume. Exact pricing is shared in a meeting. And whichever plan you pick, your first film is free.'],
+    ['.plans-sub', 'Three tiers, built around your listing volume. Quote on request, quick reply. And whichever plan you pick, your first film is free.'],
     ['.plan-card:nth-child(1) .plan-tier', 'PLAN 01'],
     ['.plan-card:nth-child(1) .plan-name', 'Spark'],
     ['.plan-card:nth-child(1) .plan-for', 'For the agent with a few listings'],
@@ -194,7 +194,7 @@ window.VestaI18n = (() => {
     ['.plan-card:nth-child(3) .arrow-list li:nth-child(4)', '→ 24h priority'],
     ['.plan-card .badge-live', 'FIRST FILM FREE'],
     ['.plans-cta .btn-solid', 'Book a meeting →'],
-    ['.plans-cta > .mono-label:not(.plans-legal)', 'PRICING IS SHARED IN A MEETING · 30 MINUTES · NO COMMITMENT'],
+    ['.plans-cta > .mono-label:not(.plans-legal)', 'QUOTE ON REQUEST · 30 MINUTES · NO COMMITMENT'],
     ['.plans-legal', '* VIRTUAL STAGING: VIRTUALLY FURNISHED VISUALS, NON-CONTRACTUAL'],
 
     // Toolkit
@@ -273,7 +273,7 @@ window.VestaI18n = (() => {
     // Conversation avec le guide
     'chat.root': 'I\'m listening ✦ What would you like to know?',
     'chat.how': 'You upload one photo per room plus your layout brief. The AI shoots the takes, faithful to the property, then a human director edits, grades and signs. Delivered within 48 hours, ready to publish.',
-    'chat.price': 'Three plans built around your listing volume: Spark, Flame and Blaze. Expect 10 to 50 times less than a videographer, and your first film is free. The exact price? We share it in a meeting, no runaround.',
+    'chat.price': 'Three plans built around your listing volume: Spark, Flame and Blaze. Expect 10 to 50 times less than a videographer, quote on request, quick reply. And your first film is free.',
     'chat.opt.plans': 'See the plans',
     'chat.photos': 'Yes! Your smartphone photos are enough: backlight, dark rooms and rough angles are fixed automatically. One roughly straight photo per room, that\'s all.',
     'chat.jokes': [
@@ -325,7 +325,7 @@ window.VestaI18n = (() => {
     'tour.demo': 'And here comes my favorite trick: I taste your photos, and hand you back a film.',
     'tour.traversees': 'Our signature: walkthroughs. The camera moves room to room through the property\'s real passages.',
     'tour.equipe': 'The crew: four AIs on the cameras… and a human director who signs every film. Click the cards.',
-    'tour.formules': 'Three plans, built around your listing volume. The first film is free, and the price is revealed in a meeting ✦',
+    'tour.formules': 'Three plans, built around your listing volume. First film free, quote on request ✦',
     'tour.toolkit': 'Throw me a tag, I\'ll catch it with my lasso! Just don\'t touch me with one, everything burns around here.',
     'tour.contact': 'Ready to bring your listings to life? Right this way. I\'ll let you explore ✦',
   };

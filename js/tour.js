@@ -83,7 +83,7 @@ window.VestaTour = (() => {
       target: '#formules',
       mascot: [85, 60],   // les cartes sont à gauche et au centre
       text: () => window.VestaI18n.t('tour.formules',
-        'Trois formules selon votre volume de mandats. Le premier film est offert, et le tarif se découvre en rendez-vous ✦'),
+        'Trois formules selon votre volume de mandats. Premier film offert, devis sur demande ✦'),
     },
     {
       target: '#toolkit',
