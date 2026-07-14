@@ -14,7 +14,7 @@
 window.VestaMascot = (() => {
   'use strict';
 
-  const BODY_SIZE = 84;      // encombrement du personnage (voir CSS .mascot-body)
+  const BODY_SIZE = 96;      // diamètre du médaillon (voir CSS .mascot-body)
   const EXCITE_DIST = 130;   // distance curseur → mascotte qui déclenche l'excitation
 
   let dropHoldUntil = 0;     // après un lâcher, il reste sur place un instant
