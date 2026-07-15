@@ -29,7 +29,7 @@ const I18N = {
     "loader.label": "Développement du film…",
     "nav.cta": "Réserver",
     "hero.eyebrow": "Studio de films immobiliers · Toulouse",
-    "hero.t1": "Vos murs", "hero.t2": "méritent", "hero.t3": "un film.",
+    "hero.t1": "Vos murs", "hero.t2": "méritent un", "hero.t3": "film.",
     "hero.sub": "Filmé par l'IA. Réalisé par un humain.",
     "hero.scroll": "Faites défiler pour visiter",
     "mask.eyebrow": "Le film coule dans les lettres",
@@ -84,7 +84,7 @@ const I18N = {
     "loader.label": "Developing the film…",
     "nav.cta": "Book a call",
     "hero.eyebrow": "Real-estate film studio · Toulouse",
-    "hero.t1": "Your walls", "hero.t2": "deserve", "hero.t3": "a film.",
+    "hero.t1": "Your walls", "hero.t2": "deserve a", "hero.t3": "film.",
     "hero.sub": "Shot by AI. Directed by a human.",
     "hero.scroll": "Scroll to step inside",
     "mask.eyebrow": "The film flows through the letters",
@@ -150,9 +150,9 @@ function applyLang(lang) {
   document.querySelectorAll(".lang__opt").forEach((o) =>
     o.classList.toggle("is-active", o.dataset.lang === lang)
   );
-  // Le mot du masque suit la langue
+  // Le mot rempli par le film reste « FILM. » dans les deux langues
   const mt = document.getElementById("maskText");
-  if (mt) mt.textContent = lang === "fr" ? "VISITE" : "STEP IN";
+  if (mt) mt.textContent = "FILM.";
 }
 
 /* -------------------------------------------------------------------------
@@ -257,13 +257,13 @@ function preloadFrames() {
       // mémoire, si bien que drawImage() ne redéclenche jamais de décodage
       // synchrone pendant le scroll → scrub fluide, sans saccade.
       img.onload = () => {
-        const finish = () => {
-          loaded++;
-          if (!framesReady) { framesReady = true; drawFrame(state.frame, true); }
-          done();
-        };
-        if (img.decode) img.decode().then(finish).catch(finish);
-        else finish();
+        loaded++;
+        if (!framesReady) { framesReady = true; drawFrame(state.frame, true); }
+        done();
+        // Réchauffe le décodage en tâche de fond (sans bloquer le compteur) :
+        // le bitmap reste prêt → drawImage ne redéclenche pas de décodage
+        // synchrone pendant le scroll. On n'attend jamais cette promesse.
+        if (img.decode) { try { img.decode().catch(() => {}); } catch (e) {} }
       };
       img.onerror = () => { failed++; done(); };
       img.src = framePath(i);
@@ -367,38 +367,49 @@ function buildExperience(framesOk) {
     .to(".hero__sub", { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }, "-=0.7")
     .to(".scrollhint", { opacity: 1, duration: 0.8 }, "-=0.5");
 
-  // Le hero se fond quand on quitte
-  gsap.to(".hero__inner", {
-    opacity: 0, yPercent: -12, ease: "none",
-    scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom top", scrub: true }
+  // Le texte du hero se fond quand on quitte
+  gsap.to([".hero__top", ".hero__bottom"], {
+    opacity: 0, ease: "none",
+    scrollTrigger: { trigger: "#hero", start: "top top", end: "60% top", scrub: true }
   });
   gsap.to(".scrollhint", {
     opacity: 0, ease: "none",
     scrollTrigger: { trigger: "#hero", start: "5% top", end: "25% top", scrub: true }
   });
 
-  /* --- 8.4 MASQUE VIDÉO-DANS-LE-TEXTE --- */
-  // Panneau sombre troué : le film coule dans les lettres, le reste s'assombrit.
+  /* --- 8.4 VIDÉO-DANS-LE-TEXTE (hero) --- */
+  // Le hero est un panneau nuit solide (masklayer) troué par le mot « FILM. » :
+  // le film coule dans les lettres. En quittant le hero, le panneau s'efface et
+  // le film envahit tout l'écran pour la visite.
   const maskLayer = document.getElementById("maskLayer");
   const maskText = document.getElementById("maskText");
   maskLayer.classList.add("is-active");
-  const maskTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#mask",
-      start: "top bottom",
-      end: "bottom top",
-      scrub: prefersReduced ? true : 1
-    }
-  });
-  maskTl
-    // Le panneau sombre se ferme (le film ne reste visible que dans les lettres)
-    .fromTo(maskLayer, { opacity: 0 }, { opacity: 1, ease: "power2.inOut", duration: 1 })
-    // Le mot grandit : de plus en plus de film visible dans la typo
-    .fromTo(maskText, { attr: { "font-size": 140 } }, { attr: { "font-size": 520 }, ease: "power1.inOut", duration: 3 }, 0)
-    .to(".mask__cap", { opacity: 1, duration: 1 }, 0.4)
-    .to(".mask__cap", { opacity: 0, duration: 1 }, 3.2)
-    // Réouverture : le film reprend tout l'écran
-    .to(maskLayer, { opacity: 0, ease: "power2.inOut", duration: 1 }, 3.2);
+  gsap.set(maskLayer, { opacity: 1 });
+
+  // Taille du mot « FILM. » calculée pour toujours tenir dans la largeur, quel
+  // que soit le ratio d'écran (le masque SVG est en « slice », donc le mot est
+  // mis à l'échelle par le ratio du viewport). On MESURE la largeur réelle du
+  // mot (getBBox) plutôt que de la deviner, puis on résout la taille cible.
+  // Largeur de « FILM. » ≈ 2.4 × font-size en unités viewBox (opsz verrouillé).
+  const WORD_K = 2.4;
+  function sizeMaskWord() {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const scale = Math.max(vw / 1000, vh / 600);   // facteur du mode « slice »
+    const target = vw * (vw < 680 ? 0.82 : 0.58);  // largeur écran visée pour le mot
+    let fs = target / (WORD_K * scale);
+    fs = Math.max(56, Math.min(fs, 240));
+    maskText.setAttribute("font-size", fs);
+  }
+  sizeMaskWord();
+  window.addEventListener("resize", sizeMaskWord);
+
+  if (!prefersReduced) {
+    // Le panneau nuit s'efface → révèle le film plein cadre
+    gsap.to(maskLayer, {
+      opacity: 0, ease: "none",
+      scrollTrigger: { trigger: "#hero", start: "26% top", end: "bottom top", scrub: true }
+    });
+  }
 
   /* --- 8.5 PROMESSE : 3 volets en stagger --- */
   gsap.from(".volet", {
@@ -495,7 +506,7 @@ function buildExperience(framesOk) {
   const scrim = document.getElementById("scrim");
   // Assombrissement doux pour poser la phrase par-dessus la chambre figée
   gsap.fromTo(scrim, { opacity: 0 }, {
-    opacity: 0.62, ease: "none",
+    opacity: 0.74, ease: "none",
     scrollTrigger: { trigger: "#reveal", start: "top 60%", end: "top top", scrub: true }
   });
   const revealChars = splitChars(".reveal__line");

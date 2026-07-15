@@ -21,7 +21,7 @@
 />
 
 <!-- Feuille de style -->
-<link rel="stylesheet" href="css/main.css?v=3" />
+<link rel="stylesheet" href="css/main.css?v=10" />
 </head>
 <body>
 
@@ -53,9 +53,9 @@
     <defs>
       <mask id="wordCut">
         <rect width="1000" height="600" fill="#fff" />
-        <text id="maskText" x="500" y="308" text-anchor="middle" dominant-baseline="middle"
-              fill="#000" font-family="Fraunces, serif" font-weight="600"
-              letter-spacing="-4">VISITE</text>
+        <text id="maskText" x="500" y="370" text-anchor="middle" dominant-baseline="middle"
+              fill="#000" font-family="Fraunces, serif" font-weight="700"
+              letter-spacing="-6">FILM.</text>
       </mask>
     </defs>
     <rect width="1000" height="600" fill="#0A0806" mask="url(#wordCut)" />
@@ -97,27 +97,22 @@
 
 <main id="content">
 
-  <!-- 1 · HERO / OUVERTURE -->
+  <!-- 1 · HERO / OUVERTURE — le film coule dans le mot « FILM. » -->
   <section id="hero" class="section hero">
-    <div class="hero__inner">
+    <div class="hero__top">
       <p class="eyebrow hero__eyebrow" data-i18n="hero.eyebrow">Studio de films immobiliers · Toulouse</p>
       <h1 class="display hero__title">
         <span class="line" data-i18n="hero.t1">Vos murs</span>
-        <span class="line" data-i18n="hero.t2">méritent</span>
-        <span class="line hero__accent" data-i18n="hero.t3">un film.</span>
+        <span class="line" data-i18n="hero.t2">méritent un</span>
+        <span class="sr-only" data-i18n="hero.t3">film.</span>
       </h1>
+    </div>
+    <div class="hero__bottom">
       <p class="hero__sub" data-i18n="hero.sub">Filmé par l'IA. Réalisé par un humain.</p>
-    </div>
-    <div class="scrollhint" aria-hidden="true">
-      <span class="scrollhint__label" data-i18n="hero.scroll">Faites défiler pour visiter</span>
-      <span class="scrollhint__line"></span>
-    </div>
-  </section>
-
-  <!-- 2 · MASQUE VIDÉO-DANS-LE-TEXTE -->
-  <section id="mask" class="section mask">
-    <div class="mask__cap">
-      <p class="eyebrow" data-i18n="mask.eyebrow">Le film coule dans les lettres</p>
+      <div class="scrollhint" aria-hidden="true">
+        <span class="scrollhint__label" data-i18n="hero.scroll">Faites défiler pour visiter</span>
+        <span class="scrollhint__line"></span>
+      </div>
     </div>
   </section>
 
@@ -325,6 +320,6 @@
 <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/main.js?v=3"></script>
+<script src="js/main.js?v=10"></script>
 </body>
 </html>
