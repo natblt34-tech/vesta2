@@ -307,16 +307,12 @@ window.VestaI18n = (() => {
     'chat.switch': 'Who takes the torch?',
     'chat.opt.switch': 'Change guide',
     'chat.hello': 'At your service ✦',
-    'chat.reactions': {
-      work: ['Ah, the part where we\'re honest.', 'A studio, not a factory. Remember that.'],
-      phases: ['Five minutes of brief, and the camera knows where to walk.', 'The director redoes any doubtful take. I\'ve seen him do it.'],
-      traversees: ['My favorite section. The camera pushes the door…', 'A slideshow shows. A walkthrough gives a visit.'],
-      equipe: ['My coworkers! And the boss, on the dark card.', 'Nothing ships without his signature. Nothing.'],
-      statement: ['This part is serious.', 'We wrote it big so it\'s clear.'],
-      biens: ['Demo films, shot on real volumes.', 'Hover around, the previews are worth it.'],
-      stats: ['48 hours. Clock it.', 'One hundred percent approved by a human eye. His.'],
-      formules: ['First film\'s free, by the way.', 'My advice: Flame. But I\'m paid in tokens.'],
-      contact: ['Almost there… one little click?', 'After this, your listings won\'t be the same.'],
+    'mascot.back': 'I\'m back ✦',
+    'chat.voice': {
+      cadre: ['Nice framing, this section ✦', 'Keeping you in the shot.', 'A good shot is composed.', 'Look at it at eye level. Better, right?'],
+      lumen: ['Lovely light in here ✦', 'I warm the mood, don\'t I?', 'Everything looks better well lit.', 'A touch of golden glow, and there.'],
+      cut: ['Moving on. Good.', 'Cut. Next section.', 'Concise. I like it.', 'No filler. Just the essentials.'],
+      scribe: ['Let me note that down ✦', 'Nicely shot, this part.', 'That deserves a good caption.', 'Saving this for the listing.'],
     },
 
     // Visite guidée

@@ -102,17 +102,33 @@ window.VestaChat = (() => {
     'Psst… je connais des blagues. Cliquez pour voir.',
   ];
 
-  /* Le guide lit avec vous : petites réactions quand une section arrive */
-  const REACTIONS_FR = {
-    work: ['Ah, la partie où on est francs.', 'Un studio, pas une usine. Retenez ça.'],
-    phases: ['Cinq minutes de brief, et la caméra sait où passer.', 'Le réalisateur refait tout plan douteux. Je l’ai vu faire.'],
-    traversees: ['Ma section préférée. La caméra pousse la porte…', 'Un diaporama montre. Une traversée fait visiter.'],
-    equipe: ['Mes collègues ! Et le patron, en carte sombre.', 'Rien ne part sans sa signature. Rien.'],
-    statement: ['Là, c’est du sérieux.', 'On l’a écrit en grand pour que ce soit clair.'],
-    biens: ['Des démonstrations, tournées sur de vrais volumes.', 'Survolez, les aperçus valent le détour.'],
-    stats: ['48 heures. Montre en main.', 'Cent pour cent validés par un œil humain. Le sien.'],
-    formules: ['Le premier film est offert, au passage.', 'Mon conseil : Flamme. Mais je suis payé en tokens.'],
-    contact: ['On y est presque… un petit clic ?', 'Après ça, vos annonces ne seront plus les mêmes.'],
+  /* La VOIX de chaque agent : de loin en loin, le guide lâche une réplique
+     dans son ton propre — c'est ce qui rend le choix de l'avatar sensible. */
+  const VOICE_FR = {
+    cadre: [
+      'Joli cadre, cette section ✦',
+      'Je vous garde dans le champ.',
+      'Un bon plan, ça se compose.',
+      'Regardez ça à hauteur d’œil. Mieux, non ?',
+    ],
+    lumen: [
+      'Quelle belle lumière ici ✦',
+      'Je réchauffe l’ambiance, hein ?',
+      'Tout est plus beau bien éclairé.',
+      'Un peu de douceur dorée, et hop.',
+    ],
+    cut: [
+      'On avance. Bien.',
+      'Coupez. Section suivante.',
+      'Concis. J’aime.',
+      'Pas de gras. Juste l’essentiel.',
+    ],
+    scribe: [
+      'Laissez-moi noter ça ✦',
+      'Joliment tourné, cette partie.',
+      'Ça mériterait une belle légende.',
+      'Je garde ça pour l’annonce.',
+    ],
   };
 
   const TEASE_EVERY = 26000;   // au plus une taquinerie toutes les 26s
@@ -203,32 +219,31 @@ window.VestaChat = (() => {
 
   let lastReaction = 0;
 
-  function react(sectionKey) {
+  /* Il commente RAREMENT, et surtout : dans la VOIX de l'agent choisi
+     (le ton change nettement selon le guide — c'est là qu'on sent le choix). */
+  function react() {
     const now = performance.now();
     if (open || document.hidden) return;
     if (document.body.classList.contains('tour-active')) return;
     if (root.classList.contains('is-performing')) return;
-    if (now - lastReaction < 14000) return;   // pas de moulin à paroles
-    if (Math.random() < 0.35) return;         // parfois, il lit en silence
+    if (window.VestaMascot.isDismissed && window.VestaMascot.isDismissed()) return;
+    if (now - lastReaction < 45000) return;   // discret : il commente rarement
+    if (Math.random() < 0.7) return;          // et le plus souvent, il se tait
     lastReaction = now;
-    const bank = t('chat.reactions', REACTIONS_FR)[sectionKey];
-    if (!bank) return;
-    window.VestaMascot.say(bank[(Math.random() * bank.length) | 0]);
+    const voice = t('chat.voice', VOICE_FR)[window.VestaMascot.getSkin()] || [];
+    if (!voice.length) return;
+    window.VestaMascot.say(voice[(Math.random() * voice.length) | 0]);
     window.VestaMascot.hideBubble(3600);
   }
 
   function initReactions() {
-    const map = {
-      '#work': 'work', '#phases': 'phases', '#traversees': 'traversees',
-      '#equipe': 'equipe', '.statement': 'statement', '#biens': 'biens',
-      '.stats': 'stats', '#formules': 'formules', '#contact': 'contact',
-    };
-    Object.entries(map).forEach(([selector, key]) => {
+    ['#work', '#phases', '#traversees', '#equipe', '.statement',
+     '#biens', '.stats', '#formules', '#contact'].forEach((selector) => {
       ScrollTrigger.create({
         trigger: selector,
         start: 'top 60%',
-        onEnter: () => react(key),
-        onEnterBack: () => react(key),
+        onEnter: react,
+        onEnterBack: react,
       });
     });
   }
@@ -237,15 +252,21 @@ window.VestaChat = (() => {
 
   const SKIN_ORDER = ['cadre', 'lumen', 'cut', 'scribe'];
 
-  /* Un clic = le guide suivant, immédiatement (rotation circulaire) */
+  /* Un clic sur le bouton nav :
+     - guide masqué → on le rappelle ;
+     - sinon → guide suivant (rotation circulaire). */
   function cycleSkin() {
+    if (window.VestaMascot.isDismissed && window.VestaMascot.isDismissed()) {
+      window.VestaMascot.summon();
+      gsap.fromTo('#guide-switch', { scale: 0.85 }, { scale: 1, duration: 0.4, ease: 'back.out(3)' });
+      return;
+    }
     const current = window.VestaMascot.getSkin();
     const next = SKIN_ORDER[(SKIN_ORDER.indexOf(current) + 1) % SKIN_ORDER.length];
     window.VestaMascot.setSkin(next);
     try { localStorage.setItem('vesta-skin', next); } catch (e) { /* nav. privée */ }
     window.VestaMascot.say(window.VestaMascot.skinData().name + ' ✦');
     window.VestaMascot.hideBubble(1200);
-    // petit pop du bouton nav
     gsap.fromTo('#guide-switch', { scale: 0.85 }, { scale: 1, duration: 0.4, ease: 'back.out(3)' });
   }
 
@@ -273,7 +294,8 @@ window.VestaChat = (() => {
     document.getElementById('guide-switch')?.addEventListener('click', cycleSkin);
 
     window.VestaScroll.lenis.on('scroll', () => { lastScroll = performance.now(); });
-    setInterval(maybeTease, 4000);
+    // Plus de taquineries spontanées (le guide reste discret) ; il ne parle
+    // que si on le sollicite ou, rarement, pour commenter une section.
     initReactions();
   }
 

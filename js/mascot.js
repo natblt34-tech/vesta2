@@ -148,19 +148,20 @@ window.VestaMascot = (() => {
      scroll. Il s'immobilise dès que le curseur s'approche. */
   let lastFollow = 0;
   let lastSide = 'right';
+  let lastTarget = { x: -1, y: -1 };
 
   function readAlong(force) {
     if (isBusy() || excited) return;
     // Mobile : pas de marge à côté des textes, il reste sagement en bas
     if (window.innerWidth < 760) return;
     const now = performance.now();
-    if (!force && now - lastFollow < 140) return; // throttle : fluide sans spam
+    if (!force && now - lastFollow < 450) return; // discret : il ne darte pas
     lastFollow = now;
 
     const r = readingAnchor();
     if (!r) return;
 
-    const margin = 42;
+    const margin = 46;
     const rightFits = r.right + margin + BODY_SIZE < window.innerWidth - 12;
     const leftFits = r.left - margin - BODY_SIZE > 12;
 
@@ -174,6 +175,11 @@ window.VestaMascot = (() => {
         ? r.left - margin - BODY_SIZE
         : r.right + margin; // le clamp de moveToPx fera le reste
     const py = r.top + r.height / 2 - BODY_SIZE / 2;
+
+    // Il ne bouge QUE si la cible a vraiment changé (évite le tremblement
+    // permanent) : il glisse d'un bloc à l'autre, calmement.
+    if (Math.hypot(px - lastTarget.x, py - lastTarget.y) < 70) return;
+    lastTarget = { x: px, y: py };
     moveToPx(px, py);
   }
 
@@ -186,52 +192,31 @@ window.VestaMascot = (() => {
 
   function onScroll(e) {
     if (root.classList.contains('is-performing') || root.hidden) return;
+    // Discret : seul le regard suit doucement le défilement, plus de
+    // squash & stretch qui « saute » à l'écran.
     const v = gsap.utils.clamp(-60, 60, e.velocity || 0);
-    const s = Math.abs(v) / 60;
+    pupils.forEach((p) => gsap.to(p, { y: v > 0 ? 1.6 : -1.6, duration: 0.3, overwrite: 'auto' }));
 
-    // Étirement dans le sens du mouvement (squash & stretch)
-    gsap.to(body, {
-      scaleY: 1 + s * 0.22,
-      scaleX: 1 - s * 0.1,
-      duration: 0.2,
-      overwrite: 'auto',
-    });
-    // Le regard suit le défilement
-    pupils.forEach((p) => gsap.to(p, { y: v > 0 ? 2.2 : -2.2, duration: 0.25, overwrite: 'auto' }));
-
-    // Retour élastique dès que le scroll se calme
     clearTimeout(settleTimer);
     settleTimer = setTimeout(() => {
-      gsap.to(body, { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
-      pupils.forEach((p) => gsap.to(p, { y: 0, duration: 0.3 }));
-    }, 160);
+      pupils.forEach((p) => gsap.to(p, { y: 0, duration: 0.4 }));
+    }, 200);
   }
 
-  /* Manies d'inactivité : de temps en temps, il vit sa vie */
+  /* Manies d'inactivité — version DISCRÈTE : rien qui saute à l'écran,
+     juste un regard qui balaie ou un double clignement, de loin en loin. */
   const IDLE_ACTS = [
     function lookAround() {
       gsap.timeline()
-        .to(pupils, { x: -2.4, duration: 0.25 })
-        .to(pupils, { x: 2.4, duration: 0.4, delay: 0.35 })
-        .to(pupils, { x: 0, duration: 0.3, delay: 0.3 });
+        .to(pupils, { x: -2.2, duration: 0.35 })
+        .to(pupils, { x: 2.2, duration: 0.5, delay: 0.5 })
+        .to(pupils, { x: 0, duration: 0.4, delay: 0.4 });
     },
     function doubleBlink() {
       root.classList.add('is-blink');
       setTimeout(() => root.classList.remove('is-blink'), 110);
       setTimeout(() => root.classList.add('is-blink'), 220);
       setTimeout(() => root.classList.remove('is-blink'), 330);
-    },
-    function hop() {
-      // yPercent : aucune collision avec le flottement (qui anime y)
-      gsap.timeline()
-        .to(body, { yPercent: -32, duration: 0.22, ease: 'power2.out' })
-        .to(body, { yPercent: 0, duration: 0.4, ease: 'bounce.out' });
-    },
-    function wiggle() {
-      gsap.timeline()
-        .to(body, { rotation: -8, duration: 0.09 })
-        .to(body, { rotation: 8, duration: 0.14, yoyo: true, repeat: 2 })
-        .to(body, { rotation: 0, duration: 0.18, ease: 'power2.out' });
     },
   ];
 
@@ -374,11 +359,42 @@ window.VestaMascot = (() => {
 
   /* --- API ------------------------------------------------------------------------- */
 
+  let dismissed = false;
+
   function show() {
+    if (dismissed) { markRecall(true); return; } // masqué exprès : on n'insiste pas
     if (!root.hidden) return;
     root.hidden = false;
     gsap.from(body, { scale: 0, duration: 0.7, ease: 'back.out(1.8)' });
   }
+
+  /* Le bouton nav "GUIDE" affiche un ↩ quand le guide est masqué */
+  function markRecall(on) {
+    const btn = document.getElementById('guide-switch');
+    if (btn) btn.classList.toggle('is-recall', on);
+  }
+
+  /* On masque le guide (un clic sur son ✕) : mémorisé pour la session */
+  function dismiss() {
+    dismissed = true;
+    root.hidden = true;
+    markRecall(true);
+    try { localStorage.setItem('vesta-guide-hidden', '1'); } catch (e) { /* nav. privée */ }
+  }
+
+  /* On le rappelle (bouton nav) */
+  function summon() {
+    dismissed = false;
+    markRecall(false);
+    try { localStorage.removeItem('vesta-guide-hidden'); } catch (e) { /* ok */ }
+    root.hidden = false;
+    goHome();
+    gsap.from(body, { scale: 0, duration: 0.6, ease: 'back.out(1.8)' });
+    say(window.VestaI18n.t('mascot.back', 'Me revoilà ✦'));
+    hideBubble(1800);
+  }
+
+  function isDismissed() { return dismissed; }
 
   function setSkip(visible) { skipBtn.hidden = !visible; }
   function onSkipClick(cb) { skipBtn.addEventListener('click', cb); }
@@ -471,6 +487,13 @@ window.VestaMascot = (() => {
     skipBtn = root.querySelector('.mascot-skip');
     pupils = [...root.querySelectorAll('.mascot-pupil')];
 
+    // Préférence "guide masqué" mémorisée
+    try { dismissed = localStorage.getItem('vesta-guide-hidden') === '1'; } catch (e) { /* ok */ }
+    root.querySelector('.mascot-dismiss').addEventListener('click', (e) => {
+      e.stopPropagation();
+      dismiss();
+    });
+
     const h = home();
     gsap.set(root, { x: h.x, y: h.y });
     // Trajets paresseux : il glisse, il ne saute pas
@@ -481,11 +504,13 @@ window.VestaMascot = (() => {
     // médaillon, il flotte et dérive sans jamais s'immobiliser, même sans
     // scroll (x/y du médaillon : aucune collision avec les autres tweens,
     // qui animent scale, rotation ou yPercent)
+    // Léger flottement de respiration : très doux et lent (discret), il
+    // n'est jamais figé mais ne « dérive » plus dans tous les sens.
     gsap.ticker.add((time) => {
       if (root.hidden || document.hidden) return;
       gsap.set(body, {
-        x: Math.sin(time * 0.55) * 9 + Math.sin(time * 0.23 + 2) * 5,
-        y: Math.sin(time * 0.8) * 6 + Math.cos(time * 0.31) * 4,
+        x: Math.sin(time * 0.32) * 3,
+        y: Math.sin(time * 0.45) * 3 - 1,
       });
     });
 
@@ -494,12 +519,10 @@ window.VestaMascot = (() => {
     scheduleBlink();
     initDrag();
 
-    // Vie propre : il suit la lecture EN CONTINU pendant le scroll
-    // (ancré aux blocs de texte), se recale régulièrement, fait ses manies,
-    // et s'étire dans le sens du scroll
+    // Vie propre, version DISCRÈTE : il suit la lecture calmement (glisse
+    // d'un bloc à l'autre, ne darte pas), et ses petites manies sont rares.
     collectReadTargets();
-    setInterval(() => readAlong(true), 6000 + Math.random() * 3000);
-    setInterval(idleAct, 11000);
+    setInterval(idleAct, 26000);
     window.VestaScroll.lenis.on('scroll', onScroll);
     window.VestaScroll.lenis.on('scroll', onScrollForReading);
   }
@@ -509,5 +532,6 @@ window.VestaMascot = (() => {
     say, hideBubble, setSkip, onBodyClick, onSkipClick,
     catchReact, embarrass, express,
     setSkin, getSkin, skinData, celebrate,
+    summon, isDismissed,
   };
 })();

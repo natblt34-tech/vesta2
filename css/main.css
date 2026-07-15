@@ -135,37 +135,65 @@ button { font: inherit; color: inherit; }
 .s-paper { background: var(--paper); }
 .s-deep { background: var(--ink); }
 
-/* Ambiance du site selon le guide choisi : le fond se teinte de sa couleur */
-body.skin-lumen { --bg: #0e0b05; --paper: #171205; }
+/* Ambiance du site selon le guide choisi : le fond, les filets et les lueurs
+   se teintent nettement de sa couleur (transition douce au changement).
+   Les CTAs or/feu restent, eux, la constante de marque. */
+body { transition: background-color 0.6s ease; }
+
+body.skin-lumen {
+  --bg: #120c03;
+  --paper: #1d1406;
+  --line: rgba(255, 205, 90, 0.18);
+  --line-strong: rgba(255, 205, 90, 0.42);
+}
 body.skin-cut {
-  --bg: #08090f;
-  --paper: #0f1119;
-  --line: rgba(110, 170, 255, 0.16);
-  --line-strong: rgba(110, 170, 255, 0.4);
+  --bg: #070a14;
+  --paper: #0d1120;
+  --line: rgba(110, 175, 255, 0.2);
+  --line-strong: rgba(110, 175, 255, 0.46);
+  --gold: #7fb4e8;
+  --muted: #8595ad;
 }
 body.skin-scribe {
-  --bg: #090c08;
-  --paper: #10160e;
-  --line: rgba(150, 210, 120, 0.16);
-  --line-strong: rgba(150, 210, 120, 0.4);
+  --bg: #0b0712;
+  --paper: #14101f;
+  --line: rgba(190, 130, 235, 0.2);
+  --line-strong: rgba(190, 130, 235, 0.46);
+  --gold: #c78fe0;
+  --muted: #9a8aae;
 }
+
+/* Voile coloré léger sur toute la page (au-dessus du fond, sous le contenu) */
+body.skin-cut::after,
+body.skin-scribe::after,
+body.skin-lumen::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+body.skin-cut::after    { background: radial-gradient(ellipse at 50% 0%, rgba(70, 140, 255, 0.22), transparent 65%); }
+body.skin-scribe::after { background: radial-gradient(ellipse at 50% 0%, rgba(170, 90, 230, 0.2), transparent 65%); }
+body.skin-lumen::after  { background: radial-gradient(ellipse at 50% 0%, rgba(255, 190, 70, 0.16), transparent 65%); }
 
 body.skin-cut .hero::before {
   background:
-    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(80, 150, 255, 0.1), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(110, 170, 255, 0.05), transparent 70%);
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(80, 150, 255, 0.16), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(110, 170, 255, 0.08), transparent 70%);
 }
 
 body.skin-scribe .hero::before {
   background:
-    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(110, 200, 90, 0.09), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(150, 210, 120, 0.05), transparent 70%);
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(160, 90, 230, 0.15), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(190, 130, 235, 0.08), transparent 70%);
 }
 
 body.skin-lumen .hero::before {
   background:
-    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(255, 200, 80, 0.13), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(255, 215, 106, 0.06), transparent 70%);
+    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(255, 200, 80, 0.18), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(255, 215, 106, 0.09), transparent 70%);
 }
 .s-gold {
   background: linear-gradient(125deg, #e9b45c 0%, #f0983a 55%, #ff7a1a 100%);
@@ -1288,6 +1316,35 @@ body.skin-lumen .hero::before {
 }
 
 .mascot-body:hover { border-color: var(--fire); }
+
+/* Bouton pour masquer le guide (discret, apparaît au survol) */
+.mascot-dismiss {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  z-index: 2;
+}
+
+.mascot:hover .mascot-dismiss { opacity: 1; transform: scale(1); }
+.mascot-dismiss:hover { color: var(--cream); border-color: var(--fire); }
+
+/* Quand le guide est masqué, le bouton nav rappelle qu'on peut le rappeler */
+.guide-switch.is-recall { border-color: var(--line-strong); }
+.guide-switch.is-recall .guide-switch-label::after { content: ' ↩'; }
 
 .mascot-bubble {
   position: absolute;
