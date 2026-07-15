@@ -202,22 +202,45 @@ function sizeCanvas() {
   drawFrame(state.frame, true);
 }
 
-// Dessine la frame `n` en mode « cover » (remplit l'écran, centré)
+// Dessine une image en mode « cover » (remplit W×H, centré, recadré)
+function coverDraw(context, W, H, img) {
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const s = Math.max(W / iw, H / ih);
+  const w = iw * s, h = ih * s;
+  context.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+}
+
+// Écrans d'appareils (section format) : chaque canvas rejoue le film à SON ratio
+let deviceCanvases = []; // [{ canvas, ctx }]
+
+// Dessine la frame `n` sur le canvas plein écran ET dans les écrans d'appareils
 function drawFrame(n, force) {
   const idx = Math.max(1, Math.min(FRAME_COUNT, Math.round(n)));
   if (!force && idx === lastDrawn) return;
   const img = images[idx - 1];
   if (!img || !img.complete || !img.naturalWidth) {
-    // Fallback : dégradé chaud animé si la frame n'est pas encore là
-    drawFallback();
+    drawFallback(); // dégradé chaud si la frame n'est pas encore là
     return;
   }
   lastDrawn = idx;
-  const iw = img.naturalWidth, ih = img.naturalHeight;
-  const scale = Math.max(cw / iw, ch / ih);
-  const w = iw * scale, h = ih * scale;
-  const x = (cw - w) / 2, y = (ch - h) / 2;
-  ctx.drawImage(img, x, y, w, h);
+  coverDraw(ctx, cw, ch, img); // plein écran (16:9-ish → cover viewport)
+  for (let i = 0; i < deviceCanvases.length; i++) {
+    const d = deviceCanvases[i];
+    if (d.canvas.width) coverDraw(d.ctx, d.canvas.width, d.canvas.height, img);
+  }
+}
+
+// (Re)dimensionne les canvas des appareils selon leur boîte CSS
+function sizeDeviceCanvases() {
+  for (let i = 0; i < deviceCanvases.length; i++) {
+    const c = deviceCanvases[i].canvas;
+    // offsetWidth/Height = taille de layout SANS les transforms (scale des anims)
+    const w = c.offsetWidth, h = c.offsetHeight;
+    if (!w || !h) continue;
+    c.width = Math.round(w * dpr);
+    c.height = Math.round(h * dpr);
+  }
+  lastDrawn = -1; // force un redraw
 }
 
 // Dégradé de secours (dossier /frames absent)
@@ -451,45 +474,48 @@ function buildExperience(framesOk) {
     scrollTrigger: { trigger: "#promesse", start: "top 70%" }
   });
 
-  /* --- 8.6 FORMAT : recadrage cinéma 16:9 via letterbox --- */
-  // Piloté directement au scroll (déterministe, sans conflit de tweens) :
-  // les barres se referment en 16:9 centré au milieu de la section, puis
-  // se rouvrent en plein écran. Le titre latéral apparaît pendant la fermeture.
-  const barTop = document.querySelector(".letterbox__bar--top");
-  const barBot = document.querySelector(".letterbox__bar--bottom");
-  const barL = document.querySelector(".letterbox__bar--left");
-  const barR = document.querySelector(".letterbox__bar--right");
-  const fmtAside = document.querySelector(".format__aside");
-  const smoothstep = (x) => x * x * (3 - 2 * x);
+  /* --- 8.6 FORMAT : le film sur ordinateur (16:9) puis mobile (9:16) --- */
+  // Les canvas des appareils rejouent le film à leur ratio (voir drawFrame).
+  deviceCanvases = Array.prototype.map.call(
+    document.querySelectorAll(".device__canvas"),
+    (c) => ({ canvas: c, ctx: c.getContext("2d", { alpha: false }) })
+  );
+  sizeDeviceCanvases();
+  window.addEventListener("resize", sizeDeviceCanvases);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeDeviceCanvases);
 
-  ScrollTrigger.create({
-    trigger: "#format",
-    start: "top bottom",
-    end: "bottom top",
-    scrub: prefersReduced ? true : 1,
-    onUpdate: (self) => {
-      const p = self.progress;
-      // Cloche avec plateau : ouvert (0) aux extrémités, fermé (1) au centre
-      let e;
-      if (p < 0.15) e = 0;
-      else if (p < 0.35) e = (p - 0.15) / 0.2;
-      else if (p < 0.65) e = 1;
-      else if (p < 0.85) e = 1 - (p - 0.65) / 0.2;
-      else e = 0;
-      e = smoothstep(Math.min(1, Math.max(0, e)));
+  const laptop = document.querySelector(".device--laptop");
+  const phone = document.querySelector(".device--phone");
+  // États de départ (hors-scène)
+  gsap.set(".format__backdrop", { autoAlpha: 0 });
+  gsap.set(".format__aside", { autoAlpha: 0, y: 24 });
+  gsap.set(laptop, { autoAlpha: 0, yPercent: 14, scale: 0.9, rotateX: 12, transformOrigin: "50% 90%" });
+  gsap.set(phone, { autoAlpha: 0, xPercent: 60, scale: 0.85, rotateY: -22, transformOrigin: "0% 50%" });
 
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const tW = Math.min(vw * 0.84, vh * 0.84 * 16 / 9); // largeur cible 16:9
-      const tH = tW * 9 / 16;
-      const vB = Math.max(0, (vh - tH) / 2) * e;
-      const hB = Math.max(0, (vw - tW) / 2) * e;
-      barTop.style.height = vB + "px";
-      barBot.style.height = vB + "px";
-      barL.style.width = hB + "px";
-      barR.style.width = hB + "px";
-      fmtAside.style.opacity = e;
-    }
-  });
+  if (prefersReduced) {
+    // Mouvement réduit : on montre simplement la scène, sans chorégraphie
+    gsap.set([".format__backdrop", ".format__aside", laptop, phone],
+      { autoAlpha: 1, x: 0, y: 0, scale: 1, rotateX: 0, rotateY: 0 });
+  } else {
+    const fmtTl = gsap.timeline({
+      scrollTrigger: { trigger: "#format", start: "top top", end: "bottom bottom", scrub: 1 }
+    });
+    fmtTl
+      // 1) le fond nuit se referme sur le plein écran
+      .to(".format__backdrop", { autoAlpha: 1, duration: 1, ease: "power2.inOut" }, 0)
+      // 2) l'ordinateur monte en scène (16:9)
+      .to(laptop, { autoAlpha: 1, yPercent: 0, scale: 1, rotateX: 0, duration: 2.2, ease: "power3.out" }, 0.5)
+      .to(".format__aside", { autoAlpha: 1, y: 0, duration: 1.4, ease: "power2.out" }, 1.4)
+      // 3) le téléphone vient le rejoindre (9:16) — même film, deux formats
+      .to(phone, { autoAlpha: 1, xPercent: 0, scale: 1, rotateY: 0, duration: 2.2, ease: "power3.out" }, 2.8)
+      // 4) légère respiration de l'ensemble
+      .to(".format__devices", { scale: 0.965, duration: 1.6, ease: "sine.inOut" }, 5)
+      // 5) sortie : les appareils se retirent, le film reprend le plein écran
+      .to(".format__aside", { autoAlpha: 0, y: -20, duration: 1, ease: "power2.in" }, 7.2)
+      .to(phone, { autoAlpha: 0, xPercent: 50, scale: 0.9, rotateY: -14, duration: 1.6, ease: "power2.in" }, 7.2)
+      .to(laptop, { autoAlpha: 0, yPercent: -12, scale: 0.92, duration: 1.6, ease: "power2.in" }, 7.4)
+      .to(".format__backdrop", { autoAlpha: 0, duration: 1.3, ease: "power2.inOut" }, 8);
+  }
 
   /* --- 8.7 TRAVERSÉE : lettres qui basculent + poids qui s'épaissit --- */
   const travTitle = document.querySelector(".traversee__title");

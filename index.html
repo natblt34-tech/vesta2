@@ -21,7 +21,7 @@
 />
 
 <!-- Feuille de style -->
-<link rel="stylesheet" href="css/main.css?v=11" />
+<link rel="stylesheet" href="css/main.css?v=13" />
 </head>
 <body>
 
@@ -60,14 +60,6 @@
     </defs>
     <rect width="1000" height="600" fill="#0A0806" mask="url(#wordCut)" />
   </svg>
-</div>
-
-<!-- Cadre « letterbox » cinéma (barres qui referment l'image en 16:9) -->
-<div id="letterbox" class="letterbox" aria-hidden="true">
-  <span class="letterbox__bar letterbox__bar--top"></span>
-  <span class="letterbox__bar letterbox__bar--bottom"></span>
-  <span class="letterbox__bar letterbox__bar--left"></span>
-  <span class="letterbox__bar letterbox__bar--right"></span>
 </div>
 
 <!-- Curseur personnalisé -->
@@ -140,12 +132,33 @@
     </ol>
   </section>
 
-  <!-- 4 · CHANGEMENT DE FORMAT -->
+  <!-- 4 · CHANGEMENT DE FORMAT — le film sur ordinateur (16:9) puis mobile (9:16) -->
   <section id="format" class="section format">
-    <div class="format__aside">
-      <p class="eyebrow" data-i18n="format.eyebrow">Un format, tous vos canaux</p>
-      <h2 class="format__title display" data-i18n="format.title">Le format cinéma, partout.</h2>
-      <p class="format__text" data-i18n="format.text">16:9 pour le portail, 9:16 pour les réseaux. Le même film, recadré au millimètre.</p>
+    <div class="format__sticky">
+      <div class="format__backdrop" aria-hidden="true"></div>
+      <div class="format__devices" aria-hidden="true">
+        <!-- Ordinateur portable -->
+        <div class="device device--laptop">
+          <div class="laptop__screen">
+            <canvas class="device__canvas" data-device="laptop"></canvas>
+            <span class="device__glare"></span>
+          </div>
+          <div class="laptop__base"></div>
+        </div>
+        <!-- Téléphone -->
+        <div class="device device--phone">
+          <div class="phone__body">
+            <span class="phone__notch"></span>
+            <canvas class="device__canvas" data-device="phone"></canvas>
+            <span class="device__glare"></span>
+          </div>
+        </div>
+      </div>
+      <div class="format__aside">
+        <p class="eyebrow" data-i18n="format.eyebrow">Un format, tous vos canaux</p>
+        <h2 class="format__title display" data-i18n="format.title">Le format cinéma, partout.</h2>
+        <p class="format__text" data-i18n="format.text">16:9 pour le portail, 9:16 pour les réseaux. Le même film, recadré au millimètre.</p>
+      </div>
     </div>
   </section>
 
@@ -320,6 +333,6 @@
 <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/main.js?v=11"></script>
+<script src="js/main.js?v=13"></script>
 </body>
 </html>

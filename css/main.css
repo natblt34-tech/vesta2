@@ -152,14 +152,6 @@ button { font: inherit; color: inherit; background: none; border: none; }
    opsz verrouillé : lettres de forme constante → largeur linéaire avec la taille. */
 #maskText { font-variation-settings: "opsz" 144, "wght" 700; }
 
-/* ---------- 6. Letterbox cinéma ---------- */
-.letterbox { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
-.letterbox__bar { position: absolute; background: var(--nuit); }
-.letterbox__bar--top    { top: 0; left: 0; right: 0; height: 0; }
-.letterbox__bar--bottom { bottom: 0; left: 0; right: 0; height: 0; }
-.letterbox__bar--left   { top: 0; bottom: 0; left: 0; width: 0; }
-.letterbox__bar--right  { top: 0; bottom: 0; right: 0; width: 0; }
-
 /* ---------- 7. Curseur personnalisé ---------- */
 .cursor {
   position: fixed; top: 0; left: 0; z-index: 900;
@@ -335,19 +327,84 @@ main { position: relative; z-index: 6; }
 }
 .volet__text { color: var(--os-dim); font-size: clamp(0.92rem, 1.2vw, 1.05rem); max-width: 32ch; font-weight: 300; }
 
-/* — 4 · FORMAT — */
-.format { min-height: 200svh; align-items: flex-start; }
-.format__aside {
-  position: sticky; top: 0;
-  min-height: 100svh;
-  display: flex; flex-direction: column; justify-content: center;
-  max-width: 34ch; opacity: 0;
+/* — 4 · FORMAT — le film sur ordinateur (16:9) puis mobile (9:16) */
+.format { min-height: 320svh; padding: 0; display: block; }
+.format__sticky {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
 }
-/* Panneau sombre discret derrière le titre latéral pour la lisibilité */
-.format__aside > * {
-  padding-left: 1.1rem;
-  border-left: 2px solid rgba(255, 107, 53, 0.6);
-  background: linear-gradient(90deg, rgba(10, 8, 6, 0.66), transparent 92%);
+/* Fond nuit qui se ferme sur le film (le plein cadre laisse place au stage) */
+.format__backdrop {
+  position: absolute; inset: 0; opacity: 0;
+  background:
+    radial-gradient(120% 90% at 50% 30%, rgba(31, 23, 15, 0.6), transparent 60%),
+    var(--nuit);
+}
+.format__devices {
+  position: relative; z-index: 1;
+  width: 100%; padding: 0 var(--pad);
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(1rem, 4vw, 3.5rem);
+  perspective: 1600px;
+}
+.format__aside {
+  position: absolute; left: var(--pad); bottom: clamp(2rem, 7vh, 4rem);
+  z-index: 3; max-width: 32ch; opacity: 0;
+}
+.format__aside > * { padding-left: 1.1rem; border-left: 2px solid rgba(255, 107, 53, 0.6); }
+.format__title { font-size: clamp(1.8rem, 4vw, 3.2rem); margin: 0.8rem 0; }
+.format__text { color: var(--os-dim); font-size: clamp(0.95rem, 1.3vw, 1.1rem); font-weight: 300; }
+
+/* Appareils — mockups en CSS pur, écran = canvas alimenté par le film */
+.device { position: relative; flex: 0 0 auto; will-change: transform, opacity; transform-style: preserve-3d; }
+.device__canvas { width: 100%; height: 100%; display: block; background: #060504; }
+.device__glare {
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient(115deg, rgba(255,255,255,0.10), transparent 42%);
+}
+
+/* Ordinateur portable */
+.device--laptop { width: clamp(300px, 46vw, 660px); }
+.laptop__screen {
+  position: relative; aspect-ratio: 16 / 9;
+  background: #0a0806; border-radius: 14px 14px 5px 5px;
+  padding: 9px; border: 1px solid rgba(239, 231, 216, 0.09);
+  box-shadow: 0 50px 100px -35px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.laptop__screen .device__canvas { border-radius: 5px; }
+.laptop__base {
+  position: relative; width: 116%; height: 15px; margin: 0 0 0 -8%;
+  background: linear-gradient(#2b2119, #140d07);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 26px 34px -14px rgba(0,0,0,0.75);
+}
+.laptop__base::before {
+  content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 16%; height: 5px; background: #0b0805; border-radius: 0 0 7px 7px;
+}
+
+/* Téléphone */
+.device--phone { width: clamp(118px, 15vw, 208px); }
+.phone__body {
+  position: relative; aspect-ratio: 9 / 18.5;
+  background: #0a0806; border-radius: 30px;
+  padding: 7px; border: 1px solid rgba(239, 231, 216, 0.1);
+  box-shadow: 0 45px 90px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.phone__body .device__canvas { border-radius: 23px; }
+.phone__notch {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 32%; height: 15px; background: #060504; border-radius: 10px; z-index: 2;
+}
+/* Mobile : les deux appareils doivent tenir côte à côte sans déborder */
+@media (max-width: 680px) {
+  .device--laptop { width: 60vw; }
+  .device--phone { width: 22vw; }
+  .format__devices { gap: 3.5vw; }
+  .format__aside { bottom: auto; top: clamp(4.5rem, 13vh, 7.5rem); max-width: 26ch; }
+  .format__title { font-size: clamp(1.5rem, 6vw, 2.2rem); }
 }
 .format__title { font-size: clamp(2rem, 5vw, 4rem); margin: 1rem 0; }
 .format__text { color: var(--os-dim); font-size: clamp(0.95rem, 1.3vw, 1.15rem); font-weight: 300; }
