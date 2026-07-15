@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.VestaChat.init();
   window.VestaPhysics.init();
   window.VestaParticles.init();
-  window.VestaMorph.init();
   window.VestaCursor.init();
 
   console.info('[Vesta] Site complet — architecture calquée sur la référence.');

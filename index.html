@@ -160,20 +160,34 @@
     <!-- ======================================================
          HERO
          ====================================================== -->
-    <!-- HERO : le titre plein écran + le nuage de points morphing à droite -->
+    <!-- HERO cinétique : mots colossaux + le film incrusté dans la phrase -->
     <header id="top" class="hero">
-      <canvas id="morph" aria-hidden="true"></canvas>
-      <h1 class="hero-title">
-        <span class="hero-line"><span class="hero-line-inner">Vos photos</span></span>
-        <span class="hero-line"><span class="hero-line-inner">deviennent</span></span>
-        <span class="hero-line"><span class="hero-line-inner accent">un film.</span></span>
-      </h1>
-      <p class="hero-tagline">L'IA filme. Un réalisateur signe. Livré en 48 h.</p>
-      <div class="hero-cta">
-        <a class="btn-solid btn-lg" href="#contact">Réserver un rendez-vous →</a>
-        <a class="hero-cta-second" href="#demo">Voir la démo ↓</a>
+      <div class="hero-k-stage">
+        <div class="hero-k-row">
+          <h1 class="hero-word"><span class="hw-in">Vos photos</span></h1>
+          <figure class="hero-k-media">
+            <video class="hero-k-vid" src="assets/video/visite.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+            <figcaption class="hero-k-media-tag mono-label">LE FILM · 00:42</figcaption>
+          </figure>
+        </div>
+        <div class="hero-k-row">
+          <h1 class="hero-word"><span class="hw-in">deviennent</span></h1>
+          <span class="hero-k-rotator" aria-hidden="true"><span class="hk-rot">livré en 48 h</span></span>
+        </div>
+        <div class="hero-k-row">
+          <h1 class="hero-word"><span class="hw-in accent">un film.</span></h1>
+        </div>
       </div>
-      <p class="hero-trust mono-label">✦ PREMIER FILM OFFERT · SANS ENGAGEMENT · RÉPONSE SOUS 24 H</p>
+
+      <div class="hero-k-foot">
+        <p class="hero-tagline">L'IA filme. Un réalisateur signe. Livré en 48 h.</p>
+        <div class="hero-cta">
+          <a class="btn-solid btn-lg" href="#contact">Réserver un rendez-vous →</a>
+          <a class="hero-cta-second" href="#demo">Voir la démo ↓</a>
+        </div>
+        <p class="hero-trust mono-label">✦ PREMIER FILM OFFERT · SANS ENGAGEMENT · RÉPONSE SOUS 24 H</p>
+      </div>
+
       <span class="hero-scroll-cue" aria-hidden="true">
         <span class="mono-label">SCROLLER</span>
         <span class="hero-scroll-line"></span>
@@ -752,7 +766,6 @@
   <script src="js/chat.js"></script>
   <script src="js/physics.js"></script>
   <script src="js/particles.js"></script>
-  <script src="js/morph.js"></script>
   <script src="js/cursor.js"></script>
   <script src="js/main.js"></script>
 </body>

@@ -333,58 +333,119 @@ body.skin-lumen .hero::before {
 
 .lang-toggle:hover { border-color: var(--fire); }
 
-/* 5. Hero ------------------------------------------------------------------------ */
+/* 5. Hero — cinétique : titre géant + vidéo incrustée dans la phrase --------------- */
 .hero {
   position: relative;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 80px var(--pad) 40px;
+  gap: clamp(1.8rem, 4vw, 3.2rem);
+  padding: 116px var(--pad) 60px;
   overflow: hidden;
 }
 
-/* Nuage de points morphing : canvas pleine largeur (les points voyagent
-   librement, y compris derrière le titre pendant les transitions), mais
-   les FORMES se posent dans la zone libre à droite du texte (morph.js) */
-#morph {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.hero-title { position: relative; z-index: 1; }
-
-@media (max-width: 900px) {
-  #morph { display: none; }
-}
-
-/* Lueur d'âtre derrière le titre */
+/* Lueur d'âtre en fond */
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 45% at 16% 80%, rgba(255, 122, 26, 0.12), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 78% 16%, rgba(212, 162, 78, 0.05), transparent 70%);
+    radial-gradient(ellipse 60% 50% at 20% 78%, rgba(255, 122, 26, 0.13), transparent 70%),
+    radial-gradient(ellipse 40% 34% at 82% 14%, rgba(212, 162, 78, 0.06), transparent 70%);
 }
 
-/* Le titre remplit l'écran : c'est tout le hero.
-   Borné par la LARGEUR (13vw : laisse la colonne du nuage de points à
-   droite sur desktop) ET la HAUTEUR (25svh : jamais coupé). */
-.hero-title {
+/* La scène cinétique : trois lignes de mots colossaux */
+.hero-k-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.1rem, 0.5vw, 0.6rem);
+}
+
+.hero-k-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(0.6rem, 2vw, 1.8rem);
+}
+
+/* Le mot géant : Bricolage 800, capitales, interligne ultra-serré (façon Impact) */
+.hero-word {
+  overflow: hidden;                 /* masque de révélation (heroIntro) */
   font-weight: 800;
-  font-size: clamp(3rem, min(13vw, 25svh), 20rem);
-  line-height: 0.92;
-  letter-spacing: -0.035em;
+  font-size: clamp(2.9rem, 13vw, 14rem);
+  line-height: 0.82;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.hw-in { display: block; }          /* remonte dans son masque à l'entrée */
+
+/* La vidéo incrustée entre les mots : sa hauteur épouse celle des lettres */
+.hero-k-media {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  height: clamp(2.9rem, 11vw, 11rem);
+  aspect-ratio: 16 / 9;
+  border-radius: clamp(8px, 1vw, 16px);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.hero-k-vid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-k-media-tag {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.5rem;
+  z-index: 2;
+  padding: 0.35em 0.7em;
+  border-radius: 999px;
+  background: rgba(7, 5, 4, 0.62);
+  color: var(--cream);
+  font-size: 0.54rem;
+}
+
+/* Tag rotatif d'accent (kinetic), calé sur la ligne « deviennent » */
+.hero-k-rotator {
+  align-self: center;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.hk-rot {
+  font-family: var(--font-m);
+  font-size: clamp(0.7rem, 1.3vw, 1rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.6em 1.15em;
+  white-space: nowrap;
+}
+
+/* Pied du hero : positionnement + CTA + réassurance, colonne à gauche */
+.hero-k-foot {
+  position: relative;
+  z-index: 1;
+  max-width: 42rem;
 }
 
 /* La ligne de positionnement sous le titre : trois affirmations sèches */
 .hero-tagline {
-  margin-top: 2rem;
   font-weight: 500;
   font-size: clamp(0.95rem, 1.5vw, 1.25rem);
   letter-spacing: 0.01em;
@@ -475,12 +536,7 @@ body.scrolled .hero-scroll-cue { opacity: 0; pointer-events: none; }
 
 @media (max-width: 640px) { .hero-scroll-cue { display: none; } }
 
-.hero-line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
-/* inline-block : la largeur colle au texte (mesurée par morph.js pour caler
-   le nuage de points à droite sans conflit) */
-.hero-line-inner { display: inline-block; }
-
-.hero-line-inner.accent,
+/* Mot/accent en dégradé or→feu (clip texte) */
 .accent {
   color: transparent;
   background: linear-gradient(115deg, var(--gold) 5%, var(--fire) 55%, var(--ember));

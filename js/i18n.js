@@ -42,9 +42,10 @@ window.VestaI18n = (() => {
     ['.mascot-skip', 'SKIP THE TOUR ✕'],
 
     // Hero
-    ['.hero-line:nth-child(1) .hero-line-inner', 'Your photos'],
-    ['.hero-line:nth-child(2) .hero-line-inner', 'become'],
-    ['.hero-line:nth-child(3) .hero-line-inner', 'a film.'],
+    ['.hero-k-row:nth-child(1) .hw-in', 'Your photos'],
+    ['.hero-k-row:nth-child(2) .hw-in', 'become'],
+    ['.hero-k-row:nth-child(3) .hw-in', 'a film.'],
+    ['.hero-k-media-tag', 'THE FILM · 00:42'],
     ['.hero-tagline', 'AI shoots. A director signs. Delivered in 48h.'],
     ['.hero-cta .btn-solid', 'Book a meeting →'],
     ['.hero-cta-second', 'Watch the demo ↓'],
@@ -346,6 +347,7 @@ window.VestaI18n = (() => {
     'tour.equipe': 'The crew: four AIs on the cameras… and a human director who signs every film. Click the cards.',
     'tour.formules': 'Three plans, built around your listing volume. First film free, quote on request ✦',
     'tour.toolkit': 'Throw me a tag, I\'ll catch it with my lasso! Just don\'t touch me with one, everything burns around here.',
+    'hero.rot': ['delivered in 48h', 'human-signed', 'ready to publish', 'the walkthroughs'],
     'tour.faq': 'One last doubt? The answers are right here — gear, fidelity, deadlines, the free first film.',
     'tour.contact': 'Ready to bring your listings to life? Right this way. I\'ll let you explore ✦',
   };
