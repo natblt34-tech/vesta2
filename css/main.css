@@ -60,6 +60,9 @@ button { font: inherit; color: inherit; background: none; border: none; }
   line-height: 0.92;
   letter-spacing: -0.02em;
   font-optical-sizing: auto;
+  /* Ombre portée douce : lisibilité garantie même sur une frame très claire,
+     sans masquer le film. */
+  text-shadow: 0 1px 2px rgba(10, 8, 6, 0.5), 0 10px 45px rgba(10, 8, 6, 0.55);
 }
 .eyebrow {
   font-size: clamp(0.66rem, 0.9vw, 0.8rem);
@@ -67,6 +70,7 @@ button { font: inherit; color: inherit; background: none; border: none; }
   text-transform: uppercase;
   color: var(--os-dim);
   font-weight: 500;
+  text-shadow: 0 1px 12px rgba(10, 8, 6, 0.7);
 }
 .line { display: block; }
 
@@ -247,13 +251,26 @@ main { position: relative; z-index: 6; }
     transparent 100%);
 }
 
+/* Voiles de lisibilité localisés (derrière le texte, au-dessus du film) */
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(130% 110% at 22% 62%, rgba(10, 8, 6, 0.62), transparent 58%);
+}
+.traversee::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(90deg, rgba(10, 8, 6, 0.78) 0%, rgba(10, 8, 6, 0.42) 44%, transparent 72%);
+}
+.hero > *, .traversee > * { position: relative; z-index: 1; }
+
 /* — 1 · HERO — */
 .hero { align-items: center; }
 .hero__inner { max-width: var(--maxw); margin: 0 auto; }
 .hero__eyebrow { margin-bottom: clamp(1rem, 3vh, 2rem); }
 .hero__title {
-  font-size: clamp(3.4rem, 14vw, 13rem);
+  font-size: clamp(3.6rem, 16vw, 16rem);
   text-transform: uppercase;
+  letter-spacing: -0.035em;
+  line-height: 0.86;
 }
 .hero__accent { color: var(--braise); font-style: italic; font-weight: 500; }
 .hero__sub {
@@ -322,7 +339,13 @@ main { position: relative; z-index: 6; }
   position: sticky; top: 0;
   min-height: 100svh;
   display: flex; flex-direction: column; justify-content: center;
-  max-width: 30ch; opacity: 0;
+  max-width: 34ch; opacity: 0;
+}
+/* Panneau sombre discret derrière le titre latéral pour la lisibilité */
+.format__aside > * {
+  padding-left: 1.1rem;
+  border-left: 2px solid rgba(255, 107, 53, 0.6);
+  background: linear-gradient(90deg, rgba(10, 8, 6, 0.66), transparent 92%);
 }
 .format__title { font-size: clamp(2rem, 5vw, 4rem); margin: 1rem 0; }
 .format__text { color: var(--os-dim); font-size: clamp(0.95rem, 1.3vw, 1.15rem); font-weight: 300; }
@@ -331,8 +354,10 @@ main { position: relative; z-index: 6; }
 .traversee { align-items: center; }
 .traversee__inner { max-width: var(--maxw); margin: 0 auto; }
 .traversee__title {
-  font-size: clamp(2.6rem, 8vw, 7.5rem);
+  font-size: clamp(2.8rem, 11vw, 10rem);
   text-transform: uppercase;
+  letter-spacing: -0.03em;
+  line-height: 0.88;
 }
 .traversee__title .line:last-child { color: var(--braise); }
 .traversee__text {
@@ -447,7 +472,7 @@ main { position: relative; z-index: 6; }
   font-size: clamp(0.8rem, 1.4vw, 1rem); letter-spacing: 0.3em; text-transform: uppercase;
   color: var(--os-dim); margin-bottom: clamp(1.5rem, 4vh, 2.6rem);
 }
-.reveal__line { font-size: clamp(2.4rem, 7vw, 6.5rem); }
+.reveal__line { font-size: clamp(2.6rem, 8.5vw, 8rem); letter-spacing: -0.025em; }
 .reveal__accent { color: var(--braise); font-style: italic; }
 .reveal__sign {
   margin-top: clamp(1.6rem, 4vh, 2.6rem);
@@ -456,6 +481,33 @@ main { position: relative; z-index: 6; }
 }
 .reveal__brand { font-family: var(--font-display); font-weight: 600; color: var(--os); font-size: 1.35em; letter-spacing: 0.02em; }
 .reveal__cta { margin-top: clamp(2rem, 5vh, 3rem); }
+
+/* ---------- 11b. Bandeau cinétique ---------- */
+.ribbon {
+  position: relative; z-index: 6;
+  overflow: hidden;
+  padding: clamp(1.4rem, 4vh, 3rem) 0;
+  border-block: 1px solid rgba(239, 231, 216, 0.14);
+  background: rgba(10, 8, 6, 0.55);
+  backdrop-filter: blur(4px);
+}
+.ribbon__track {
+  display: inline-flex; align-items: center; gap: clamp(1rem, 3vw, 2.6rem);
+  white-space: nowrap; will-change: transform;
+}
+.ribbon__item {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.8rem, 7vw, 5.5rem);
+  text-transform: uppercase; letter-spacing: -0.02em; line-height: 1;
+}
+.ribbon__item--out { color: transparent; -webkit-text-stroke: 1px var(--os-dim); }
+.ribbon__star { color: var(--braise); font-size: clamp(1rem, 3vw, 2.4rem); }
+
+/* Lettres animées (SplitType) */
+.hero__title, .traversee__title, .reveal__line { perspective: 800px; }
+.hero__title .char, .traversee__title .char, .reveal__line .char {
+  display: inline-block; will-change: transform, opacity;
+}
 
 /* ---------- 12. Footer ---------- */
 .footer {
@@ -481,8 +533,18 @@ main { position: relative; z-index: 6; }
 .footer__place { color: var(--os-dim); font-size: 0.9rem; }
 .footer__gift { gap: 1rem; }
 .footer__giftmark { font-family: var(--font-display); font-style: italic; color: var(--or); font-size: 1.2rem; }
+.footer__giant {
+  overflow: hidden; line-height: 0.78; margin-top: clamp(2rem, 6vh, 4rem);
+}
+.footer__giant span {
+  display: block; text-align: center;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(4rem, 27vw, 25rem);
+  letter-spacing: -0.04em; text-transform: uppercase;
+  color: transparent; -webkit-text-stroke: 1px rgba(239, 231, 216, 0.22);
+}
 .footer__base {
-  max-width: var(--maxw); margin: clamp(3rem, 6vh, 4.5rem) auto 0;
+  max-width: var(--maxw); margin: clamp(2.5rem, 5vh, 4rem) auto 0;
   padding-top: 1.5rem; border-top: 1px solid rgba(239,231,216,0.08);
   display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
   font-size: 0.78rem; color: var(--os-dim);

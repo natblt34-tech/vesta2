@@ -21,7 +21,7 @@
 />
 
 <!-- Feuille de style -->
-<link rel="stylesheet" href="css/main.css?v=2" />
+<link rel="stylesheet" href="css/main.css?v=3" />
 </head>
 <body>
 
@@ -200,6 +200,16 @@
     </div>
   </section>
 
+  <!-- BANDEAU CINÉTIQUE -->
+  <section class="ribbon" aria-hidden="true">
+    <div class="ribbon__track" id="ribbonTrack">
+      <span class="ribbon__item" data-i18n="ribbon.1">Premier film offert</span><span class="ribbon__star">✦</span>
+      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.2">Filmé par l'IA</span><span class="ribbon__star">✦</span>
+      <span class="ribbon__item" data-i18n="ribbon.3">Réalisé par un humain</span><span class="ribbon__star">✦</span>
+      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.4">Vos murs méritent un film</span><span class="ribbon__star">✦</span>
+    </div>
+  </section>
+
   <!-- 7 · LES OFFRES -->
   <section id="offres" class="section offres">
     <div class="offres__head">
@@ -301,6 +311,7 @@
       <a href="#contact" class="btn btn--fill" data-magnetic><span data-i18n="footer.cta">Réserver un rendez-vous</span></a>
     </div>
   </div>
+  <div class="footer__giant" aria-hidden="true"><span>VESTA</span></div>
   <div class="footer__base">
     <span>© <span id="year"></span> Vesta</span>
     <span data-i18n="footer.made">Filmé par l'IA. Réalisé par un humain.</span>
@@ -311,8 +322,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/main.js?v=2"></script>
+<script src="js/main.js?v=3"></script>
 </body>
 </html>

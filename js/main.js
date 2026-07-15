@@ -11,7 +11,7 @@
 /* -------------------------------------------------------------------------
    1. CONFIGURATION DES FRAMES  — les seules valeurs à changer
    ------------------------------------------------------------------------- */
-const FRAME_COUNT = 192;            // nombre total de frames dans /frames/
+const FRAME_COUNT = 239;            // nombre total de frames dans /frames/
 const FRAME_PATH  = "frames/frame-"; // préfixe du chemin
 const FRAME_EXT   = ".jpg";         // extension
 const FRAME_PAD   = 4;              // zéros de remplissage : 4 → frame-0001.jpg
@@ -33,6 +33,8 @@ const I18N = {
     "hero.sub": "Filmé par l'IA. Réalisé par un humain.",
     "hero.scroll": "Faites défiler pour visiter",
     "mask.eyebrow": "Le film coule dans les lettres",
+    "ribbon.1": "Premier film offert", "ribbon.2": "Filmé par l'IA",
+    "ribbon.3": "Réalisé par un humain", "ribbon.4": "Vos murs méritent un film",
     "promesse.eyebrow": "Trois gestes, un film signé",
     "promesse.1t": "Dépôt & brief",
     "promesse.1d": "Vous déposez vos photos et le caractère du bien. On écrit l'intention du film.",
@@ -86,6 +88,8 @@ const I18N = {
     "hero.sub": "Shot by AI. Directed by a human.",
     "hero.scroll": "Scroll to step inside",
     "mask.eyebrow": "The film flows through the letters",
+    "ribbon.1": "First film on us", "ribbon.2": "Shot by AI",
+    "ribbon.3": "Directed by a human", "ribbon.4": "Your walls deserve a film",
     "promesse.eyebrow": "Three moves, one signed film",
     "promesse.1t": "Upload & brief",
     "promesse.1d": "You drop in your photos and the character of the property. We write the film's intent.",
@@ -183,6 +187,8 @@ function sizeCanvas() {
   canvas.style.width = cw + "px";
   canvas.style.height = ch + "px";
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   lastDrawn = -1;
   drawFrame(state.frame, true);
 }
@@ -247,10 +253,17 @@ function preloadFrames() {
     for (let i = 1; i <= FRAME_COUNT; i++) {
       const img = new Image();
       img.decoding = "async";
+      // On DÉCODE chaque frame dès son chargement : le bitmap reste prêt en
+      // mémoire, si bien que drawImage() ne redéclenche jamais de décodage
+      // synchrone pendant le scroll → scrub fluide, sans saccade.
       img.onload = () => {
-        loaded++;
-        if (!framesReady) { framesReady = true; drawFrame(state.frame, true); }
-        done();
+        const finish = () => {
+          loaded++;
+          if (!framesReady) { framesReady = true; drawFrame(state.frame, true); }
+          done();
+        };
+        if (img.decode) img.decode().then(finish).catch(finish);
+        else finish();
       };
       img.onerror = () => { failed++; done(); };
       img.src = framePath(i);
@@ -328,29 +341,29 @@ function buildExperience(framesOk) {
       start: "top top",
       endTrigger: "#reveal",
       end: "top top",
-      scrub: prefersReduced ? true : 0.6,
+      scrub: prefersReduced ? true : 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        // Barre de progression + rendu direct (au cas où le ticker est ralenti)
         progressFill.style.transform = "scaleX(" + self.progress + ")";
-        drawFrame(state.frame, false);
       }
     }
   });
 
-  /* --- 8.3 HERO : révélation à l'ouverture --- */
-  // États de départ (les éléments sont masqués en CSS via .js pour éviter le flash)
-  const heroLines = document.querySelectorAll(".hero__title .line");
-  gsap.set(".hero__title", { overflow: "hidden" });
-  gsap.set(heroLines, { yPercent: 115 });
+  /* --- 8.3 HERO : révélation lettre par lettre (flip 3D) --- */
+  // Découpe le titre en lettres (les .line restent des blocs empilés).
+  const heroChars = splitChars(".hero__title");
+  gsap.set(".hero__title .line", { opacity: 1 });
   gsap.set([".hero__eyebrow", ".hero__sub"], { y: 20 });
   const introTl = gsap.timeline({ delay: 0.35 });
+  introTl.to(".hero__eyebrow", { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+  if (heroChars && heroChars.length) {
+    gsap.set(heroChars, { yPercent: 120, opacity: 0, rotateX: -90 });
+    introTl.to(heroChars, {
+      yPercent: 0, opacity: 1, rotateX: 0, duration: 1.1,
+      ease: "power4.out", stagger: 0.028
+    }, "-=0.35");
+  }
   introTl
-    .to(".hero__eyebrow", { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" })
-    .to(heroLines, {
-      yPercent: 0, opacity: 1, duration: prefersReduced ? 0.01 : 1.1,
-      ease: "power4.out", stagger: 0.12
-    }, "-=0.4")
     .to(".hero__sub", { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }, "-=0.7")
     .to(".scrollhint", { opacity: 1, duration: 0.8 }, "-=0.5");
 
@@ -437,8 +450,22 @@ function buildExperience(framesOk) {
     }
   });
 
-  /* --- 8.7 TRAVERSÉE --- */
-  revealLines(".traversee__title", "#traversee");
+  /* --- 8.7 TRAVERSÉE : lettres qui basculent + poids qui s'épaissit --- */
+  const travTitle = document.querySelector(".traversee__title");
+  const travChars = splitChars(".traversee__title");
+  if (travChars && travChars.length) {
+    gsap.from(travChars, {
+      yPercent: 120, opacity: 0, rotateX: -85, duration: 1, ease: "power4.out", stagger: 0.02,
+      scrollTrigger: { trigger: "#traversee", start: "top 72%" }
+    });
+    // Poids variable Fraunces piloté au scroll (300 → 900) : la typo « prend corps »
+    const wp = { w: 320 };
+    gsap.to(wp, {
+      w: 900, ease: "none",
+      scrollTrigger: { trigger: "#traversee", start: "top 78%", end: "center center", scrub: true },
+      onUpdate: () => { travTitle.style.fontVariationSettings = '"wght" ' + Math.round(wp.w) + ', "opsz" 144'; }
+    });
+  }
   gsap.from(".traversee__text", {
     y: 40, opacity: 0, duration: 1, ease: "power3.out",
     scrollTrigger: { trigger: ".traversee__text", start: "top 82%" }
@@ -471,18 +498,41 @@ function buildExperience(framesOk) {
     opacity: 0.62, ease: "none",
     scrollTrigger: { trigger: "#reveal", start: "top 60%", end: "top top", scrub: true }
   });
+  const revealChars = splitChars(".reveal__line");
   const revealTl = gsap.timeline({
     scrollTrigger: { trigger: "#reveal", start: "top 62%" }
   });
+  revealTl.from(".reveal__kicker", { opacity: 0, y: 20, duration: 1, ease: "power2.out" });
+  if (revealChars && revealChars.length) {
+    revealTl.from(revealChars, {
+      opacity: 0, yPercent: 110, rotateX: -80, duration: 1.1, ease: "power4.out", stagger: 0.02
+    }, "-=0.4");
+  } else {
+    revealTl.from(".reveal__line .line", { opacity: 0, y: 20, duration: 0.6, stagger: 0.1 }, "-=0.4");
+  }
   revealTl
-    .from(".reveal__kicker", { opacity: 0, y: 20, duration: 1, ease: "power2.out" })
-    .from(".reveal__line .line", {
-      opacity: 0, yPercent: 100, duration: prefersReduced ? 0.01 : 1.2,
-      ease: "power4.out", stagger: 0.14
-    }, "-=0.4")
     .from(".reveal__sign", { opacity: 0, y: 20, duration: 1, ease: "power2.out" }, "-=0.4")
     .from(".reveal__cta", { opacity: 0, y: 20, duration: 0.9, ease: "power2.out" }, "-=0.6");
-  gsap.set(".reveal__line", { overflow: "hidden" });
+
+  /* --- 8.10b BANDEAU CINÉTIQUE : boucle continue, vitesse liée au scroll --- */
+  const ribbonTrack = document.getElementById("ribbonTrack");
+  if (ribbonTrack && !prefersReduced) {
+    ribbonTrack.innerHTML += ribbonTrack.innerHTML; // duplique pour une boucle sans couture
+    const ribbonTween = gsap.to(ribbonTrack, { xPercent: -50, duration: 28, ease: "none", repeat: -1 });
+    ScrollTrigger.create({
+      trigger: ".ribbon", start: "top bottom", end: "bottom top",
+      onUpdate: (self) => {
+        // accélère avec la vitesse de scroll (et inverse le sens au scroll arrière)
+        const v = self.getVelocity();
+        const dir = v < 0 ? -1 : 1;
+        ribbonTween.timeScale(dir * (1 + Math.min(Math.abs(v) / 240, 7)));
+      }
+    });
+    // retour progressif à la vitesse de croisière
+    gsap.ticker.add(() => {
+      ribbonTween.timeScale(gsap.utils.interpolate(ribbonTween.timeScale(), 1, 0.045));
+    });
+  }
 
   /* --- 8.11 Ancres : scroll fluide via Lenis --- */
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
@@ -505,13 +555,19 @@ function buildExperience(framesOk) {
   }
 }
 
-/* Petit utilitaire : révèle les lignes d'un titre (rise + fondu) au scroll */
-function revealLines(selector, trigger) {
-  gsap.from(selector + " .line", {
-    yPercent: 110, opacity: 0, duration: prefersReduced ? 0.01 : 1.1,
-    ease: "power4.out", stagger: 0.1,
-    scrollTrigger: { trigger: trigger, start: "top 72%" }
-  });
+/* Découpe un titre en lettres (SplitType), ligne par ligne pour préserver
+   la structure .line (retours à la ligne). Renvoie null si reduced-motion. */
+function splitChars(selector) {
+  const el = document.querySelector(selector);
+  if (!el || prefersReduced || !window.SplitType) return null;
+  const lines = el.querySelectorAll(".line");
+  let chars = [];
+  if (lines.length) {
+    lines.forEach((l) => { chars = chars.concat(new SplitType(l, { types: "chars" }).chars); });
+  } else {
+    chars = new SplitType(el, { types: "chars" }).chars;
+  }
+  return chars;
 }
 
 /* =========================================================================
