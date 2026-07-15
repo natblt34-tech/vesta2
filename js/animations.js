@@ -189,6 +189,15 @@ window.VestaAnimations = (() => {
       delay: 0.55,
       ease: 'power3.out',
     });
+    gsap.from('.hero-cta, .hero-trust', {
+      y: 20,
+      opacity: 0,
+      duration: 0.8,
+      delay: 0.75,
+      stagger: 0.12,
+      ease: 'power3.out',
+      clearProps: 'transform,opacity',
+    });
   }
 
   function initHeroIntro() {
@@ -509,6 +518,55 @@ window.VestaAnimations = (() => {
     if (deckShowFn) deckShowFn(workerKey);
   }
 
+  /* --- FAQ : accordéon d'objections (mono-ouverture) --------------------------------
+     Interactif même en prefers-reduced-motion : la révélation passe par un
+     simple grid-template-rows en CSS, aucune dépendance GSAP ici. */
+
+  function initFAQ() {
+    const items = gsap.utils.toArray('.faq-item');
+    if (!items.length) return;
+
+    // GSAP anime la hauteur de façon fiable (là où la transition CSS height/grid
+    // se bloque selon les moteurs). En mouvement réduit : bascule instantanée.
+    function setState(item, open) {
+      const a = item.querySelector('.faq-a');
+      const inner = item.querySelector('.faq-a-inner');
+      const btn = item.querySelector('.faq-q');
+      item.classList.toggle('is-open', open);
+      btn?.setAttribute('aria-expanded', open ? 'true' : 'false');
+      gsap.killTweensOf(a);
+      if (reducedMotion) {
+        gsap.set(a, { height: open ? 'auto' : 0 });
+        return;
+      }
+      if (open) {
+        // cible mesurée en pixels (le contenu est déjà en page), puis height:auto
+        // en fin d'animation pour rester juste au redimensionnement
+        gsap.fromTo(a,
+          { height: a.offsetHeight },
+          { height: inner.offsetHeight, duration: 0.42, ease: 'power2.inOut',
+            onComplete: () => gsap.set(a, { height: 'auto' }) });
+      } else {
+        gsap.fromTo(a,
+          { height: a.offsetHeight },
+          { height: 0, duration: 0.38, ease: 'power2.inOut' });
+      }
+    }
+
+    items.forEach((item) => {
+      const btn = item.querySelector('.faq-q');
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const willOpen = !item.classList.contains('is-open');
+        // Accordéon : une seule réponse ouverte à la fois
+        items.forEach((other) => {
+          if (other !== item && other.classList.contains('is-open')) setState(other, false);
+        });
+        setState(item, willOpen);
+      });
+    });
+  }
+
   /* --- Init ---------------------------------------------------------------------------------- */
 
   function staticFallback() {
@@ -520,6 +578,7 @@ window.VestaAnimations = (() => {
   }
 
   function init() {
+    initFAQ(); // toujours interactif, y compris en mouvement réduit
     if (reducedMotion) { staticFallback(); return; }
     initReveals();
     initScrambles();

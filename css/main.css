@@ -44,6 +44,24 @@ body {
 img, video { max-width: 100%; display: block; }
 button { font: inherit; color: inherit; }
 
+/* Accessibilité clavier : un anneau de focus net et de marque, jamais au
+   simple clic souris (:focus-visible), et visible même avec le curseur
+   personnalisé masqué. Lacune corrigée. */
+:focus-visible {
+  outline: 2px solid var(--fire);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.has-cursor :focus-visible { outline-color: var(--ember); }
+
+/* Titres : équilibrage des retours à la ligne (moins de veuves), rendu
+   optique plus soigné sur les grandes tailles. */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* Ancres : la nav fixe ne recouvre plus le haut des sections ciblées */
+section[id], header[id] { scroll-margin-top: 84px; }
+
 ::selection { background: var(--fire); color: #180c02; }
 
 ::-webkit-scrollbar { width: 10px; }
@@ -56,6 +74,54 @@ button { font: inherit; color: inherit; }
   inset: 0;
   z-index: -1;
   pointer-events: none;
+}
+
+/* Lien d'évitement : caché hors focus, surgit en haut à gauche au clavier */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 400;
+  transform: translateY(-120%);
+  background: linear-gradient(115deg, var(--ember), var(--fire));
+  color: #180c02;
+  font-family: var(--font-m);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.8em 1.4em;
+  border-radius: 0 0 12px 0;
+  transition: transform 0.25s ease;
+}
+
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* Barre de progression de lecture : filet or/feu piloté par Lenis (--sp) */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 100%;
+  z-index: 200;
+  transform: scaleX(var(--sp, 0));
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--gold), var(--fire) 70%, var(--ember));
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.5);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Grain filmique : texture fixe très légère, signe « premium », inerte aux
+   clics. SVG feTurbulence en data-URI (aucune requête réseau). */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* 3. Composants génériques --------------------------------------------------- */
@@ -107,6 +173,16 @@ button { font: inherit; color: inherit; }
 .btn-solid:hover {
   transform: translateY(-3px);
   box-shadow: 0 14px 40px rgba(255, 122, 26, 0.35);
+}
+
+/* Retour à l'appui : le bouton « répond » sous le doigt/la souris */
+.btn-solid:active { transform: translateY(-1px); }
+
+/* Variante ample pour le CTA du hero : plus de présence sans crier */
+.btn-lg {
+  font-size: 1.06rem;
+  padding: 1.05em 2.2em;
+  box-shadow: 0 10px 30px rgba(255, 122, 26, 0.22);
 }
 
 /* Bouton contour — pill discret (background explicite : sur un <button>,
@@ -314,6 +390,90 @@ body.skin-lumen .hero::before {
   letter-spacing: 0.01em;
   color: var(--muted);
 }
+
+/* Rangée d'action du hero : le CTA principal enfin présent dès le pli */
+.hero-cta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: clamp(1rem, 2.4vw, 1.8rem);
+  margin-top: 2.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Second appel discret : « voir la démo » sans concurrencer le CTA plein */
+.hero-cta-second {
+  font-family: var(--font-m);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream);
+  text-decoration: none;
+  padding: 0.4em 0;
+  border-bottom: 1px solid var(--line-strong);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-cta-second:hover { color: var(--ember); border-color: var(--fire); }
+
+/* Ligne de réassurance : preuve gratuite, sans risque, sous le CTA */
+.hero-trust {
+  margin-top: 1.4rem;
+  color: var(--gold);
+  position: relative;
+  z-index: 1;
+}
+
+/* Indice de scroll : discret, en bas du hero, s'efface au premier défilement */
+.hero-scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(18px, 3vh, 34px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  z-index: 1;
+  opacity: 0.7;
+  transition: opacity 0.5s ease;
+}
+
+.hero-scroll-cue .mono-label { font-size: 0.6rem; }
+
+.hero-scroll-line {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(var(--gold), transparent);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Une braise glisse le long du trait, en boucle */
+.hero-scroll-line::after {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 3px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--ember);
+  box-shadow: 0 0 8px var(--fire);
+  animation: cue-fall 1.8s ease-in-out infinite;
+}
+
+@keyframes cue-fall {
+  0%   { transform: translateY(-14px); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateY(42px); opacity: 0; }
+}
+
+/* Au premier défilement, l'indice disparaît (classe posée par smooth-scroll) */
+body.scrolled .hero-scroll-cue { opacity: 0; pointer-events: none; }
+
+@media (max-width: 640px) { .hero-scroll-cue { display: none; } }
 
 .hero-line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
 /* inline-block : la largeur colle au texte (mesurée par morph.js pour caler
@@ -1074,6 +1234,93 @@ body.skin-lumen .hero::before {
 .toolkit-arena .tool-tag:nth-child(12) { left: 48%; top: 52%; }
 
 
+/* 15. FAQ — accordéon d'objections --------------------------------------------------------------------- */
+.faq {
+  padding: var(--sect) var(--pad);
+  border-top: 1px solid var(--line);
+}
+
+.faq-head { max-width: 46rem; margin-bottom: clamp(2.4rem, 5vw, 4rem); }
+
+.faq-title {
+  font-weight: 700;
+  font-size: clamp(2.2rem, 6vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  margin-top: 1.4rem;
+}
+
+.faq-list { max-width: 60rem; }
+
+.faq-item { border-top: 1px solid var(--line); }
+.faq-item:last-child { border-bottom: 1px solid var(--line); }
+
+/* La question : pleine largeur, cliquable, l'icône +/− pivote à l'ouverture */
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: clamp(1.1rem, 2.4vw, 1.7rem) 0;
+  color: var(--cream);
+  font-family: var(--font-d);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+  letter-spacing: -0.01em;
+  transition: color 0.25s ease;
+}
+
+.faq-q:hover,
+.faq-item.is-open .faq-q { color: var(--ember); }
+
+/* Icône +/− en pur CSS : deux traits, l'un s'efface à l'ouverture */
+.faq-icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+}
+
+.faq-icon::before,
+.faq-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 15px; height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.faq-icon::after { transform: translate(-50%, -50%) rotate(90deg); }
+.faq-item.is-open .faq-icon::before { background: var(--fire); }
+.faq-item.is-open .faq-icon::after { opacity: 0; transform: translate(-50%, -50%) rotate(0deg); }
+
+/* La réponse : fermée par défaut (height 0, clippée). L'ouverture/fermeture
+   est animée par GSAP dans initFAQ (height ⇄ auto) — fiable sur tous moteurs. */
+.faq-a {
+  height: 0;
+  overflow: hidden;
+}
+
+.faq-a-inner { overflow: hidden; }
+
+.faq-a p {
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 52ch;
+  padding-bottom: clamp(1.1rem, 2.4vw, 1.7rem);
+}
+
+.faq-foot { margin-top: 2.6rem; color: var(--muted); }
+.faq-foot .mono-link { color: var(--gold); }
+
 /* 16. Contact & footer ----------------------------------------------------------------------------------- */
 .contact {
   min-height: 88svh;
@@ -1801,5 +2048,8 @@ body.skin-lumen .hero::before {
 
 /* 20. prefers-reduced-motion -------------------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .av-svg, .av-flames, .av-legs, .mock-bar-fill { animation: none; }
+  .av-svg, .av-flames, .av-legs, .mock-bar-fill,
+  .hero-scroll-line::after { animation: none; }
+  /* L'indice de scroll reste discret mais figé */
+  .hero-scroll-cue { opacity: 0.55; }
 }

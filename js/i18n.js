@@ -46,6 +46,9 @@ window.VestaI18n = (() => {
     ['.hero-line:nth-child(2) .hero-line-inner', 'become'],
     ['.hero-line:nth-child(3) .hero-line-inner', 'a film.'],
     ['.hero-tagline', 'AI shoots. A director signs. Delivered in 48h.'],
+    ['.hero-cta .btn-solid', 'Book a meeting →'],
+    ['.hero-cta-second', 'Watch the demo ↓'],
+    ['.hero-trust', '✦ FIRST FILM ON US · NO COMMITMENT · REPLY WITHIN 24H'],
 
     // Manifeste
     ['#work > .mono-label', '( WHAT VESTA DOES )'],
@@ -212,6 +215,23 @@ window.VestaI18n = (() => {
     ['.toolkit-arena .tool-tag:nth-child(10)', 'Drone shots (soon)'],
     ['.toolkit-legal', '* VIRTUALLY FURNISHED VISUALS, NON-CONTRACTUAL'],
 
+    // FAQ
+    ['.faq-head .mono-label', '( FREQUENTLY ASKED )'],
+    ['.faq-title', 'What people<br>often ask us.', true],
+    ['.faq-item:nth-child(1) .faq-q-text', 'Do I need any gear, a drone or a photographer?'],
+    ['.faq-item:nth-child(1) .faq-a p', 'No. One photo per room, taken on a smartphone, is enough. No on-site shoot, no appointment to schedule, no gear to rent. You upload, you describe the layout, we handle the rest.'],
+    ['.faq-item:nth-child(2) .faq-q-text', 'Does the AI invent rooms or distort the property?'],
+    ['.faq-item:nth-child(2) .faq-a p', 'Never. The camera stays strictly faithful to your photos: nothing invented, nothing distorted. It sets in motion what already exists. That\'s our fidelity promise — and a human director checks it shot by shot.'],
+    ['.faq-item:nth-child(3) .faq-q-text', 'What if the film doesn\'t work for me?'],
+    ['.faq-item:nth-child(3) .faq-a p', 'It never reaches you blind. The director reshoots any take that doesn\'t convince him before you even see it. And on delivery, one round of revisions is included: you approve, we adjust.'],
+    ['.faq-item:nth-child(4) .faq-q-text', 'How long until I get my film?'],
+    ['.faq-item:nth-child(4) .faq-a p', '48 hours max after we receive your photos and brief. The Blaze plan gets 24h priority. Your listing can stand out as soon as the next day.'],
+    ['.faq-item:nth-child(5) .faq-q-text', 'Is the first film really free?'],
+    ['.faq-item:nth-child(5) .faq-a p', 'Yes, no credit card and no commitment. You judge on a real property of your own. If the result convinces you, we talk plans. If not, you walk away with the film.'],
+    ['.faq-item:nth-child(6) .faq-q-text', 'Which formats and rights do I get?'],
+    ['.faq-item:nth-child(6) .faq-a p', '16:9 for the portals and 9:16 for social, with royalty-free music included. Ready to publish, nothing to export or set up.'],
+    ['.faq-foot', 'ANOTHER QUESTION? <a class="mono-link" href="mailto:contact@vesta.app">CONTACT@VESTA.APP</a>', true],
+
     // Contact & footer
     ['#contact .mono-label', '( YOUR NEXT LISTING )'],
     ['.contact-title', 'Bring your<br>listings to life.', true],
@@ -223,6 +243,7 @@ window.VestaI18n = (() => {
     ['.footer-col:nth-child(1) a:nth-of-type(2)', 'The crew'],
     ['.footer-col:nth-child(1) a:nth-of-type(3)', 'The plans'],
     ['.footer-col:nth-child(1) a:nth-of-type(4)', 'The toolbox'],
+    ['.footer-col:nth-child(1) a:nth-of-type(5)', 'FAQ'],
     ['.footer-col:nth-child(2) .mono-label', 'CONTACT'],
     ['.footer-col:nth-child(2) a:nth-of-type(2)', 'Book a meeting'],
     ['.footer-meta .mono-label', '© 2026 VESTA · AI FOR REAL ESTATE'],
@@ -325,6 +346,7 @@ window.VestaI18n = (() => {
     'tour.equipe': 'The crew: four AIs on the cameras… and a human director who signs every film. Click the cards.',
     'tour.formules': 'Three plans, built around your listing volume. First film free, quote on request ✦',
     'tour.toolkit': 'Throw me a tag, I\'ll catch it with my lasso! Just don\'t touch me with one, everything burns around here.',
+    'tour.faq': 'One last doubt? The answers are right here — gear, fidelity, deadlines, the free first film.',
     'tour.contact': 'Ready to bring your listings to life? Right this way. I\'ll let you explore ✦',
   };
 

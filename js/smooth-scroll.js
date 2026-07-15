@@ -15,9 +15,16 @@ window.VestaScroll = (() => {
     smoothWheel: true,
   });
 
-  // ScrollTrigger doit recalculer ses positions à chaque frame de Lenis
-  lenis.on('scroll', () => {
+  const root = document.documentElement;
+  const NAV_OFFSET = -80; // la nav fixe ne doit plus recouvrir le haut des sections
+
+  // ScrollTrigger recalcule ses positions à chaque frame ; on en profite pour
+  // alimenter la barre de progression (--sp) et signaler le premier défilement.
+  lenis.on('scroll', ({ scroll, progress }) => {
     if (window.ScrollTrigger) ScrollTrigger.update();
+    const p = typeof progress === 'number' ? progress : 0;
+    root.style.setProperty('--sp', p.toFixed(4));
+    document.body.classList.toggle('scrolled', (scroll || 0) > 12);
   });
 
   // Une seule boucle rAF : le ticker GSAP pilote Lenis (temps en ms)
@@ -31,7 +38,9 @@ window.VestaScroll = (() => {
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
-    lenis.scrollTo(target, { duration: 1.4 });
+    // #top revient tout en haut ; les autres ancres laissent la place à la nav
+    const offset = link.getAttribute('href') === '#top' ? 0 : NAV_OFFSET;
+    lenis.scrollTo(target, { duration: 1.4, offset });
   });
 
   return { lenis };

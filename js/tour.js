@@ -92,6 +92,12 @@ window.VestaTour = (() => {
         'Lancez-moi un tag, je l’attrape au lasso ! Mais ne me touchez pas avec, tout brûle ici.'),
     },
     {
+      target: '#faq',
+      mascot: [85, 62],   // la liste est calée à gauche, place à droite
+      text: () => window.VestaI18n.t('tour.faq',
+        'Un dernier doute ? Les réponses sont là : matériel, fidélité, délais, et le premier film offert.'),
+    },
+    {
       target: '#contact',
       mascot: [8, 74],    // le titre et le bouton sont centrés
       text: () => window.VestaI18n.t('tour.contact',
