@@ -176,66 +176,33 @@ window.VestaAnimations = (() => {
   /* --- Intro du hero (lignes masquées) --------------------------------------------- */
 
   function heroIntro() {
-    // Les mots colossaux remontent de leur masque (façon éditorial)
+    // Les fragments de mots colossaux remontent de leur masque
     gsap.from('.hw-in', {
       yPercent: 115,
       duration: 1.1,
+      stagger: 0.1,
+      ease: 'power3.out',
+    });
+    // Les bandes vidéo se déploient (échelle horizontale) depuis leur centre
+    gsap.from('.hk-media', {
+      scaleX: 0,
+      transformOrigin: 'left center',
+      duration: 0.9,
+      delay: 0.25,
       stagger: 0.12,
-      ease: 'power3.out',
+      ease: 'power3.inOut',
+      clearProps: 'transform',
     });
-    // La vidéo incrustée surgit en léger zoom
-    gsap.from('.hero-k-media', {
-      scale: 0.86,
-      opacity: 0,
-      duration: 1,
-      delay: 0.35,
-      ease: 'power3.out',
-      clearProps: 'transform,opacity',
-    });
-    // Tag rotatif puis pied (tagline + CTA + réassurance)
-    gsap.from('.hero-k-rotator', {
-      y: 16,
-      opacity: 0,
-      duration: 0.7,
-      delay: 0.55,
-      ease: 'power3.out',
-      clearProps: 'transform,opacity',
-    });
+    // Pied : tagline + CTA + réassurance
     gsap.from('.hero-k-foot > *', {
       y: 22,
       opacity: 0,
       duration: 0.85,
-      delay: 0.65,
+      delay: 0.6,
       stagger: 0.12,
       ease: 'power3.out',
       clearProps: 'transform,opacity',
     });
-  }
-
-  /* --- Tag rotatif du hero (kinetic) ------------------------------------------------
-     Le petit tag d'accent défile (livré en 48 h → signé main → …). i18n géré via
-     VestaI18n.t. En mouvement réduit : premier mot figé (mais bien traduit). */
-
-  function initHeroRotator() {
-    const el = document.querySelector('.hk-rot');
-    if (!el) return;
-    const words = window.VestaI18n.t('hero.rot',
-      ['livré en 48 h', 'signé main', 'prêt à publier', 'les traversées']);
-    el.textContent = words[0];
-    if (reducedMotion || words.length < 2) return;
-
-    let i = 0;
-    setInterval(() => {
-      i = (i + 1) % words.length;
-      gsap.to(el, {
-        yPercent: -110, opacity: 0, duration: 0.28, ease: 'power2.in', overwrite: true,
-        onComplete() {
-          el.textContent = words[i];
-          gsap.fromTo(el, { yPercent: 110, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 0.34, ease: 'power3.out', overwrite: true });
-        },
-      });
-    }, 2400);
   }
 
   function initHeroIntro() {
@@ -617,7 +584,6 @@ window.VestaAnimations = (() => {
 
   function init() {
     initFAQ();          // toujours interactif, y compris en mouvement réduit
-    initHeroRotator();  // pose le texte du tag (traduit) même en mouvement réduit
     if (reducedMotion) { staticFallback(); return; }
     initReveals();
     initScrambles();

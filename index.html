@@ -160,22 +160,30 @@
     <!-- ======================================================
          HERO
          ====================================================== -->
-    <!-- HERO cinétique : mots colossaux + le film incrusté dans la phrase -->
-    <header id="top" class="hero">
-      <div class="hero-k-stage">
-        <div class="hero-k-row">
-          <h1 class="hero-word"><span class="hw-in">Vos photos</span></h1>
-          <figure class="hero-k-media">
-            <video class="hero-k-vid" src="assets/video/visite.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
-            <figcaption class="hero-k-media-tag mono-label">LE FILM · 00:42</figcaption>
+    <!-- HERO cinétique (architecture wearecheck.co) : mots colossaux dont la
+         phrase est COUPÉE par des bandes vidéo qui remplissent la ligne -->
+    <header id="top" class="hero hero-kin">
+      <div class="hk-lines">
+        <!-- Ligne 1 : VOS [vidéo] PHOTOS — la vidéo coupe la phrase -->
+        <div class="hk-line">
+          <h1 class="hk-word"><span class="hw-in">Vos</span></h1>
+          <figure class="hk-media">
+            <video class="hk-vid" src="assets/video/visite.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+          </figure>
+          <h1 class="hk-word"><span class="hw-in">photos</span></h1>
+        </div>
+        <!-- Ligne 2 : DEVIENNENT [vidéo] — la bande vidéo fille jusqu'au bord -->
+        <div class="hk-line">
+          <h1 class="hk-word"><span class="hw-in">deviennent</span></h1>
+          <figure class="hk-media">
+            <video class="hk-vid" src="assets/video/visite.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+            <figcaption class="hk-media-tag mono-label">LE FILM · 00:42</figcaption>
           </figure>
         </div>
-        <div class="hero-k-row">
-          <h1 class="hero-word"><span class="hw-in">deviennent</span></h1>
-          <span class="hero-k-rotator" aria-hidden="true"><span class="hk-rot">livré en 48 h</span></span>
-        </div>
-        <div class="hero-k-row">
-          <h1 class="hero-word"><span class="hw-in accent">un film.</span></h1>
+        <!-- Ligne 3 : UN FILM. + accroche démo, bord à bord -->
+        <div class="hk-line hk-line--last">
+          <h1 class="hk-word"><span class="hw-in accent">un film.</span></h1>
+          <a class="hk-endtag mono-label" href="#demo">↓ Voir la démo</a>
         </div>
       </div>
 
@@ -183,15 +191,9 @@
         <p class="hero-tagline">L'IA filme. Un réalisateur signe. Livré en 48 h.</p>
         <div class="hero-cta">
           <a class="btn-solid btn-lg" href="#contact">Réserver un rendez-vous →</a>
-          <a class="hero-cta-second" href="#demo">Voir la démo ↓</a>
         </div>
         <p class="hero-trust mono-label">✦ PREMIER FILM OFFERT · SANS ENGAGEMENT · RÉPONSE SOUS 24 H</p>
       </div>
-
-      <span class="hero-scroll-cue" aria-hidden="true">
-        <span class="mono-label">SCROLLER</span>
-        <span class="hero-scroll-line"></span>
-      </span>
     </header>
 
     <!-- ======================================================

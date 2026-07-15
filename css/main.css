@@ -333,15 +333,16 @@ body.skin-lumen .hero::before {
 
 .lang-toggle:hover { border-color: var(--fire); }
 
-/* 5. Hero — cinétique : titre géant + vidéo incrustée dans la phrase --------------- */
+/* 5. Hero — cinétique (architecture wearecheck.co) : la phrase géante est
+      COUPÉE par des bandes vidéo qui grandissent pour remplir chaque ligne ---- */
 .hero {
   position: relative;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(1.8rem, 4vw, 3.2rem);
-  padding: 116px var(--pad) 60px;
+  gap: clamp(1.6rem, 3.5vw, 2.8rem);
+  padding: 96px var(--pad) 48px;
   overflow: hidden;
 }
 
@@ -356,49 +357,57 @@ body.skin-lumen .hero::before {
     radial-gradient(ellipse 40% 34% at 82% 14%, rgba(212, 162, 78, 0.06), transparent 70%);
 }
 
-/* La scène cinétique : trois lignes de mots colossaux */
-.hero-k-stage {
+/* Les lignes-titre empilées, plein cadre */
+.hk-lines {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: clamp(0.1rem, 0.5vw, 0.6rem);
+  gap: clamp(0.2rem, 0.7vw, 0.7rem);
 }
 
-.hero-k-row {
+/* Une ligne : fragments de mots + bande vidéo, alignés en hauteur, pleine largeur */
+.hk-line {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.5rem, 1.5vw, 1.3rem);
+  width: 100%;
+}
+
+/* Fragment de mot colossal : Bricolage 800, capitales, interligne ultra-serré.
+   Borné en hauteur (vh) ET largeur (vw) pour ne jamais déborder. */
+.hk-word {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: clamp(0.6rem, 2vw, 1.8rem);
+  overflow: hidden;                 /* masque de révélation (heroIntro) */
 }
 
-/* Le mot géant : Bricolage 800, capitales, interligne ultra-serré (façon Impact) */
-.hero-word {
-  overflow: hidden;                 /* masque de révélation (heroIntro) */
+.hw-in {
+  display: block;
   font-weight: 800;
-  font-size: clamp(2.9rem, 13vw, 14rem);
-  line-height: 0.82;
-  letter-spacing: -0.045em;
+  font-size: clamp(3rem, min(24vh, 13.5vw), 16rem);
+  line-height: 0.8;
+  letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--cream);
+  white-space: nowrap;
 }
 
-.hw-in { display: block; }          /* remonte dans son masque à l'entrée */
-
-/* La vidéo incrustée entre les mots : sa hauteur épouse celle des lettres */
-.hero-k-media {
+/* La bande vidéo qui coupe la phrase : flex:1 → elle occupe tout l'espace
+   restant de la ligne ; object-fit cover pour couvrir sans déformer. */
+.hk-media {
   position: relative;
-  flex: 0 0 auto;
-  align-self: center;
-  height: clamp(2.9rem, 11vw, 11rem);
-  aspect-ratio: 16 / 9;
-  border-radius: clamp(8px, 1vw, 16px);
+  flex: 1 1 0;
+  min-width: clamp(90px, 12vw, 260px);
+  align-self: stretch;
+  border-radius: clamp(8px, 0.9vw, 16px);
   overflow: hidden;
   border: 1px solid var(--line-strong);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
 
-.hero-k-vid {
+.hk-vid {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -406,35 +415,44 @@ body.skin-lumen .hero::before {
   object-fit: cover;
 }
 
-.hero-k-media-tag {
+.hk-media-tag {
   position: absolute;
-  left: 0.6rem;
-  bottom: 0.5rem;
+  left: 0.7rem;
+  bottom: 0.55rem;
   z-index: 2;
   padding: 0.35em 0.7em;
   border-radius: 999px;
-  background: rgba(7, 5, 4, 0.62);
+  background: rgba(7, 5, 4, 0.6);
   color: var(--cream);
-  font-size: 0.54rem;
+  font-size: 0.56rem;
 }
 
-/* Tag rotatif d'accent (kinetic), calé sur la ligne « deviennent » */
-.hero-k-rotator {
-  align-self: center;
-  display: inline-flex;
-  overflow: hidden;
+/* Dernière ligne : le mot accent + l'accroche démo, écartés bord à bord */
+.hk-line--last {
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
-.hk-rot {
-  font-family: var(--font-m);
-  font-size: clamp(0.7rem, 1.3vw, 1rem);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.hk-endtag {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin-bottom: 0.45em;
   color: var(--gold);
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 0.6em 1.15em;
-  white-space: nowrap;
+  text-decoration: none;
+  font-size: clamp(0.62rem, 1vw, 0.82rem);
+  transition: color 0.2s ease;
+}
+
+.hk-endtag:hover { color: var(--ember); }
+
+/* Mobile : la vidéo passe sous les mots (bande pleine largeur), phrase empilée */
+@media (max-width: 720px) {
+  .hk-line { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  /* flex:none : la bande retrouve une hauteur fixe (sinon le flex:1 vertical
+     l'écrase à 0 dans une colonne sans hauteur définie) */
+  .hk-media { flex: 0 0 auto; width: 100%; align-self: stretch; height: 34vw; min-width: 0; }
+  .hw-in { font-size: clamp(2.6rem, 15.5vw, 6rem); }
+  .hk-line--last { flex-direction: row; align-items: center; gap: 1rem; }
 }
 
 /* Pied du hero : positionnement + CTA + réassurance, colonne à gauche */
