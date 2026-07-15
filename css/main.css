@@ -380,14 +380,13 @@ body.skin-lumen .hero::before {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
-  overflow: hidden;                 /* masque de révélation (heroIntro) */
 }
 
 .hw-in {
   display: block;
   font-weight: 800;
   font-size: clamp(3rem, min(24vh, 13.5vw), 16rem);
-  line-height: 0.8;
+  line-height: 0.86;                 /* assez d'air pour ne jamais rogner les lettres */
   letter-spacing: -0.05em;
   text-transform: uppercase;
   color: var(--cream);

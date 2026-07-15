@@ -176,20 +176,21 @@ window.VestaAnimations = (() => {
   /* --- Intro du hero (lignes masquées) --------------------------------------------- */
 
   function heroIntro() {
-    // Les fragments de mots colossaux remontent de leur masque
-    gsap.from('.hw-in', {
-      yPercent: 115,
-      duration: 1.1,
-      stagger: 0.1,
+    // Chaque ligne monte en fondu (pas de masque qui rogne les lettres)
+    gsap.from('.hk-line', {
+      yPercent: 10,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.12,
       ease: 'power3.out',
+      clearProps: 'transform,opacity',
     });
-    // Les bandes vidéo se déploient (échelle horizontale) depuis leur centre
+    // La bande vidéo se déploie horizontalement
     gsap.from('.hk-media', {
       scaleX: 0,
       transformOrigin: 'left center',
       duration: 0.9,
-      delay: 0.25,
-      stagger: 0.12,
+      delay: 0.35,
       ease: 'power3.inOut',
       clearProps: 'transform',
     });
@@ -198,7 +199,7 @@ window.VestaAnimations = (() => {
       y: 22,
       opacity: 0,
       duration: 0.85,
-      delay: 0.6,
+      delay: 0.55,
       stagger: 0.12,
       ease: 'power3.out',
       clearProps: 'transform,opacity',
