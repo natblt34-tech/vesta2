@@ -167,8 +167,17 @@ const ctx = canvas.getContext("2d", { alpha: false });
 const images = [];          // frames préchargées
 let framesReady = false;    // au moins la 1re frame est prête
 let allLoaded = false;      // toutes les frames sont prêtes
-const state = { frame: 1 }; // frame courante (interpolée par GSAP)
+const state = { frame: 1 }; // frame AFFICHÉE (lissée)
 let lastDrawn = -1;
+
+// Deux sources pour la frame : le scroll (scrubbing) et une boucle « ambiante »
+// jouée au repos, tout en haut, pour donner vie au mot « FILM. » du hero.
+let scrollFrame = 1;        // frame cible dérivée du scroll
+let ambientPos = 1;         // tête de lecture de la boucle ambiante
+let ambientDir = 1;         // sens du yoyo
+let lastTick = 0;           // horodatage pour le calcul de dt
+const AMBIENT_MAX = 46;     // la boucle va-et-vient sur les ~2 premières secondes
+const AMBIENT_FPS = 15;     // vitesse de la boucle ambiante
 
 /* -------------------------------------------------------------------------
    4. CANVAS — dessin « cover » + gestion du redimensionnement
@@ -276,6 +285,29 @@ function preloadFrames() {
    6. BOUCLE DE RENDU (dessine la frame courante à chaque tick GSAP)
    ------------------------------------------------------------------------- */
 function renderLoop() {
+  const now = (typeof performance !== "undefined" ? performance.now() : Date.now());
+  if (!lastTick) lastTick = now;
+  let dt = (now - lastTick) / 1000; lastTick = now;
+  if (dt > 0.1) dt = 0.1; // borne les gros écarts (onglet en arrière-plan)
+
+  if (!framesReady) { drawFrame(state.frame, false); return; }
+
+  const atTop = window.scrollY < 4;
+  if (prefersReduced) {
+    // Mouvement réduit : pas de boucle, la frame suit directement le scroll
+    state.frame = scrollFrame;
+  } else if (atTop) {
+    // Boucle ambiante (yoyo) tant qu'on n'a pas scrollé : le film « respire »
+    // dans le mot FILM. sans jamais couper (aller-retour au lieu d'un saut).
+    ambientPos += ambientDir * AMBIENT_FPS * dt;
+    if (ambientPos >= AMBIENT_MAX) { ambientPos = AMBIENT_MAX; ambientDir = -1; }
+    else if (ambientPos <= 1) { ambientPos = 1; ambientDir = 1; }
+    state.frame += (ambientPos - state.frame) * Math.min(1, dt * 9);
+  } else {
+    // Dès qu'on scrolle : la frame cible du scroll prend la main (lissée)
+    state.frame += (scrollFrame - state.frame) * Math.min(1, dt * 8);
+    ambientPos = state.frame; // resync pour un retour en douceur en haut
+  }
   drawFrame(state.frame, false);
 }
 
@@ -333,19 +365,17 @@ function buildExperience(framesOk) {
   // puis se fige sur sa dernière image (la chambre) pendant la révélation.
   const progressFill = document.getElementById("progressFill");
   progressFill.style.transformOrigin = "left";
-  gsap.to(state, {
-    frame: FRAME_COUNT,
-    ease: "none",
-    scrollTrigger: {
-      trigger: "#hero",
-      start: "top top",
-      endTrigger: "#reveal",
-      end: "top top",
-      scrub: prefersReduced ? true : 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        progressFill.style.transform = "scaleX(" + self.progress + ")";
-      }
+  // Le scroll ne fait que dériver la frame CIBLE ; le renderLoop lisse l'affichage
+  // et bascule entre boucle ambiante (en haut) et scrubbing (dès qu'on scrolle).
+  ScrollTrigger.create({
+    trigger: "#hero",
+    start: "top top",
+    endTrigger: "#reveal",
+    end: "top top",
+    invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      scrollFrame = 1 + self.progress * (FRAME_COUNT - 1);
+      progressFill.style.transform = "scaleX(" + self.progress + ")";
     }
   });
 
