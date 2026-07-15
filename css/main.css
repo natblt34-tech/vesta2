@@ -553,12 +553,15 @@ body.scrolled .hero-scroll-cue { opacity: 0; pointer-events: none; }
 
 @media (max-width: 640px) { .hero-scroll-cue { display: none; } }
 
-/* Mot/accent en dégradé or→feu (clip texte) */
+/* Mot/accent en dégradé or→feu (clip texte).
+   padding-right : le clip texte + letter-spacing négatif rase sinon le dernier
+   glyphe (le point de « un film. ») — on élargit la boîte de peinture du fond. */
 .accent {
   color: transparent;
   background: linear-gradient(115deg, var(--gold) 5%, var(--fire) 55%, var(--ember));
   background-clip: text;
   -webkit-background-clip: text;
+  padding-right: 0.18em;
 }
 
 /* 6. Manifeste (mots rotatifs) ------------------------------------------------------ */
