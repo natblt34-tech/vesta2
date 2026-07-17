@@ -84,12 +84,15 @@ ScrollTrigger.create({
    ------------------------------------------------------------------------- */
 const PHOTO_DIR = "assets/staging/";
 const PHOTO_PIECE_COUNT = 4;
+// Version des masques : à incrémenter à chaque régénération (casse le cache
+// navigateur/CDN — les masques sont référencés par URL dans le CSS).
+const MASK_V = "?v=2";
 // Les images ET les masques de découpe doivent tous exister pour le mode photo.
-// Les masques (silhouette exacte de chaque meuble, ombre comprise) sont
-// générés par `node scripts/make-staging-masks.js` à partir de la différence
-// entre structure.jpg et apres.jpg.
+// Les masques (silhouette exacte de chaque meuble en ALPHA, ombre comprise)
+// sont générés par `node scripts/make-staging-masks.js` à partir de la
+// différence entre structure.jpg et apres.jpg.
 const PHOTO_SOURCES = ["avant.jpg", "structure.jpg", "apres.jpg",
-  "mask-0.png", "mask-1.png", "mask-2.png", "mask-3.png"];
+  "mask-0.png" + MASK_V, "mask-1.png" + MASK_V, "mask-2.png" + MASK_V, "mask-3.png" + MASK_V];
 
 let photoMode = false;
 const hsPhoto = document.getElementById("hsPhoto");
@@ -104,7 +107,7 @@ const hsComplete = document.getElementById("hsComplete");
 
 // Chaque calque d'apres.jpg est découpé par le masque de SON meuble
 photoPieces.forEach((el, i) => {
-  const url = "url(" + PHOTO_DIR + "mask-" + i + ".png)";
+  const url = "url(" + PHOTO_DIR + "mask-" + i + ".png" + MASK_V + ")";
   el.style.webkitMaskImage = url;
   el.style.maskImage = url;
   el.style.webkitMaskSize = "100% 100%";

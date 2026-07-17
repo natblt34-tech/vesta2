@@ -245,10 +245,17 @@ for (let p = 0; p < ZONES.length; p++) {
   for (let i = 0; i < W * H; i++) gray[i] = m[i] ? 255 : 0;
   const soft = blur(gray, 2);
 
-  // écriture du masque (réduit à OUT_W×OUT_H)
+  // écriture du masque en RGBA : blanc + ALPHA = silhouette. Indispensable :
+  // le mode par défaut des masques CSS sur une image matricielle est l'alpha —
+  // un PNG gris opaque (alpha 100 % partout) ne masquerait RIEN.
   const rawPath = path.join(DIR, "mask-" + p + ".raw");
-  fs.writeFileSync(rawPath, Buffer.from(soft));
-  run(`ffmpeg -y -loglevel error -f rawvideo -pix_fmt gray -s ${W}x${H} -i "${rawPath}" -vf scale=${OUT_W}:${OUT_H} "${path.join(DIR, "mask-" + p + ".png")}"`);
+  const rgba = Buffer.alloc(W * H * 4);
+  for (let i = 0; i < W * H; i++) {
+    rgba[i * 4] = 255; rgba[i * 4 + 1] = 255; rgba[i * 4 + 2] = 255;
+    rgba[i * 4 + 3] = soft[i];
+  }
+  fs.writeFileSync(rawPath, rgba);
+  run(`ffmpeg -y -loglevel error -f rawvideo -pix_fmt rgba -s ${W}x${H} -i "${rawPath}" -vf scale=${OUT_W}:${OUT_H} "${path.join(DIR, "mask-" + p + ".png")}"`);
 
   // aperçu de contrôle : le meuble découpé sur fond neutre
   const prev = Buffer.alloc(W * H * 3);
