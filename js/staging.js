@@ -178,17 +178,19 @@ function setScene(p) {
 
 /* ---------- La chorégraphie PHOTO : rénovation, puis meubles un à un ---------- */
 let lastPhaseKey = "hs.phase1";
-const PIECE_START = 0.4;   // début de la pose des meubles
-const PIECE_SPAN = 0.4;    // fenêtre totale de la pose
-const PIECE_DUR = 0.07;    // durée d'apparition d'un meuble
+// Le rythme : chaque meuble a sa fenêtre d'arrivée PUIS un palier de repos,
+// pour qu'un coup de molette ne pose jamais deux meubles à la fois.
+const PIECE_START = 0.32;  // début de la pose des meubles
+const PIECE_SPAN = 0.5;    // fenêtre totale de la pose (un meuble tous les 0.125)
+const PIECE_DUR = 0.05;    // durée d'apparition d'un meuble
 
 function setPhotoScene(p) {
   // Le titre s'efface dès qu'on commence
   hsHero.style.opacity = Math.max(0, 1 - p / 0.1);
 
-  // PHASE 1 (0.10 → 0.34) : le balayage de rénovation, du plafond au parquet.
+  // PHASE 1 (0.06 → 0.26) : le balayage de rénovation, du plafond au parquet.
   // structure.jpg recouvre avant.jpg derrière une ligne braise qui descend.
-  const sw = smooth(Math.min(1, Math.max(0, (p - 0.1) / 0.24)));
+  const sw = smooth(Math.min(1, Math.max(0, (p - 0.06) / 0.2)));
   hsStructure.style.clipPath = "inset(0 0 " + ((1 - sw) * 100).toFixed(2) + "% 0)";
   hsSweep.style.top = (sw * 100).toFixed(2) + "%";
   hsSweep.style.opacity = sw > 0.005 && sw < 0.995 ? 1 : 0;
@@ -212,18 +214,18 @@ function setPhotoScene(p) {
   });
 
   // Libellé de phase
-  const key = p < 0.38 ? "hs.phase1" : "hs.phase2";
+  const key = p < 0.3 ? "hs.phase1" : "hs.phase2";
   if (key !== lastPhaseKey) { lastPhaseKey = key; }
   phaseLabel(key);
 
   // COMPLÉTION : l'après complet se fond par-dessus (rattrape les ombres
   // diffuses que les masques ne capturent pas — l'image finale est exacte)
   if (hsComplete) {
-    hsComplete.style.opacity = smooth(Math.min(1, Math.max(0, (p - 0.82) / 0.08)));
+    hsComplete.style.opacity = smooth(Math.min(1, Math.max(0, (p - 0.86) / 0.06)));
   }
 
   // FINAL : la lumière s'installe, la signature apparaît
-  const g = smooth(Math.min(1, Math.max(0, (p - 0.88) / 0.1)));
+  const g = smooth(Math.min(1, Math.max(0, (p - 0.9) / 0.09)));
   document.getElementById("hsPhotoGlow").style.opacity = g;
   hsDone.style.opacity = g;
   hsDone.style.transform = "translateX(-50%) translateY(" + ((1 - g) * 18).toFixed(1) + "px)";
@@ -234,7 +236,7 @@ function initDemo(driver) {
   if (prefersReduced) { driver(1); hsHero.style.opacity = 1; return; }
   driver(0);
   ScrollTrigger.create({
-    trigger: "#demo", start: "top top", end: "bottom bottom", scrub: 0.4,
+    trigger: "#demo", start: "top top", end: "bottom bottom", scrub: 0.6,
     onUpdate: (self) => driver(self.progress)
   });
 }

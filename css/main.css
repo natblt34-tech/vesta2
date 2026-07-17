@@ -733,7 +733,8 @@ main { position: relative; z-index: 6; }
    ========================================================================== */
 .page-staging { background: var(--nuit); }
 
-.hs-demo { min-height: 380svh; position: relative; }
+/* Longue : chaque pose de meuble mérite son propre temps de scroll */
+.hs-demo { min-height: 700svh; position: relative; }
 .hs-demo__sticky {
   position: sticky; top: 0; height: 100svh; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
