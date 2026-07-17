@@ -83,25 +83,13 @@ ScrollTrigger.create({
    des découpes sont invisibles.
    ------------------------------------------------------------------------- */
 const PHOTO_DIR = "assets/staging/";
-const PHOTO_SOURCES = ["avant.jpg", "structure.jpg", "apres.jpg"];
-
-// Une découpe par meuble (polygones en % du cadre, calés sur apres.jpg).
-// NB : les rideaux appartiennent à structure.jpg — ils arrivent avec la
-// rénovation, pas avec les meubles.
-// L'ORDRE respecte les superpositions : ce qui est posé SUR un autre meuble
-// arrive après lui (le calque tardif recouvre la zone commune). Le tapis a
-// une encoche pour ne pas révéler les pieds de la table basse avant elle.
-const PIECE_CLIPS = [
-  /* 0 · fauteuil + plaid*/ "polygon(33% 51%, 48% 50%, 48% 76%, 33% 77%)",
-  /* 1 · tableau         */ "polygon(65% 23%, 87% 23%, 87% 52%, 65% 52%)",
-  /* 2 · canapé          */ "polygon(57% 46%, 91% 48%, 91% 84%, 57% 80%)",
-  /* 3 · tapis (encoche pieds de table) */
-    "polygon(24% 89%, 28% 80%, 40% 74%, 55% 71%, 59% 72%, 59% 79%, 74% 83%, 86% 85%, 86% 96%, 64% 99%, 64% 86%, 48% 86%, 48% 99%, 35% 98%, 26% 94%)",
-  /* 4 · table + vase    */ "polygon(42% 70%, 51% 66%, 51% 53%, 67% 53%, 67% 67%, 69% 74%, 68% 97%, 44% 97%)",
-  /* 5 · lampadaire      */ "polygon(84% 34%, 94% 34%, 95% 84%, 85% 84%)",
-  /* 6 · table d'appoint */ "polygon(86% 77%, 100% 75%, 100% 100%, 87% 100%)"
-];
-const PHOTO_PIECE_COUNT = 7;
+const PHOTO_PIECE_COUNT = 4;
+// Les images ET les masques de découpe doivent tous exister pour le mode photo.
+// Les masques (silhouette exacte de chaque meuble, ombre comprise) sont
+// générés par `node scripts/make-staging-masks.js` à partir de la différence
+// entre structure.jpg et apres.jpg.
+const PHOTO_SOURCES = ["avant.jpg", "structure.jpg", "apres.jpg",
+  "mask-0.png", "mask-1.png", "mask-2.png", "mask-3.png"];
 
 let photoMode = false;
 const hsPhoto = document.getElementById("hsPhoto");
@@ -112,9 +100,16 @@ const hsPhase = document.getElementById("hsPhase");
 const hsTotal = document.getElementById("hsTotal");
 const photoPieces = Array.from(document.querySelectorAll(".hs-photo__piece"));
 const photoPings = Array.from(document.querySelectorAll(".hs-ping"));
+const hsComplete = document.getElementById("hsComplete");
 
-// Applique les découpes définies ci-dessus aux calques d'apres.jpg
-photoPieces.forEach((el, i) => { el.style.clipPath = PIECE_CLIPS[i]; });
+// Chaque calque d'apres.jpg est découpé par le masque de SON meuble
+photoPieces.forEach((el, i) => {
+  const url = "url(" + PHOTO_DIR + "mask-" + i + ".png)";
+  el.style.webkitMaskImage = url;
+  el.style.maskImage = url;
+  el.style.webkitMaskSize = "100% 100%";
+  el.style.maskSize = "100% 100%";
+});
 
 // Détecte les 3 images (fetch HEAD : silencieux si absentes), puis les
 // précharge ; si TOUT est là → mode photo, sinon scène vectorielle.
@@ -184,8 +179,8 @@ function setScene(p) {
 /* ---------- La chorégraphie PHOTO : rénovation, puis meubles un à un ---------- */
 let lastPhaseKey = "hs.phase1";
 const PIECE_START = 0.4;   // début de la pose des meubles
-const PIECE_SPAN = 0.46;   // fenêtre totale de la pose
-const PIECE_DUR = 0.06;    // durée d'apparition d'un meuble
+const PIECE_SPAN = 0.4;    // fenêtre totale de la pose
+const PIECE_DUR = 0.07;    // durée d'apparition d'un meuble
 
 function setPhotoScene(p) {
   // Le titre s'efface dès qu'on commence
@@ -220,6 +215,12 @@ function setPhotoScene(p) {
   const key = p < 0.38 ? "hs.phase1" : "hs.phase2";
   if (key !== lastPhaseKey) { lastPhaseKey = key; }
   phaseLabel(key);
+
+  // COMPLÉTION : l'après complet se fond par-dessus (rattrape les ombres
+  // diffuses que les masques ne capturent pas — l'image finale est exacte)
+  if (hsComplete) {
+    hsComplete.style.opacity = smooth(Math.min(1, Math.max(0, (p - 0.82) / 0.08)));
+  }
 
   // FINAL : la lumière s'installe, la signature apparaît
   const g = smooth(Math.min(1, Math.max(0, (p - 0.88) / 0.1)));

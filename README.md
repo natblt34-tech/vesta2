@@ -64,9 +64,21 @@ La page home staging bascule automatiquement en **mode photo** dès que ces
 | `assets/staging/apres.jpg` | La pièce meublée (votre home staging Gemini) |
 
 L'animation : ① un balayage de rénovation descend du plafond au parquet
-(avant → structure), ② les meubles d'`apres.jpg` apparaissent **un à un**
-(tapis, canapé, table, fauteuil, tableau, rideaux, lampadaire, table d'appoint),
-avec compteur et onde braise à chaque pose.
+(avant → structure), ② les meubles d'`apres.jpg` se posent **un à un, en
+silhouettes exactes** (tableau, fauteuil, le salon complet — tapis + canapé +
+table + lampadaire —, table d'appoint), avec compteur et onde braise à chaque
+pose, puis l'après complet se fond pour rattraper les ombres diffuses.
+
+Les silhouettes sont des **masques PNG générés automatiquement** à partir de
+la différence structure/après :
+
+```bash
+node scripts/make-staging-masks.js   # régénère assets/staging/mask-*.png
+```
+
+À relancer si vous changez `structure.jpg` ou `apres.jpg` (les zones et seuils
+se règlent en tête du script ; des aperçus de contrôle sont écrits dans
+`scripts/preview/`).
 
 **Il vous manque `structure.jpg` ?** Générez-la avec Gemini à partir de votre
 image « après » avec ce prompt :
@@ -76,10 +88,8 @@ image « après » avec ce prompt :
 > renovated walls, wooden floor, ceiling, window and door exactly as they are.*
 
 ⚠️ Les trois images doivent partager **le même cadrage** (même angle, même
-ratio — idéalement les 1024×683 de Gemini). Les découpes des meubles sont
-calées sur la photo « après » fournie en exemple ; si votre après change
-beaucoup (autres meubles, autres positions), ajustez les polygones
-`PIECE_CLIPS` en tête de `js/staging.js` (coordonnées en % du cadre).
+ratio). Après tout changement d'image, relancez
+`node scripts/make-staging-masks.js` pour regénérer les masques.
 
 ## Le home staging en vidéo, plus tard
 
