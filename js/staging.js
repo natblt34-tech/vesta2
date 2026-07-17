@@ -85,19 +85,23 @@ ScrollTrigger.create({
 const PHOTO_DIR = "assets/staging/";
 const PHOTO_SOURCES = ["avant.jpg", "structure.jpg", "apres.jpg"];
 
-// Une découpe par meuble (polygones en % du cadre) + son ordre d'apparition
+// Une découpe par meuble (polygones en % du cadre, calés sur apres.jpg).
+// NB : les rideaux appartiennent à structure.jpg — ils arrivent avec la
+// rénovation, pas avec les meubles.
+// L'ORDRE respecte les superpositions : ce qui est posé SUR un autre meuble
+// arrive après lui (le calque tardif recouvre la zone commune). Le tapis a
+// une encoche pour ne pas révéler les pieds de la table basse avant elle.
 const PIECE_CLIPS = [
-  /* 0 · tapis          */ "ellipse(28% 17% at 52% 86%)",
-  /* 1 · canapé         */ "polygon(58% 53%, 92% 50%, 94% 84%, 59% 84%)",
-  /* 2 · table + vase   */ "polygon(39% 55%, 56% 52%, 64% 68%, 63% 94%, 41% 95%, 38% 74%)",
-  /* 3 · fauteuil       */ "polygon(31% 50%, 48% 49%, 49% 74%, 32% 74%)",
-  /* 4 · tableau        */ "polygon(63% 22%, 86% 21%, 86% 53%, 63% 54%)",
-  /* 5 · rideaux (2 pans, même temps) */ "polygon(1% 5%, 15% 5%, 15% 79%, 1% 79%)",
-  /* 5b· rideau droit   */ "polygon(22% 7%, 34% 7%, 34% 73%, 22% 73%)",
-  /* 6 · lampadaire     */ "polygon(83% 33%, 96% 32%, 97% 83%, 84% 83%)",
-  /* 7 · table d'appoint*/ "polygon(84% 75%, 100% 73%, 100% 100%, 85% 100%)"
+  /* 0 · fauteuil + plaid*/ "polygon(33% 51%, 48% 50%, 48% 76%, 33% 77%)",
+  /* 1 · tableau         */ "polygon(65% 23%, 87% 23%, 87% 52%, 65% 52%)",
+  /* 2 · canapé          */ "polygon(57% 46%, 91% 48%, 91% 84%, 57% 80%)",
+  /* 3 · tapis (encoche pieds de table) */
+    "polygon(24% 89%, 28% 80%, 40% 74%, 55% 71%, 59% 72%, 59% 79%, 74% 83%, 86% 85%, 86% 96%, 64% 99%, 64% 86%, 48% 86%, 48% 99%, 35% 98%, 26% 94%)",
+  /* 4 · table + vase    */ "polygon(42% 70%, 51% 66%, 51% 53%, 67% 53%, 67% 67%, 69% 74%, 68% 97%, 44% 97%)",
+  /* 5 · lampadaire      */ "polygon(84% 34%, 94% 34%, 95% 84%, 85% 84%)",
+  /* 6 · table d'appoint */ "polygon(86% 77%, 100% 75%, 100% 100%, 87% 100%)"
 ];
-const PHOTO_PIECE_COUNT = 8; // les rideaux comptent pour un
+const PHOTO_PIECE_COUNT = 7;
 
 let photoMode = false;
 const hsPhoto = document.getElementById("hsPhoto");
