@@ -21,14 +21,14 @@
 />
 
 <!-- Feuille de style -->
-<link rel="stylesheet" href="css/main.css?v=13" />
+<link rel="stylesheet" href="css/main.css?v=14" />
 </head>
 <body>
 
 <!-- ================= ÉCRAN DE CHARGEMENT ================= -->
 <div id="loader" class="loader">
   <div class="loader__inner">
-    <div class="loader__mark">VESTA</div>
+    <div class="loader__mark">vesta<span class="logo-star">*</span></div>
     <div class="loader__bar"><span id="loader-fill" class="loader__fill"></span></div>
     <div class="loader__meta">
       <span class="loader__count"><span id="loader-pct">0</span><span class="loader__unit">%</span></span>
@@ -55,10 +55,13 @@
         <rect width="1000" height="600" fill="#fff" />
         <text id="maskText" x="500" y="370" text-anchor="middle" dominant-baseline="middle"
               fill="#000" font-family="Fraunces, serif" font-weight="700"
-              letter-spacing="-6">FILM.</text>
+              letter-spacing="-6">FILM</text>
       </mask>
     </defs>
     <rect width="1000" height="600" fill="#0A0806" mask="url(#wordCut)" />
+    <!-- L'astérisque de la marque : posée au coin du mot, en braise -->
+    <text id="maskStar" x="860" y="330" text-anchor="start" dominant-baseline="middle"
+          fill="#FF6B35" font-family="Fraunces, serif" font-weight="700">*</text>
   </svg>
 </div>
 
@@ -67,9 +70,12 @@
 
 <!-- ================= EN-TÊTE ================= -->
 <header class="nav">
-  <a href="#hero" class="nav__logo" aria-label="Vesta, retour en haut">
-    <span class="nav__flame" aria-hidden="true"></span>Vesta
-  </a>
+  <a href="#hero" class="nav__logo" aria-label="Vesta, retour en haut">vesta<span class="logo-star">*</span></a>
+  <nav class="nav__links" aria-label="Les services Vesta">
+    <a href="index.html" class="nav__link is-current" aria-current="page" data-i18n="nav.film">Film</a>
+    <a href="photo.html" class="nav__link" data-i18n="nav.photo">Photo</a>
+    <a href="home-staging.html" class="nav__link" data-i18n="nav.staging">Home staging</a>
+  </nav>
   <div class="nav__right">
     <button class="lang" id="langSwitch" aria-label="Changer de langue / Switch language">
       <span class="lang__opt is-active" data-lang="fr">FR</span>
@@ -166,10 +172,9 @@
   <section id="traversee" class="section traversee">
     <div class="traversee__inner">
       <h2 class="display traversee__title">
-        <span class="line" data-i18n="trav.t1">La caméra</span>
-        <span class="line" data-i18n="trav.t2">pousse la porte.</span>
+        <span class="line" data-i18n="trav.t1">Les traversées.</span>
       </h2>
-      <p class="traversee__text" data-i18n="trav.text">Et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama. C'est la traversée qui fait le film.</p>
+      <p class="traversee__text" data-i18n="trav.text">La caméra pousse la porte et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama.</p>
     </div>
   </section>
 
@@ -177,7 +182,7 @@
   <section id="equipe" class="section equipe">
     <div class="equipe__head">
       <p class="eyebrow" data-i18n="equipe.eyebrow">La distribution</p>
-      <h2 class="display equipe__title" data-i18n="equipe.title">Des IA aux caméras. Un réalisateur humain.</h2>
+      <h2 class="display equipe__title" data-i18n="equipe.title">L'équipe du film.</h2>
     </div>
     <div class="equipe__grid">
       <article class="crew" data-role="ai">
@@ -211,10 +216,10 @@
   <!-- BANDEAU CINÉTIQUE -->
   <section class="ribbon" aria-hidden="true">
     <div class="ribbon__track" id="ribbonTrack">
-      <span class="ribbon__item" data-i18n="ribbon.1">Premier film offert</span><span class="ribbon__star">✦</span>
-      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.2">Filmé par l'IA</span><span class="ribbon__star">✦</span>
-      <span class="ribbon__item" data-i18n="ribbon.3">Réalisé par un humain</span><span class="ribbon__star">✦</span>
-      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.4">Vos murs méritent un film</span><span class="ribbon__star">✦</span>
+      <span class="ribbon__item" data-i18n="ribbon.brand">Vos murs méritent un film</span><span class="ribbon__star">*</span>
+      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.brand">Vos murs méritent un film</span><span class="ribbon__star">*</span>
+      <span class="ribbon__item" data-i18n="ribbon.brand">Vos murs méritent un film</span><span class="ribbon__star">*</span>
+      <span class="ribbon__item ribbon__item--out" data-i18n="ribbon.brand">Vos murs méritent un film</span><span class="ribbon__star">*</span>
     </div>
   </section>
 
@@ -222,7 +227,7 @@
   <section id="offres" class="section offres">
     <div class="offres__head">
       <p class="eyebrow" data-i18n="offres.eyebrow">Trois façons de nous confier vos biens</p>
-      <h2 class="display offres__title" data-i18n="offres.title">Choisissez votre flamme.</h2>
+      <h2 class="display offres__title" data-i18n="offres.title">Trois formules.</h2>
     </div>
     <div class="offres__grid">
 
@@ -292,7 +297,7 @@
       </h2>
       <p class="reveal__sign">
         <span data-i18n="reveal.sign">Généré par</span>
-        <span class="reveal__brand">Vesta</span>
+        <span class="reveal__brand">vesta<span class="logo-star">*</span></span>
       </p>
       <a href="#contact" class="btn btn--fill reveal__cta" data-magnetic>
         <span data-i18n="reveal.cta">Réservez votre premier film — offert</span>
@@ -306,8 +311,14 @@
 <footer id="contact" class="footer">
   <div class="footer__grid">
     <div class="footer__brand">
-      <span class="footer__logo"><span class="nav__flame" aria-hidden="true"></span>Vesta</span>
-      <p class="footer__tag" data-i18n="footer.tag">Vos murs méritent un film.</p>
+      <span class="footer__logo">vesta<span class="logo-star">*</span></span>
+      <p class="footer__tag"><span data-i18n="footer.tag">Vos murs méritent un film</span><span class="logo-star">*</span></p>
+    </div>
+    <div class="footer__col">
+      <span class="footer__label" data-i18n="footer.services">Les services</span>
+      <a class="footer__navlink" href="index.html" data-i18n="nav.film">Film</a>
+      <a class="footer__navlink" href="photo.html" data-i18n="nav.photo">Photo</a>
+      <a class="footer__navlink" href="home-staging.html" data-i18n="nav.staging">Home staging</a>
     </div>
     <div class="footer__col">
       <span class="footer__label" data-i18n="footer.contactlabel">Prendre rendez-vous</span>
@@ -333,6 +344,7 @@
 <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/main.js?v=13"></script>
+<script src="js/shared.js?v=14"></script>
+<script src="js/main.js?v=14"></script>
 </body>
 </html>

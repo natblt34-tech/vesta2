@@ -27,14 +27,11 @@ function framePath(i) {
 const I18N = {
   fr: {
     "loader.label": "Développement du film…",
-    "nav.cta": "Réserver",
     "hero.eyebrow": "Studio de films immobiliers · Toulouse",
     "hero.t1": "Vos murs", "hero.t2": "méritent un", "hero.t3": "film.",
     "hero.sub": "Filmé par l'IA. Réalisé par un humain.",
     "hero.scroll": "Faites défiler pour visiter",
-    "mask.eyebrow": "Le film coule dans les lettres",
-    "ribbon.1": "Premier film offert", "ribbon.2": "Filmé par l'IA",
-    "ribbon.3": "Réalisé par un humain", "ribbon.4": "Vos murs méritent un film",
+    "ribbon.brand": "Vos murs méritent un film",
     "promesse.eyebrow": "Trois gestes, un film signé",
     "promesse.1t": "Dépôt & brief",
     "promesse.1d": "Vous déposez vos photos et le caractère du bien. On écrit l'intention du film.",
@@ -45,10 +42,10 @@ const I18N = {
     "format.eyebrow": "Un format, tous vos canaux",
     "format.title": "Le format cinéma, partout.",
     "format.text": "16:9 pour le portail, 9:16 pour les réseaux. Le même film, recadré au millimètre.",
-    "trav.t1": "La caméra", "trav.t2": "pousse la porte.",
-    "trav.text": "Et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama. C'est la traversée qui fait le film.",
+    "trav.t1": "Les traversées.",
+    "trav.text": "La caméra pousse la porte et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama.",
     "equipe.eyebrow": "La distribution",
-    "equipe.title": "Des IA aux caméras. Un réalisateur humain.",
+    "equipe.title": "L'équipe du film.",
     "equipe.ai": "IA", "equipe.human": "Humain",
     "equipe.c1": "Cadre", "equipe.c1d": "Compose chaque plan, choisit l'axe et le mouvement.",
     "equipe.c2": "Lumière", "equipe.c2d": "Sculpte l'heure dorée, révèle les matières.",
@@ -57,9 +54,8 @@ const I18N = {
     "equipe.c5": "Le Réalisateur",
     "equipe.c5d": "Valide ou refait chaque plan. Tranche, rythme et signe le film. Rien ne sort sans son œil.",
     "offres.eyebrow": "Trois façons de nous confier vos biens",
-    "offres.title": "Choisissez votre flamme.",
+    "offres.title": "Trois formules.",
     "offres.legal": "Visuels virtuellement aménagés, non contractuels.",
-    "offer.gift": "Premier film offert",
     "offer.cta": "Réserver un rendez-vous",
     "offer.badge": "La plus choisie",
     "offer.1n": "Étincelle", "offer.1f": "L'agent indépendant",
@@ -73,23 +69,15 @@ const I18N = {
     "reveal.kicker": "La caméra s'immobilise.",
     "reveal.l1": "Ce film,", "reveal.l2": "vous venez de le piloter", "reveal.l3": "du regard.",
     "reveal.sign": "Généré par",
-    "reveal.cta": "Réservez votre premier film — offert",
-    "footer.tag": "Vos murs méritent un film.",
-    "footer.contactlabel": "Prendre rendez-vous",
-    "footer.place": "Toulouse, France",
-    "footer.cta": "Réserver un rendez-vous",
-    "footer.made": "Filmé par l'IA. Réalisé par un humain."
+    "reveal.cta": "Réservez votre premier film — offert"
   },
   en: {
     "loader.label": "Developing the film…",
-    "nav.cta": "Book a call",
     "hero.eyebrow": "Real-estate film studio · Toulouse",
     "hero.t1": "Your walls", "hero.t2": "deserve a", "hero.t3": "film.",
     "hero.sub": "Shot by AI. Directed by a human.",
     "hero.scroll": "Scroll to step inside",
-    "mask.eyebrow": "The film flows through the letters",
-    "ribbon.1": "First film on us", "ribbon.2": "Shot by AI",
-    "ribbon.3": "Directed by a human", "ribbon.4": "Your walls deserve a film",
+    "ribbon.brand": "Your walls deserve a film",
     "promesse.eyebrow": "Three moves, one signed film",
     "promesse.1t": "Upload & brief",
     "promesse.1d": "You drop in your photos and the character of the property. We write the film's intent.",
@@ -100,10 +88,10 @@ const I18N = {
     "format.eyebrow": "One format, every channel",
     "format.title": "Cinema format, everywhere.",
     "format.text": "16:9 for the listing, 9:16 for social. The same film, reframed to the pixel.",
-    "trav.t1": "The camera", "trav.t2": "opens the door.",
-    "trav.text": "And the home tells its story, room to room — no cut, no slideshow. The walk-through is what makes it a film.",
+    "trav.t1": "The walk-throughs.",
+    "trav.text": "The camera opens the door and the home tells its story, room to room — no cut, no slideshow.",
     "equipe.eyebrow": "The cast",
-    "equipe.title": "AIs on the cameras. One human director.",
+    "equipe.title": "The film crew.",
     "equipe.ai": "AI", "equipe.human": "Human",
     "equipe.c1": "Framing", "equipe.c1d": "Composes every shot, picks the axis and the move.",
     "equipe.c2": "Light", "equipe.c2d": "Sculpts golden hour, reveals the materials.",
@@ -112,9 +100,8 @@ const I18N = {
     "equipe.c5": "The Director",
     "equipe.c5d": "Approves or reshoots every shot. Cuts, paces and signs the film. Nothing ships without their eye.",
     "offres.eyebrow": "Three ways to trust us with your listings",
-    "offres.title": "Choose your flame.",
+    "offres.title": "Three plans.",
     "offres.legal": "Virtually staged visuals, non-contractual.",
-    "offer.gift": "First film on us",
     "offer.cta": "Book a call",
     "offer.badge": "Most chosen",
     "offer.1n": "Spark", "offer.1f": "The solo agent",
@@ -128,32 +115,12 @@ const I18N = {
     "reveal.kicker": "The camera comes to rest.",
     "reveal.l1": "This film —", "reveal.l2": "you just steered it", "reveal.l3": "with your eyes.",
     "reveal.sign": "Generated by",
-    "reveal.cta": "Book your first film — on us",
-    "footer.tag": "Your walls deserve a film.",
-    "footer.contactlabel": "Book a call",
-    "footer.place": "Toulouse, France",
-    "footer.cta": "Book a call",
-    "footer.made": "Shot by AI. Directed by a human."
+    "reveal.cta": "Book your first film — on us"
   }
 };
 
-let currentLang = "fr";
-
-function applyLang(lang) {
-  currentLang = lang;
-  const dict = I18N[lang];
-  document.documentElement.lang = lang;
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const key = el.getAttribute("data-i18n");
-    if (dict[key] !== undefined) el.textContent = dict[key];
-  });
-  document.querySelectorAll(".lang__opt").forEach((o) =>
-    o.classList.toggle("is-active", o.dataset.lang === lang)
-  );
-  // Le mot rempli par le film reste « FILM. » dans les deux langues
-  const mt = document.getElementById("maskText");
-  if (mt) mt.textContent = "FILM.";
-}
+// Dictionnaire de la page, consommé par le socle partagé (js/shared.js)
+window.PAGE_I18N = I18N;
 
 /* -------------------------------------------------------------------------
    3. ÉTAT GLOBAL
@@ -338,19 +305,10 @@ function renderLoop() {
    7. DÉMARRAGE
    ========================================================================= */
 document.documentElement.classList.add("js");
-document.getElementById("year").textContent = new Date().getFullYear();
 
 window.addEventListener("resize", sizeCanvas);
 window.addEventListener("load", sizeCanvas);
 sizeCanvas();
-
-// Curseur : dès qu'on peut, on l'active
-if (!isTouch) document.body.classList.add("has-cursor");
-
-// Langue : bouton de bascule
-document.getElementById("langSwitch").addEventListener("click", () => {
-  applyLang(currentLang === "fr" ? "en" : "fr");
-});
 
 // On lance le préchargement, puis on construit l'expérience
 preloadFrames().then((ok) => {
@@ -367,18 +325,7 @@ function buildExperience(framesOk) {
   gsap.registerPlugin(ScrollTrigger);
 
   /* --- 8.1 Smooth scroll (Lenis) sauf mouvement réduit --- */
-  let lenis = null;
-  if (!prefersReduced) {
-    lenis = new Lenis({
-      lerp: 0.09,
-      wheelMultiplier: 1,
-      smoothWheel: true,
-      syncTouch: false
-    });
-    lenis.on("scroll", ScrollTrigger.update);
-    gsap.ticker.add((t) => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
+  const lenis = VestaShared.initLenis();
 
   // Rendu du canvas à chaque frame d'affichage
   gsap.ticker.add(renderLoop);
@@ -436,25 +383,34 @@ function buildExperience(framesOk) {
   // le film envahit tout l'écran pour la visite.
   const maskLayer = document.getElementById("maskLayer");
   const maskText = document.getElementById("maskText");
+  const maskStar = document.getElementById("maskStar");
   maskLayer.classList.add("is-active");
   gsap.set(maskLayer, { opacity: 1 });
 
-  // Taille du mot « FILM. » calculée pour toujours tenir dans la largeur, quel
+  // Taille du mot « FILM » calculée pour toujours tenir dans la largeur, quel
   // que soit le ratio d'écran (le masque SVG est en « slice », donc le mot est
-  // mis à l'échelle par le ratio du viewport). On MESURE la largeur réelle du
-  // mot (getBBox) plutôt que de la deviner, puis on résout la taille cible.
-  // Largeur de « FILM. » ≈ 2.4 × font-size en unités viewBox (opsz verrouillé).
-  const WORD_K = 2.4;
+  // mis à l'échelle par le ratio du viewport).
+  // Largeur de « FILM » ≈ 2.2 × font-size en unités viewBox (opsz verrouillé).
+  // L'astérisque braise — la marque Vesta — se cale au coin supérieur droit.
+  const WORD_K = 2.2;
   function sizeMaskWord() {
     const vw = window.innerWidth, vh = window.innerHeight;
+    // Viewport pas encore dimensionné (démarrage) : on réessaie, sans poser de NaN
+    if (!vw || !vh) { setTimeout(sizeMaskWord, 150); return; }
     const scale = Math.max(vw / 1000, vh / 600);   // facteur du mode « slice »
-    const target = vw * (vw < 680 ? 0.82 : 0.58);  // largeur écran visée pour le mot
-    let fs = target / (WORD_K * scale);
+    const target = vw * (vw < 680 ? 0.8 : 0.56);   // largeur écran visée (mot + astérisque)
+    let fs = target / ((WORD_K + 0.3) * scale);    // +0.3 : la place de l'astérisque
     fs = Math.max(56, Math.min(fs, 240));
     maskText.setAttribute("font-size", fs);
+    if (maskStar) {
+      maskStar.setAttribute("font-size", fs * 0.46);
+      maskStar.setAttribute("x", 500 + (WORD_K * fs) / 2 + fs * 0.05);
+      maskStar.setAttribute("y", 370 - fs * 0.16);
+    }
   }
   sizeMaskWord();
   window.addEventListener("resize", sizeMaskWord);
+  window.addEventListener("load", sizeMaskWord);
 
   if (!prefersReduced) {
     // Le panneau nuit s'efface → révèle le film plein cadre
@@ -601,17 +557,50 @@ function buildExperience(framesOk) {
     });
   }
 
-  /* --- 8.11 Ancres : scroll fluide via Lenis --- */
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
-    a.addEventListener("click", (e) => {
-      const id = a.getAttribute("href");
-      if (id.length < 2) return;
-      const target = document.querySelector(id);
-      if (!target) return;
-      e.preventDefault();
-      if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.4 });
-      else target.scrollIntoView({ behavior: "smooth" });
-    });
+  /* --- 8.11 Socle partagé : ancres, curseur, langue, année --- */
+  VestaShared.initAnchors(lenis);
+  VestaShared.initCursor();
+  VestaShared.initYear();
+  VestaShared.initLang();
+
+  /* --- 8.12 LE GUIDE : Marcel, le réalisateur --- */
+  VestaShared.initGuide({
+    id: "marcel",
+    name: "Marcel",
+    role: { fr: "réalisateur", en: "director" },
+    accent: "#FF6B35",
+    svg: '<svg viewBox="0 0 64 64" aria-hidden="true">' +
+      '<circle cx="32" cy="35" r="21" fill="#EFE7D8"/>' +
+      '<path d="M9 27 C11 13 25 9 33 9 C47 9 54 18 55 25 C44 18 20 19 9 27 Z" fill="#FF6B35"/>' +
+      '<circle cx="50" cy="14" r="3.4" fill="#FF6B35"/>' +
+      '<circle cx="25" cy="33" r="2.4" fill="#0A0806"/>' +
+      '<circle cx="39" cy="33" r="2.4" fill="#0A0806"/>' +
+      '<path d="M24 44 Q28 41 32 44 Q36 41 40 44" fill="none" stroke="#0A0806" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M27 49 Q32 52 37 49" fill="none" stroke="#0A0806" stroke-width="2" stroke-linecap="round"/>' +
+      "</svg>",
+    steps: [
+      { sel: "#hero", text: {
+        fr: "Marcel, réalisateur. Moteur… Scrollez : c'est vous qui pilotez la caméra.",
+        en: "Marcel, director. Rolling… Scroll: you're steering the camera." } },
+      { sel: "#promesse", text: {
+        fr: "Trois gestes de votre côté. Le reste, c'est mon affaire.",
+        en: "Three moves on your side. The rest is my job." } },
+      { sel: "#format", text: {
+        fr: "16:9, 9:16… un bon plan tient dans tous les cadres.",
+        en: "16:9, 9:16… a good shot holds in any frame." } },
+      { sel: "#traversee", text: {
+        fr: "Ma partie préférée : on pousse la porte, sans couper.",
+        en: "My favourite part: we open the door, without cutting." } },
+      { sel: "#equipe", text: {
+        fr: "Les IA cadrent. Moi, je tranche. Rien ne sort sans mon œil.",
+        en: "The AIs frame. I decide. Nothing ships without my eye." } },
+      { sel: "#offres", text: {
+        fr: "Le premier film est offert. Après, on ne pourra plus se quitter.",
+        en: "The first film is on us. After that, you won't let go." } },
+      { sel: "#reveal", text: {
+        fr: "Coupez. … Elle est parfaite. Et c'était vous, ça.",
+        en: "Cut. … It's perfect. And that was you." } }
+    ]
   });
 
   // Recalage après chargement complet des polices/frames
@@ -637,46 +626,5 @@ function splitChars(selector) {
   return chars;
 }
 
-/* =========================================================================
-   9. CURSEUR PERSONNALISÉ + BOUTONS MAGNÉTIQUES
-   ========================================================================= */
-if (!isTouch && !prefersReduced) {
-  const cursor = document.getElementById("cursor");
-  let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-  let tx = cx, ty = cy;
-  // Position initiale (centrée) même avant le premier mousemove / tick
-  cursor.style.transform = "translate(" + cx + "px," + cy + "px) translate(-50%,-50%)";
-
-  window.addEventListener("mousemove", (e) => {
-    tx = e.clientX; ty = e.clientY;
-    cursor.classList.add("is-visible");
-  });
-  // Suivi lissé du curseur
-  gsap.ticker.add(() => {
-    cx += (tx - cx) * 0.2;
-    cy += (ty - cy) * 0.2;
-    cursor.style.transform = "translate(" + cx + "px," + cy + "px) translate(-50%,-50%)";
-  });
-
-  const hoverables = document.querySelectorAll("a, button, [data-magnetic]");
-  hoverables.forEach((el) => {
-    el.addEventListener("mouseenter", () => cursor.classList.add("is-hover"));
-    el.addEventListener("mouseleave", () => cursor.classList.remove("is-hover"));
-  });
-
-  // Effet magnétique doux sur les boutons
-  document.querySelectorAll("[data-magnetic]").forEach((el) => {
-    el.addEventListener("mousemove", (e) => {
-      const r = el.getBoundingClientRect();
-      const mx = e.clientX - (r.left + r.width / 2);
-      const my = e.clientY - (r.top + r.height / 2);
-      gsap.to(el, { x: mx * 0.3, y: my * 0.4, duration: 0.5, ease: "power3.out" });
-    });
-    el.addEventListener("mouseleave", () => {
-      gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1,0.4)" });
-    });
-  });
-}
-
-// Applique la langue par défaut au chargement
-applyLang("fr");
+/* Le curseur, le magnétisme, la langue et les ancres vivent dans js/shared.js
+   (socle commun aux trois pages : film, photo, home staging). */

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Vesta — Retouche photo immobilière</title>
+<meta name="description" content="Vesta révèle vos photos immobilières : lumière, couleur, netteté. La retouche qui montre le bien à son avantage — jamais au-delà du vrai." />
+<meta name="theme-color" content="#0A0806" />
+
+<meta property="og:title" content="Vesta — Retouche photo immobilière" />
+<meta property="og:description" content="Avant / après piloté par votre scroll. La photo, à sa vraie lumière." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Archivo:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="css/main.css?v=14" />
+</head>
+<body class="page-photo">
+
+<!-- Grain de film permanent -->
+<div class="fx fx--grain" aria-hidden="true"></div>
+
+<!-- Curseur personnalisé -->
+<div id="cursor" class="cursor" aria-hidden="true"></div>
+
+<!-- ================= EN-TÊTE ================= -->
+<header class="nav">
+  <a href="index.html" class="nav__logo" aria-label="Vesta, retour à l'accueil">vesta<span class="logo-star">*</span></a>
+  <nav class="nav__links" aria-label="Les services Vesta">
+    <a href="index.html" class="nav__link" data-i18n="nav.film">Film</a>
+    <a href="photo.html" class="nav__link is-current" aria-current="page" data-i18n="nav.photo">Photo</a>
+    <a href="home-staging.html" class="nav__link" data-i18n="nav.staging">Home staging</a>
+  </nav>
+  <div class="nav__right">
+    <button class="lang" id="langSwitch" aria-label="Changer de langue / Switch language">
+      <span class="lang__opt is-active" data-lang="fr">FR</span>
+      <span class="lang__sep">/</span>
+      <span class="lang__opt" data-lang="en">EN</span>
+    </button>
+    <a href="#contact" class="btn btn--ghost nav__cta" data-magnetic>
+      <span data-i18n="nav.cta">Réserver</span>
+    </a>
+  </div>
+</header>
+
+<!-- Progression -->
+<div class="progress" aria-hidden="true">
+  <span id="progressFill" class="progress__fill"></span>
+</div>
+
+<main id="content">
+
+  <!-- 1 · LA DÉMO — avant / après balayé par le scroll -->
+  <section id="demo" class="ph-demo">
+    <div class="ph-demo__sticky">
+      <!-- La photo « avant » (terne) et la photo « après » (révélée par le balayage) -->
+      <figure class="ph-stage" aria-label="Avant / après de retouche photo">
+        <img class="ph-stage__before" src="frames/frame-0192.jpg" alt="" />
+        <img id="phAfter" class="ph-stage__after" src="frames/frame-0192.jpg" alt="" />
+        <span id="phLine" class="ph-stage__line" aria-hidden="true"></span>
+      </figure>
+
+      <!-- Titre d'ouverture, posé sur la photo terne -->
+      <div class="ph-hero">
+        <p class="eyebrow" data-i18n="ph.eyebrow">Vesta · Retouche photo</p>
+        <h1 class="display ph-hero__title" data-i18n="ph.title">La photo, à sa vraie lumière.</h1>
+        <p class="ph-hero__sub" data-i18n="ph.sub">Faites défiler : la retouche se fait sous vos yeux.</p>
+      </div>
+
+      <!-- Étiquettes avant / après -->
+      <span class="ph-tag ph-tag--before" data-i18n="ph.before">Avant</span>
+      <span class="ph-tag ph-tag--after" data-i18n="ph.after">Après</span>
+
+      <!-- Les réglages qui s'allument au passage du balayage -->
+      <ul class="ph-chips" aria-hidden="true">
+        <li class="ph-chip" id="chipLum"><span class="ph-chip__dot"></span><span data-i18n="ph.c1">Lumière</span></li>
+        <li class="ph-chip" id="chipCol"><span class="ph-chip__dot"></span><span data-i18n="ph.c2">Couleur</span></li>
+        <li class="ph-chip" id="chipNet"><span class="ph-chip__dot"></span><span data-i18n="ph.c3">Netteté</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2 · LE CREDO -->
+  <section id="credo" class="section ph-credo">
+    <div class="ph-credo__inner">
+      <p class="eyebrow" data-i18n="ph.credoeyebrow">Notre règle</p>
+      <h2 class="display ph-credo__title" data-i18n="ph.credotitle">Le bien à son avantage. Jamais au-delà du vrai.</h2>
+      <p class="ph-credo__text" data-i18n="ph.credotext">On révèle la lumière qui était là, les couleurs qu'avait la pièce, la netteté que mérite la pierre. On n'invente rien : la visite confirme la photo.</p>
+    </div>
+  </section>
+
+  <!-- 3 · TROIS PIÈCES, TROIS RÉVÉLATIONS -->
+  <section id="pieces" class="section ph-pieces">
+    <div class="ph-pieces__head">
+      <p class="eyebrow" data-i18n="ph.pieceseyebrow">Sur toutes vos pièces</p>
+    </div>
+    <div class="ph-pieces__grid">
+      <figure class="ph-card">
+        <div class="ph-card__pair">
+          <img class="ph-card__img ph-card__img--before" src="assets/img/salon.jpg" alt="Salon avant retouche" />
+          <img class="ph-card__img" src="assets/img/salon.jpg" alt="Salon après retouche" />
+        </div>
+        <figcaption class="ph-card__cap" data-i18n="ph.p1">Le salon</figcaption>
+      </figure>
+      <figure class="ph-card">
+        <div class="ph-card__pair">
+          <img class="ph-card__img ph-card__img--before" src="assets/img/cuisine.jpg" alt="Cuisine avant retouche" />
+          <img class="ph-card__img" src="assets/img/cuisine.jpg" alt="Cuisine après retouche" />
+        </div>
+        <figcaption class="ph-card__cap" data-i18n="ph.p2">La cuisine</figcaption>
+      </figure>
+      <figure class="ph-card">
+        <div class="ph-card__pair">
+          <img class="ph-card__img ph-card__img--before" src="assets/img/entree.jpg" alt="Entrée avant retouche" />
+          <img class="ph-card__img" src="assets/img/entree.jpg" alt="Entrée après retouche" />
+        </div>
+        <figcaption class="ph-card__cap" data-i18n="ph.p3">L'entrée</figcaption>
+      </figure>
+    </div>
+    <p class="ph-pieces__note" data-i18n="ph.piecesnote">Livraison en 24 h, formats portail et réseaux.</p>
+  </section>
+
+  <!-- 4 · CTA -->
+  <section id="cta" class="section ph-cta">
+    <div class="ph-cta__inner">
+      <h2 class="display ph-cta__title" data-i18n="ph.ctatitle">Vos photos méritent mieux.</h2>
+      <a href="#contact" class="btn btn--fill" data-magnetic><span data-i18n="ph.ctabtn">Réserver un rendez-vous</span></a>
+      <a href="index.html" class="ph-cta__alt" data-i18n="ph.ctaalt">Découvrir le film Vesta →</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer id="contact" class="footer">
+  <div class="footer__grid">
+    <div class="footer__brand">
+      <span class="footer__logo">vesta<span class="logo-star">*</span></span>
+      <p class="footer__tag"><span data-i18n="footer.tag">Vos murs méritent un film</span><span class="logo-star">*</span></p>
+    </div>
+    <div class="footer__col">
+      <span class="footer__label" data-i18n="footer.services">Les services</span>
+      <a class="footer__navlink" href="index.html" data-i18n="nav.film">Film</a>
+      <a class="footer__navlink" href="photo.html" data-i18n="nav.photo">Photo</a>
+      <a class="footer__navlink" href="home-staging.html" data-i18n="nav.staging">Home staging</a>
+    </div>
+    <div class="footer__col">
+      <span class="footer__label" data-i18n="footer.contactlabel">Prendre rendez-vous</span>
+      <a class="footer__mail" href="mailto:bonjour@vesta.film?subject=Retouche%20photo">bonjour@vesta.film</a>
+      <span class="footer__place" data-i18n="footer.place">Toulouse, France</span>
+    </div>
+    <div class="footer__col footer__gift">
+      <span class="footer__giftmark" data-i18n="offer.gift">Premier film offert</span>
+      <a href="mailto:bonjour@vesta.film?subject=Retouche%20photo" class="btn btn--fill" data-magnetic><span data-i18n="footer.cta">Réserver un rendez-vous</span></a>
+    </div>
+  </div>
+  <div class="footer__giant" aria-hidden="true"><span>VESTA</span></div>
+  <div class="footer__base">
+    <span>© <span id="year"></span> Vesta</span>
+    <span data-i18n="footer.made">Filmé par l'IA. Réalisé par un humain.</span>
+  </div>
+</footer>
+
+<!-- ================= LIBS (CDN) ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<!-- ================= APPLICATION ================= -->
+<script src="js/shared.js?v=14"></script>
+<script src="js/photo.js?v=14"></script>
+</body>
+</html>

@@ -1,12 +1,18 @@
-# Vesta — Vos murs méritent un film
+# Vesta — Vos murs méritent un film*
 
 Site vitrine de **Vesta**, studio qui transforme les photos d'un bien immobilier
 en **films cinématiques** (IA aux caméras, réalisateur humain au montage).
 
-Le site tout entier est une **visite filmée** qui avance au rythme du scroll :
-c'est le scroll de l'utilisateur qui fait avancer la caméra dans le bien, du hall
-d'entrée jusqu'à la chambre. La révélation finale : *« Ce film, vous venez de le
-piloter du regard. Généré par Vesta. »* — le médium est le message.
+Trois pages, trois démos pilotées par le scroll, trois guides :
+
+| Page | Démo | Guide |
+|------|------|-------|
+| `index.html` — **Le film** | La visite filmée avance au rythme du scroll (canvas + frames). Révélation finale : *« Ce film, vous venez de le piloter du regard. »* | **Marcel**, réalisateur (braise) |
+| `photo.html` — **Retouche photo** | Un avant/après balayé par le scroll ; les réglages (Lumière, Couleur, Netteté) s'allument au passage. | **Iris**, retoucheuse (or) |
+| `home-staging.html` — **Home staging** | Une chambre en line-art dont les meubles s'assemblent au scroll (9 pièces + lumière finale). | **Colette**, home stagère (sauge) |
+
+Identité : logo `vesta*` (astérisque braise), **une seule punchline de marque**
+(« Vos murs méritent un film\* ») répétée dans le bandeau et le footer.
 
 ---
 
@@ -27,20 +33,32 @@ piloter du regard. Généré par Vesta. »* — le médium est le message.
 
 ```
 vesta/
-├── index.html          Structure + libs CDN
+├── index.html            La page FILM (visite scrollée + offres + révélation)
+├── photo.html            La page RETOUCHE PHOTO (avant/après au scroll)
+├── home-staging.html     La page HOME STAGING (la chambre se meuble au scroll)
 ├── css/
-│   └── main.css         Direction artistique complète (nuit / os / braise)
+│   └── main.css          Direction artistique complète (nuit / os / braise)
 ├── js/
-│   └── main.js          Application : config frames, i18n, canvas, scroll, animations
-├── frames/              ← LA VISITE : frame-0001.jpg … frame-0192.jpg
-│   └── frame-0001.jpg …
+│   ├── shared.js         Socle commun : i18n, curseur, Lenis, LES GUIDES
+│   ├── main.js           Page film : config frames, canvas, scroll, Marcel
+│   ├── photo.js          Page photo : balayage avant/après, Iris
+│   └── staging.js        Page staging : assemblage des meubles, Colette
+├── frames/               ← LA VISITE : frame-0001.jpg … frame-0239.jpg
 ├── assets/
-│   ├── video/visite.mp4 Le film source (sert à (ré)générer les frames)
-│   └── img/             Images diverses
+│   ├── video/visite.mp4  Le film source (sert à (ré)générer les frames)
+│   └── img/              Photos des pièces (page retouche)
 ├── .claude/
-│   └── launch.json      Config serveur de dev local (port 4173)
+│   └── launch.json       Config serveur de dev local (port 4173)
 └── README.md
 ```
+
+## Le home staging en vidéo, plus tard
+
+La page home staging est aujourd'hui une **scène vectorielle** (les meubles
+s'assemblent en SVG). Quand vous aurez généré le film d'assemblage (pièce vide →
+pièce meublée), découpez-le en frames avec la même commande ffmpeg que la visite
+(dossier `frames-staging/` par exemple) et remplacez la scène SVG par le moteur
+canvas de `js/main.js` — la mécanique scroll est identique.
 
 ---
 

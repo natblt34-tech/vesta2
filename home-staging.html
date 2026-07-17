@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Vesta — Home staging virtuel</title>
+<meta name="description" content="Vesta meuble virtuellement vos pièces vides : au scroll, la chambre s'aménage sous vos yeux. Visuels virtuellement aménagés, non contractuels." />
+<meta name="theme-color" content="#0A0806" />
+
+<meta property="og:title" content="Vesta — Home staging virtuel" />
+<meta property="og:description" content="La pièce se meuble sous vos yeux, au rythme de votre scroll." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Archivo:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<link rel="stylesheet" href="css/main.css?v=14" />
+</head>
+<body class="page-staging">
+
+<!-- Grain de film permanent -->
+<div class="fx fx--grain" aria-hidden="true"></div>
+
+<!-- Curseur personnalisé -->
+<div id="cursor" class="cursor" aria-hidden="true"></div>
+
+<!-- ================= EN-TÊTE ================= -->
+<header class="nav">
+  <a href="index.html" class="nav__logo" aria-label="Vesta, retour à l'accueil">vesta<span class="logo-star">*</span></a>
+  <nav class="nav__links" aria-label="Les services Vesta">
+    <a href="index.html" class="nav__link" data-i18n="nav.film">Film</a>
+    <a href="photo.html" class="nav__link" data-i18n="nav.photo">Photo</a>
+    <a href="home-staging.html" class="nav__link is-current" aria-current="page" data-i18n="nav.staging">Home staging</a>
+  </nav>
+  <div class="nav__right">
+    <button class="lang" id="langSwitch" aria-label="Changer de langue / Switch language">
+      <span class="lang__opt is-active" data-lang="fr">FR</span>
+      <span class="lang__sep">/</span>
+      <span class="lang__opt" data-lang="en">EN</span>
+    </button>
+    <a href="#contact" class="btn btn--ghost nav__cta" data-magnetic>
+      <span data-i18n="nav.cta">Réserver</span>
+    </a>
+  </div>
+</header>
+
+<!-- Progression -->
+<div class="progress" aria-hidden="true">
+  <span id="progressFill" class="progress__fill"></span>
+</div>
+
+<main id="content">
+
+  <!-- 1 · LA DÉMO — la chambre se meuble au scroll -->
+  <section id="demo" class="hs-demo">
+    <div class="hs-demo__sticky">
+
+      <!-- Titre d'ouverture -->
+      <div class="hs-hero">
+        <p class="eyebrow" data-i18n="hs.eyebrow">Vesta · Home staging virtuel</p>
+        <h1 class="display hs-hero__title" data-i18n="hs.title">Home staging virtuel.</h1>
+        <p class="hs-hero__sub" data-i18n="hs.sub">Faites défiler : la chambre se meuble sous vos yeux.</p>
+      </div>
+
+      <!-- Compteur d'aménagement -->
+      <div class="hs-counter" aria-hidden="true">
+        <span class="hs-counter__label" data-i18n="hs.counter">Aménagement</span>
+        <span class="hs-counter__value"><span id="hsCount">0</span>/9</span>
+      </div>
+
+      <!-- La pièce : line-art vectoriel, les meubles arrivent un à un.
+           (Base sans vidéo — remplaçable plus tard par une séquence de frames,
+           voir README « Home staging en vidéo ».) -->
+      <svg id="hsScene" class="hs-scene" viewBox="0 0 1200 680" preserveAspectRatio="xMidYMid meet" aria-label="Une chambre qui se meuble">
+        <defs>
+          <radialGradient id="hsGlow" cx="50%" cy="42%" r="60%">
+            <stop offset="0%" stop-color="#d8a24a" stop-opacity="0.32" />
+            <stop offset="55%" stop-color="#d8a24a" stop-opacity="0.08" />
+            <stop offset="100%" stop-color="#d8a24a" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="hsLamp" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#d8a24a" stop-opacity="0.5" />
+            <stop offset="100%" stop-color="#d8a24a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+
+        <!-- La coquille de la pièce (toujours visible) -->
+        <g class="hs-room" stroke="#EFE7D8" stroke-opacity="0.32" stroke-width="2" fill="none">
+          <line x1="60" y1="520" x2="1140" y2="520" />                <!-- sol -->
+          <line x1="60" y1="520" x2="20" y2="660" stroke-opacity="0.16" />
+          <line x1="1140" y1="520" x2="1180" y2="660" stroke-opacity="0.16" />
+          <rect x="60" y="60" width="1080" height="460" stroke-opacity="0.16" /> <!-- mur -->
+          <line x1="60" y1="500" x2="1140" y2="500" stroke-opacity="0.12" />     <!-- plinthe -->
+          <g stroke-opacity="0.4">                                    <!-- fenêtre -->
+            <rect x="880" y="130" width="200" height="290" rx="3" />
+            <line x1="980" y1="130" x2="980" y2="420" />
+            <line x1="880" y1="275" x2="1080" y2="275" />
+          </g>
+        </g>
+
+        <!-- P1 · Le tapis -->
+        <g id="hs-p1" class="hs-piece">
+          <ellipse cx="480" cy="560" rx="300" ry="46" fill="#EFE7D8" fill-opacity="0.07"
+                   stroke="#EFE7D8" stroke-opacity="0.4" stroke-width="2" />
+          <ellipse cx="480" cy="560" rx="240" ry="34" fill="none" stroke="#EFE7D8" stroke-opacity="0.2" stroke-width="1.5" />
+        </g>
+
+        <!-- P2 · Le lit (tête + cadre) -->
+        <g id="hs-p2" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.75" stroke-width="2.5" fill="none">
+          <rect x="300" y="240" width="360" height="150" rx="16" />   <!-- tête de lit -->
+          <rect x="280" y="390" width="400" height="66" rx="8" />     <!-- sommier -->
+          <line x1="296" y1="456" x2="296" y2="520" />
+          <line x1="664" y1="456" x2="664" y2="520" />
+        </g>
+
+        <!-- P3 · La literie (matelas, oreillers, plaid braise) -->
+        <g id="hs-p3" class="hs-piece">
+          <rect x="288" y="360" width="384" height="42" rx="12" fill="#EFE7D8" fill-opacity="0.14"
+                stroke="#EFE7D8" stroke-opacity="0.7" stroke-width="2" />
+          <rect x="316" y="330" width="130" height="40" rx="14" fill="#EFE7D8" fill-opacity="0.2"
+                stroke="#EFE7D8" stroke-opacity="0.7" stroke-width="2" />
+          <rect x="512" y="330" width="130" height="40" rx="14" fill="#EFE7D8" fill-opacity="0.2"
+                stroke="#EFE7D8" stroke-opacity="0.7" stroke-width="2" />
+          <path d="M288 402 h384 v34 q-192 18 -384 0 Z" fill="#FF6B35" fill-opacity="0.55"
+                stroke="#FF6B35" stroke-opacity="0.8" stroke-width="1.5" />
+        </g>
+
+        <!-- P4 · Chevet gauche + lampe -->
+        <g id="hs-p4" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.65" stroke-width="2" fill="none">
+          <rect x="180" y="420" width="82" height="76" rx="6" />
+          <line x1="180" y1="458" x2="262" y2="458" />
+          <circle cx="221" cy="352" r="26" fill="url(#hsLamp)" stroke="none" />
+          <path d="M206 392 h30 l-6 -28 h-18 Z" />
+          <line x1="221" y1="392" x2="221" y2="420" />
+        </g>
+
+        <!-- P5 · Chevet droit + lampe -->
+        <g id="hs-p5" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.65" stroke-width="2" fill="none">
+          <rect x="698" y="420" width="82" height="76" rx="6" />
+          <line x1="698" y1="458" x2="780" y2="458" />
+          <circle cx="739" cy="352" r="26" fill="url(#hsLamp)" stroke="none" />
+          <path d="M724 392 h30 l-6 -28 h-18 Z" />
+          <line x1="739" y1="392" x2="739" y2="420" />
+        </g>
+
+        <!-- P6 · Le tableau -->
+        <g id="hs-p6" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.6" stroke-width="2" fill="none">
+          <rect x="420" y="110" width="150" height="100" rx="3" />
+          <path d="M432 190 l38 -42 l26 24 l30 -36 l32 54" stroke-opacity="0.45" />
+          <circle cx="530" cy="134" r="7" stroke-opacity="0.45" />
+        </g>
+
+        <!-- P7 · Les rideaux -->
+        <g id="hs-p7" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.5" stroke-width="2" fill="none">
+          <line x1="856" y1="112" x2="1104" y2="112" stroke-width="3" />
+          <path d="M868 112 q-10 80 4 150 q-12 80 -2 158" />
+          <path d="M888 112 q8 80 -4 150 q10 80 0 158" fill="#EFE7D8" fill-opacity="0.05" />
+          <path d="M1092 112 q10 80 -4 150 q12 80 2 158" />
+          <path d="M1072 112 q-8 80 4 150 q-10 80 0 158" fill="#EFE7D8" fill-opacity="0.05" />
+        </g>
+
+        <!-- P8 · La plante -->
+        <g id="hs-p8" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.6" stroke-width="2" fill="none">
+          <path d="M1078 500 h64 l-8 -52 h-48 Z" />
+          <path d="M1110 448 q-4 -46 -34 -66 M1110 448 q2 -52 26 -74 M1110 448 q-24 -30 -52 -34 M1110 448 q26 -24 48 -22"
+                stroke-opacity="0.5" />
+        </g>
+
+        <!-- P9 · La suspension -->
+        <g id="hs-p9" class="hs-piece" stroke="#EFE7D8" stroke-opacity="0.6" stroke-width="2" fill="none">
+          <line x1="480" y1="60" x2="480" y2="128" />
+          <path d="M448 168 a32 32 0 0 1 64 0 Z" />
+          <circle cx="480" cy="180" r="34" fill="url(#hsLamp)" stroke="none" />
+        </g>
+
+        <!-- La lumière finale de la pièce habitée -->
+        <rect id="hsGlowRect" x="0" y="0" width="1200" height="680" fill="url(#hsGlow)" opacity="0" />
+      </svg>
+
+      <!-- La conclusion de la démo -->
+      <p id="hsDone" class="hs-done display" data-i18n="hs.done">Prête à séduire.</p>
+      <p class="hs-legal" data-i18n="hs.legal">Visuels virtuellement aménagés, non contractuels.</p>
+    </div>
+  </section>
+
+  <!-- 2 · TROIS ÉTAPES -->
+  <section id="etapes" class="section hs-steps">
+    <div class="hs-steps__head">
+      <p class="eyebrow" data-i18n="hs.stepseyebrow">Sans déménager personne</p>
+    </div>
+    <ol class="promesse__list">
+      <li class="volet">
+        <span class="volet__num">01</span>
+        <h3 class="volet__title" data-i18n="hs.s1t">La pièce nue</h3>
+        <p class="volet__text" data-i18n="hs.s1d">Vos photos, même vides, même datées. C'est notre matière première.</p>
+      </li>
+      <li class="volet">
+        <span class="volet__num">02</span>
+        <h3 class="volet__title" data-i18n="hs.s2t">L'intention</h3>
+        <p class="volet__text" data-i18n="hs.s2d">Un style choisi pour vos acheteurs : chaleureux, épuré, familial.</p>
+      </li>
+      <li class="volet">
+        <span class="volet__num">03</span>
+        <h3 class="volet__title" data-i18n="hs.s3t">Le décor</h3>
+        <p class="volet__text" data-i18n="hs.s3d">La pièce meublée, livrée en 48 h, prête pour le portail et le film.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 3 · CTA -->
+  <section id="cta" class="section hs-cta">
+    <div class="ph-cta__inner">
+      <h2 class="display ph-cta__title" data-i18n="hs.ctatitle">Une pièce vide fait fuir. Une pièce racontée fait visiter.</h2>
+      <a href="#contact" class="btn btn--fill" data-magnetic><span data-i18n="hs.ctabtn">Réserver un rendez-vous</span></a>
+      <a href="index.html" class="ph-cta__alt" data-i18n="hs.ctaalt">Découvrir le film Vesta →</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer id="contact" class="footer">
+  <div class="footer__grid">
+    <div class="footer__brand">
+      <span class="footer__logo">vesta<span class="logo-star">*</span></span>
+      <p class="footer__tag"><span data-i18n="footer.tag">Vos murs méritent un film</span><span class="logo-star">*</span></p>
+    </div>
+    <div class="footer__col">
+      <span class="footer__label" data-i18n="footer.services">Les services</span>
+      <a class="footer__navlink" href="index.html" data-i18n="nav.film">Film</a>
+      <a class="footer__navlink" href="photo.html" data-i18n="nav.photo">Photo</a>
+      <a class="footer__navlink" href="home-staging.html" data-i18n="nav.staging">Home staging</a>
+    </div>
+    <div class="footer__col">
+      <span class="footer__label" data-i18n="footer.contactlabel">Prendre rendez-vous</span>
+      <a class="footer__mail" href="mailto:bonjour@vesta.film?subject=Home%20staging">bonjour@vesta.film</a>
+      <span class="footer__place" data-i18n="footer.place">Toulouse, France</span>
+    </div>
+    <div class="footer__col footer__gift">
+      <span class="footer__giftmark" data-i18n="offer.gift">Premier film offert</span>
+      <a href="mailto:bonjour@vesta.film?subject=Home%20staging" class="btn btn--fill" data-magnetic><span data-i18n="footer.cta">Réserver un rendez-vous</span></a>
+    </div>
+  </div>
+  <div class="footer__giant" aria-hidden="true"><span>VESTA</span></div>
+  <div class="footer__base">
+    <span>© <span id="year"></span> Vesta</span>
+    <span data-i18n="footer.made">Filmé par l'IA. Réalisé par un humain.</span>
+  </div>
+</footer>
+
+<!-- ================= LIBS (CDN) ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+<!-- ================= APPLICATION ================= -->
+<script src="js/shared.js?v=14"></script>
+<script src="js/staging.js?v=14"></script>
+</body>
+</html>
