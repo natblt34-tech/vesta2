@@ -203,6 +203,51 @@ const VestaShared = (() => {
     return activeGuide;
   }
 
+  /* ---------- Reveals éditoriaux (communs aux 3 pages) ---------- */
+  // Titres « .wipe » : balayage gauche → droite à l'entrée dans le viewport
+  function initWipes() {
+    document.querySelectorAll(".wipe").forEach((el) => {
+      if (prefersReduced) { el.classList.add("is-in"); return; }
+      gsap.fromTo(el,
+        { clipPath: "inset(0 100% 0 0)" },
+        {
+          clipPath: "inset(0 -2% 0 0)", duration: 1.3, ease: "power4.inOut",
+          scrollTrigger: { trigger: el, start: "top 78%" },
+          onComplete: () => el.classList.add("is-in")
+        });
+    });
+    // Les métas de tête de section : filet qui se déploie + numéro qui monte
+    document.querySelectorAll(".sec-head__meta").forEach((meta) => {
+      if (prefersReduced) return;
+      const rule = meta.querySelector(".sec-head__rule");
+      if (rule) {
+        gsap.from(rule, {
+          scaleX: 0, transformOrigin: "left center", duration: 1.1, ease: "power3.inOut",
+          scrollTrigger: { trigger: meta, start: "top 82%" }
+        });
+      }
+      gsap.from(meta.children, {
+        y: 14, opacity: 0, duration: 0.7, ease: "power2.out", stagger: 0.08,
+        scrollTrigger: { trigger: meta, start: "top 82%" }
+      });
+    });
+  }
+
+  // Cartes « .card-reveal » : l'image s'ouvre du bas, son contenu dé-zoome
+  function initCardReveals() {
+    document.querySelectorAll(".card-reveal").forEach((el) => {
+      if (prefersReduced) { el.classList.add("is-in"); return; }
+      const imgs = el.querySelectorAll("img");
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: el, start: "top 84%" },
+        onComplete: () => el.classList.add("is-in")
+      });
+      tl.fromTo(el, { clipPath: "inset(100% 0 0 0)" },
+        { clipPath: "inset(0% 0 0 0)", duration: 1.1, ease: "power4.inOut" });
+      if (imgs.length) tl.from(imgs, { scale: 1.25, duration: 1.4, ease: "power3.out" }, 0);
+    });
+  }
+
   /* ---------- Divers ---------- */
   function initYear() {
     const y = document.getElementById("year");
@@ -210,5 +255,6 @@ const VestaShared = (() => {
   }
 
   return { prefersReduced, isTouch, applyLang, initLang, initCursor, initAnchors, initLenis, initGuide, initYear,
+           initWipes, initCardReveals,
            get lang() { return currentLang; } };
 })();

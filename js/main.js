@@ -32,7 +32,8 @@ const I18N = {
     "hero.sub": "Filmé par l'IA. Réalisé par un humain.",
     "hero.scroll": "Faites défiler pour visiter",
     "ribbon.brand": "Vos murs méritent un film",
-    "promesse.eyebrow": "Trois gestes, un film signé",
+    "promesse.eyebrow": "La promesse",
+    "promesse.t1": "Trois gestes,", "promesse.t2": "un film signé.",
     "promesse.1t": "Dépôt & brief",
     "promesse.1d": "Vous déposez vos photos et le caractère du bien. On écrit l'intention du film.",
     "promesse.2t": "Tournage IA",
@@ -42,10 +43,11 @@ const I18N = {
     "format.eyebrow": "Un format, tous vos canaux",
     "format.title": "Le format cinéma, partout.",
     "format.text": "16:9 pour le portail, 9:16 pour les réseaux. Le même film, recadré au millimètre.",
-    "trav.t1": "Les traversées.",
+    "trav.label": "La signature Vesta",
+    "trav.w1": "Les", "trav.w2": "traversées.",
     "trav.text": "La caméra pousse la porte et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama.",
     "equipe.eyebrow": "La distribution",
-    "equipe.title": "L'équipe du film.",
+    "equipe.t1": "L'équipe", "equipe.t2": "du film.",
     "equipe.ai": "IA", "equipe.human": "Humain",
     "equipe.c1": "Cadre", "equipe.c1d": "Compose chaque plan, choisit l'axe et le mouvement.",
     "equipe.c2": "Lumière", "equipe.c2d": "Sculpte l'heure dorée, révèle les matières.",
@@ -53,8 +55,8 @@ const I18N = {
     "equipe.c4": "Texte", "equipe.c4d": "Pose les mots justes, sobres, au bon moment.",
     "equipe.c5": "Le Réalisateur",
     "equipe.c5d": "Valide ou refait chaque plan. Tranche, rythme et signe le film. Rien ne sort sans son œil.",
-    "offres.eyebrow": "Trois façons de nous confier vos biens",
-    "offres.title": "Trois formules.",
+    "offres.eyebrow": "Les formules",
+    "offres.t1": "Trois", "offres.t2": "formules.",
     "offres.legal": "Visuels virtuellement aménagés, non contractuels.",
     "offer.cta": "Réserver un rendez-vous",
     "offer.badge": "La plus choisie",
@@ -78,7 +80,8 @@ const I18N = {
     "hero.sub": "Shot by AI. Directed by a human.",
     "hero.scroll": "Scroll to step inside",
     "ribbon.brand": "Your walls deserve a film",
-    "promesse.eyebrow": "Three moves, one signed film",
+    "promesse.eyebrow": "The promise",
+    "promesse.t1": "Three moves,", "promesse.t2": "one signed film.",
     "promesse.1t": "Upload & brief",
     "promesse.1d": "You drop in your photos and the character of the property. We write the film's intent.",
     "promesse.2t": "AI shoot",
@@ -88,10 +91,11 @@ const I18N = {
     "format.eyebrow": "One format, every channel",
     "format.title": "Cinema format, everywhere.",
     "format.text": "16:9 for the listing, 9:16 for social. The same film, reframed to the pixel.",
-    "trav.t1": "The walk-throughs.",
+    "trav.label": "The Vesta signature",
+    "trav.w1": "The", "trav.w2": "walk-throughs.",
     "trav.text": "The camera opens the door and the home tells its story, room to room — no cut, no slideshow.",
     "equipe.eyebrow": "The cast",
-    "equipe.title": "The film crew.",
+    "equipe.t1": "The film", "equipe.t2": "crew.",
     "equipe.ai": "AI", "equipe.human": "Human",
     "equipe.c1": "Framing", "equipe.c1d": "Composes every shot, picks the axis and the move.",
     "equipe.c2": "Light", "equipe.c2d": "Sculpts golden hour, reveals the materials.",
@@ -99,8 +103,8 @@ const I18N = {
     "equipe.c4": "Copy", "equipe.c4d": "Places the right words, restrained, at the right moment.",
     "equipe.c5": "The Director",
     "equipe.c5d": "Approves or reshoots every shot. Cuts, paces and signs the film. Nothing ships without their eye.",
-    "offres.eyebrow": "Three ways to trust us with your listings",
-    "offres.title": "Three plans.",
+    "offres.eyebrow": "The plans",
+    "offres.t1": "Three", "offres.t2": "plans.",
     "offres.legal": "Virtually staged visuals, non-contractual.",
     "offer.cta": "Book a call",
     "offer.badge": "Most chosen",
@@ -425,10 +429,6 @@ function buildExperience(framesOk) {
     y: 60, opacity: 0, duration: prefersReduced ? 0.01 : 1, ease: "power3.out", stagger: 0.15,
     scrollTrigger: { trigger: ".promesse__list", start: "top 78%" }
   });
-  gsap.from(".promesse__head .eyebrow", {
-    y: 24, opacity: 0, duration: 0.8, ease: "power2.out",
-    scrollTrigger: { trigger: "#promesse", start: "top 70%" }
-  });
 
   /* --- 8.6 FORMAT : le film sur ordinateur (16:9) puis mobile (9:16) --- */
   // Les canvas des appareils rejouent le film à leur ratio (voir drawFrame).
@@ -473,42 +473,19 @@ function buildExperience(framesOk) {
       .to(".format__backdrop", { autoAlpha: 0, duration: 1.3, ease: "power2.inOut" }, 8);
   }
 
-  /* --- 8.7 TRAVERSÉE : lettres qui basculent + poids qui s'épaissit --- */
-  const travTitle = document.querySelector(".traversee__title");
-  const travChars = splitChars(".traversee__title");
-  if (travChars && travChars.length) {
-    gsap.from(travChars, {
-      yPercent: 120, opacity: 0, rotateX: -85, duration: 1, ease: "power4.out", stagger: 0.02,
-      scrollTrigger: { trigger: "#traversee", start: "top 72%" }
-    });
-    // Poids variable Fraunces piloté au scroll (300 → 900) : la typo « prend corps »
-    const wp = { w: 320 };
-    gsap.to(wp, {
-      w: 900, ease: "none",
-      scrollTrigger: { trigger: "#traversee", start: "top 78%", end: "center center", scrub: true },
-      onUpdate: () => { travTitle.style.fontVariationSettings = '"wght" ' + Math.round(wp.w) + ', "opsz" 144'; }
-    });
-  }
+  /* --- 8.7 TRAVERSÉE : titre-image essuyé par le balayage (.wipe) --- */
   gsap.from(".traversee__text", {
     y: 40, opacity: 0, duration: 1, ease: "power3.out",
     scrollTrigger: { trigger: ".traversee__text", start: "top 82%" }
   });
 
   /* --- 8.8 ÉQUIPE --- */
-  gsap.from(".equipe__head > *", {
-    y: 40, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.12,
-    scrollTrigger: { trigger: "#equipe", start: "top 68%" }
-  });
   gsap.from(".crew", {
     y: 70, opacity: 0, duration: prefersReduced ? 0.01 : 0.9, ease: "power3.out", stagger: 0.08,
     scrollTrigger: { trigger: ".equipe__grid", start: "top 80%" }
   });
 
   /* --- 8.9 OFFRES --- */
-  gsap.from(".offres__head > *", {
-    y: 40, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.12,
-    scrollTrigger: { trigger: "#offres", start: "top 70%" }
-  });
   gsap.from(".offer", {
     y: 80, opacity: 0, duration: prefersReduced ? 0.01 : 1, ease: "power3.out", stagger: 0.12,
     scrollTrigger: { trigger: ".offres__grid", start: "top 82%" }
@@ -557,11 +534,12 @@ function buildExperience(framesOk) {
     });
   }
 
-  /* --- 8.11 Socle partagé : ancres, curseur, langue, année --- */
+  /* --- 8.11 Socle partagé : ancres, curseur, langue, année, reveals --- */
   VestaShared.initAnchors(lenis);
   VestaShared.initCursor();
   VestaShared.initYear();
   VestaShared.initLang();
+  VestaShared.initWipes();
 
   /* --- 8.12 LE GUIDE : Marcel, le réalisateur --- */
   VestaShared.initGuide({

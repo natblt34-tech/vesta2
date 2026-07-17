@@ -17,7 +17,7 @@
   href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Archivo:wght@300;400;500;600;700&display=swap"
   rel="stylesheet"
 />
-<link rel="stylesheet" href="css/main.css?v=16" />
+<link rel="stylesheet" href="css/main.css?v=17" />
 </head>
 <body class="page-photo">
 
@@ -64,10 +64,14 @@
         <span id="phLine" class="ph-stage__line" aria-hidden="true"></span>
       </figure>
 
-      <!-- Titre d'ouverture, posé sur la photo terne -->
+      <!-- Titre d'ouverture, posé sur la photo terne : le mot « lumière »
+           est rempli de la pièce révélée — la promesse dans la typo -->
       <div class="ph-hero">
         <p class="eyebrow" data-i18n="ph.eyebrow">Vesta · Retouche photo</p>
-        <h1 class="display ph-hero__title" data-i18n="ph.title">La photo, à sa vraie lumière.</h1>
+        <h1 class="sec-title ph-hero__title wipe">
+          <span class="line" data-i18n="ph.t1">La vraie</span>
+          <span class="line word-img word-img--room" data-i18n="ph.t2">lumière.</span>
+        </h1>
         <p class="ph-hero__sub" data-i18n="ph.sub">Faites défiler : la retouche se fait sous vos yeux.</p>
       </div>
 
@@ -85,35 +89,50 @@
   </section>
 
   <!-- 2 · LE CREDO -->
-  <section id="credo" class="section ph-credo">
+  <section id="credo" class="section ph-credo sheet">
     <div class="ph-credo__inner">
-      <p class="eyebrow" data-i18n="ph.credoeyebrow">Notre règle</p>
-      <h2 class="display ph-credo__title" data-i18n="ph.credotitle">Le bien à son avantage. Jamais au-delà du vrai.</h2>
+      <div class="sec-head__meta">
+        <span class="sec-head__num">02</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="ph.credoeyebrow">Notre règle</span>
+      </div>
+      <h2 class="sec-title sec-title--s wipe">
+        <span class="line" data-i18n="ph.credo1">Le bien à son avantage.</span>
+        <span class="line it" data-i18n="ph.credo2">Jamais au-delà du vrai.</span>
+      </h2>
       <p class="ph-credo__text" data-i18n="ph.credotext">On révèle la lumière qui était là, les couleurs qu'avait la pièce, la netteté que mérite la pierre. On n'invente rien : la visite confirme la photo.</p>
     </div>
   </section>
 
   <!-- 3 · TROIS PIÈCES, TROIS RÉVÉLATIONS -->
   <section id="pieces" class="section ph-pieces">
-    <div class="ph-pieces__head">
-      <p class="eyebrow" data-i18n="ph.pieceseyebrow">Sur toutes vos pièces</p>
-    </div>
+    <header class="sec-head">
+      <div class="sec-head__meta">
+        <span class="sec-head__num">03</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="ph.pieceseyebrow">Sur toutes vos pièces</span>
+      </div>
+      <h2 class="sec-title wipe">
+        <span data-i18n="ph.piecest1">Chaque pièce,</span>
+        <span class="it" data-i18n="ph.piecest2">révélée.</span>
+      </h2>
+    </header>
     <div class="ph-pieces__grid">
-      <figure class="ph-card">
+      <figure class="ph-card card-reveal">
         <div class="ph-card__pair">
           <img class="ph-card__img ph-card__img--before" src="assets/img/salon.jpg" alt="Salon avant retouche" />
           <img class="ph-card__img" src="assets/img/salon.jpg" alt="Salon après retouche" />
         </div>
         <figcaption class="ph-card__cap" data-i18n="ph.p1">Le salon</figcaption>
       </figure>
-      <figure class="ph-card">
+      <figure class="ph-card card-reveal">
         <div class="ph-card__pair">
           <img class="ph-card__img ph-card__img--before" src="assets/img/cuisine.jpg" alt="Cuisine avant retouche" />
           <img class="ph-card__img" src="assets/img/cuisine.jpg" alt="Cuisine après retouche" />
         </div>
         <figcaption class="ph-card__cap" data-i18n="ph.p2">La cuisine</figcaption>
       </figure>
-      <figure class="ph-card">
+      <figure class="ph-card card-reveal">
         <div class="ph-card__pair">
           <img class="ph-card__img ph-card__img--before" src="assets/img/entree.jpg" alt="Entrée avant retouche" />
           <img class="ph-card__img" src="assets/img/entree.jpg" alt="Entrée après retouche" />
@@ -127,7 +146,10 @@
   <!-- 4 · CTA -->
   <section id="cta" class="section ph-cta">
     <div class="ph-cta__inner">
-      <h2 class="display ph-cta__title" data-i18n="ph.ctatitle">Vos photos méritent mieux.</h2>
+      <h2 class="sec-title wipe">
+        <span data-i18n="ph.ctat1">Vos photos</span>
+        <span class="it" data-i18n="ph.ctat2">méritent mieux.</span>
+      </h2>
       <a href="#contact" class="btn btn--fill" data-magnetic><span data-i18n="ph.ctabtn">Réserver un rendez-vous</span></a>
       <a href="index.html" class="ph-cta__alt" data-i18n="ph.ctaalt">Découvrir le film Vesta →</a>
     </div>
@@ -171,7 +193,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/shared.js?v=14"></script>
-<script src="js/photo.js?v=14"></script>
+<script src="js/shared.js?v=24"></script>
+<script src="js/photo.js?v=24"></script>
 </body>
 </html>

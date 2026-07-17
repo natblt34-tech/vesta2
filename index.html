@@ -21,7 +21,7 @@
 />
 
 <!-- Feuille de style -->
-<link rel="stylesheet" href="css/main.css?v=16" />
+<link rel="stylesheet" href="css/main.css?v=17" />
 </head>
 <body>
 
@@ -115,10 +115,18 @@
   </section>
 
   <!-- 3 · LA PROMESSE — 3 volets -->
-  <section id="promesse" class="section promesse">
-    <div class="promesse__head">
-      <p class="eyebrow" data-i18n="promesse.eyebrow">Trois gestes, un film signé</p>
-    </div>
+  <section id="promesse" class="section promesse sheet">
+    <header class="sec-head">
+      <div class="sec-head__meta">
+        <span class="sec-head__num">01</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="promesse.eyebrow">La promesse</span>
+      </div>
+      <h2 class="sec-title wipe">
+        <span class="line" data-i18n="promesse.t1">Trois gestes,</span>
+        <span class="line it" data-i18n="promesse.t2">un film signé.</span>
+      </h2>
+    </header>
     <ol class="promesse__list">
       <li class="volet">
         <span class="volet__num">01</span>
@@ -161,7 +169,7 @@
         </div>
       </div>
       <div class="format__aside">
-        <p class="eyebrow" data-i18n="format.eyebrow">Un format, tous vos canaux</p>
+        <p class="eyebrow"><span class="sec-head__num">02</span> · <span data-i18n="format.eyebrow">Un format, tous vos canaux</span></p>
         <h2 class="format__title display" data-i18n="format.title">Le format cinéma, partout.</h2>
         <p class="format__text" data-i18n="format.text">16:9 pour le portail, 9:16 pour les réseaux. Le même film, recadré au millimètre.</p>
       </div>
@@ -171,8 +179,14 @@
   <!-- 5 · LES TRAVERSÉES -->
   <section id="traversee" class="section traversee">
     <div class="traversee__inner">
-      <h2 class="display traversee__title">
-        <span class="line" data-i18n="trav.t1">Les traversées.</span>
+      <div class="sec-head__meta">
+        <span class="sec-head__num">03</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="trav.label">La signature Vesta</span>
+      </div>
+      <h2 class="sec-title traversee__title wipe">
+        <span class="line" data-i18n="trav.w1">Les</span>
+        <span class="line word-img word-img--door" data-i18n="trav.w2">traversées.</span>
       </h2>
       <p class="traversee__text" data-i18n="trav.text">La caméra pousse la porte et la maison se raconte, d'une pièce à l'autre — sans coupure, sans diaporama.</p>
     </div>
@@ -180,10 +194,17 @@
 
   <!-- 6 · L'ÉQUIPE -->
   <section id="equipe" class="section equipe">
-    <div class="equipe__head">
-      <p class="eyebrow" data-i18n="equipe.eyebrow">La distribution</p>
-      <h2 class="display equipe__title" data-i18n="equipe.title">L'équipe du film.</h2>
-    </div>
+    <header class="sec-head">
+      <div class="sec-head__meta">
+        <span class="sec-head__num">04</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="equipe.eyebrow">La distribution</span>
+      </div>
+      <h2 class="sec-title wipe">
+        <span data-i18n="equipe.t1">L'équipe</span>
+        <span class="it" data-i18n="equipe.t2">du film.</span>
+      </h2>
+    </header>
     <div class="equipe__grid">
       <article class="crew" data-role="ai">
         <span class="crew__tag" data-i18n="equipe.ai">IA</span>
@@ -225,10 +246,17 @@
 
   <!-- 7 · LES OFFRES -->
   <section id="offres" class="section offres">
-    <div class="offres__head">
-      <p class="eyebrow" data-i18n="offres.eyebrow">Trois façons de nous confier vos biens</p>
-      <h2 class="display offres__title" data-i18n="offres.title">Trois formules.</h2>
-    </div>
+    <header class="sec-head">
+      <div class="sec-head__meta">
+        <span class="sec-head__num">05</span>
+        <span class="sec-head__rule"></span>
+        <span class="sec-head__label" data-i18n="offres.eyebrow">Les formules</span>
+      </div>
+      <h2 class="sec-title wipe">
+        <span data-i18n="offres.t1">Trois</span>
+        <span class="it" data-i18n="offres.t2">formules.</span>
+      </h2>
+    </header>
     <div class="offres__grid">
 
       <article class="offer">
@@ -344,7 +372,7 @@
 <script src="https://cdn.jsdelivr.net/npm/split-type@0.3.4/umd/index.min.js"></script>
 
 <!-- ================= APPLICATION ================= -->
-<script src="js/shared.js?v=14"></script>
-<script src="js/main.js?v=14"></script>
+<script src="js/shared.js?v=24"></script>
+<script src="js/main.js?v=24"></script>
 </body>
 </html>

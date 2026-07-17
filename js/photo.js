@@ -9,33 +9,35 @@
 window.PAGE_I18N = {
   fr: {
     "ph.eyebrow": "Vesta · Retouche photo",
-    "ph.title": "La photo, à sa vraie lumière.",
+    "ph.t1": "La vraie", "ph.t2": "lumière.",
     "ph.sub": "Faites défiler : la retouche se fait sous vos yeux.",
     "ph.before": "Avant", "ph.after": "Après",
     "ph.c1": "Lumière", "ph.c2": "Couleur", "ph.c3": "Netteté",
     "ph.credoeyebrow": "Notre règle",
-    "ph.credotitle": "Le bien à son avantage. Jamais au-delà du vrai.",
+    "ph.credo1": "Le bien à son avantage.", "ph.credo2": "Jamais au-delà du vrai.",
     "ph.credotext": "On révèle la lumière qui était là, les couleurs qu'avait la pièce, la netteté que mérite la pierre. On n'invente rien : la visite confirme la photo.",
     "ph.pieceseyebrow": "Sur toutes vos pièces",
+    "ph.piecest1": "Chaque pièce,", "ph.piecest2": "révélée.",
     "ph.p1": "Le salon", "ph.p2": "La cuisine", "ph.p3": "L'entrée",
     "ph.piecesnote": "Livraison en 24 h, formats portail et réseaux.",
-    "ph.ctatitle": "Vos photos méritent mieux.",
+    "ph.ctat1": "Vos photos", "ph.ctat2": "méritent mieux.",
     "ph.ctabtn": "Réserver un rendez-vous",
     "ph.ctaalt": "Découvrir le film Vesta →"
   },
   en: {
     "ph.eyebrow": "Vesta · Photo retouching",
-    "ph.title": "Your photos, in their true light.",
+    "ph.t1": "The true", "ph.t2": "light.",
     "ph.sub": "Scroll: the retouch happens before your eyes.",
     "ph.before": "Before", "ph.after": "After",
     "ph.c1": "Light", "ph.c2": "Colour", "ph.c3": "Sharpness",
     "ph.credoeyebrow": "Our rule",
-    "ph.credotitle": "The property at its best. Never beyond the truth.",
+    "ph.credo1": "The property at its best.", "ph.credo2": "Never beyond the truth.",
     "ph.credotext": "We reveal the light that was there, the colours the room had, the sharpness the stone deserves. We invent nothing: the visit confirms the photo.",
     "ph.pieceseyebrow": "On every room",
+    "ph.piecest1": "Every room,", "ph.piecest2": "revealed.",
     "ph.p1": "The living room", "ph.p2": "The kitchen", "ph.p3": "The entrance",
     "ph.piecesnote": "24 h delivery, portal and social formats.",
-    "ph.ctatitle": "Your photos deserve better.",
+    "ph.ctat1": "Your photos", "ph.ctat2": "deserve better.",
     "ph.ctabtn": "Book a call",
     "ph.ctaalt": "Discover the Vesta film →"
   }
@@ -102,17 +104,15 @@ if (prefersReduced) {
   });
 }
 
-/* ---------- Sections suivantes : révélations douces ---------- */
+/* ---------- Sections suivantes : reveals du système éditorial ---------- */
+VestaShared.initWipes();
+VestaShared.initCardReveals();
 if (!prefersReduced) {
-  gsap.from(".ph-credo__inner > *", {
-    y: 40, opacity: 0, duration: 1, ease: "power3.out", stagger: 0.12,
-    scrollTrigger: { trigger: "#credo", start: "top 70%" }
+  gsap.from(".ph-credo__text", {
+    y: 30, opacity: 0, duration: 1, ease: "power3.out",
+    scrollTrigger: { trigger: ".ph-credo__text", start: "top 82%" }
   });
-  gsap.from(".ph-card", {
-    y: 60, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.12,
-    scrollTrigger: { trigger: ".ph-pieces__grid", start: "top 80%" }
-  });
-  gsap.from(".ph-cta__inner > *", {
+  gsap.from(".ph-cta__inner > *:not(.sec-title)", {
     y: 30, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.1,
     scrollTrigger: { trigger: "#cta", start: "top 72%" }
   });

@@ -14,41 +14,45 @@
 window.PAGE_I18N = {
   fr: {
     "hs.eyebrow": "Vesta · Home staging virtuel",
-    "hs.title": "Home staging virtuel.",
-    "hs.sub": "Faites défiler : la chambre se meuble sous vos yeux.",
+    "hs.t1": "Meublée en", "hs.t2": "un scroll.",
+    "hs.sub": "Faites défiler : la pièce se meuble sous vos yeux.",
     "hs.counter": "Aménagement",
     "hs.phase1": "01 · La structure",
     "hs.phase2": "02 · Les meubles",
     "hs.done": "Prête à séduire.",
     "hs.legal": "Visuels virtuellement aménagés, non contractuels.",
     "hs.stepseyebrow": "Sans déménager personne",
+    "hs.et1": "Trois", "hs.et2": "étapes.",
     "hs.s1t": "La pièce nue",
     "hs.s1d": "Vos photos, même vides, même datées. C'est notre matière première.",
     "hs.s2t": "L'intention",
     "hs.s2d": "Un style choisi pour vos acheteurs : chaleureux, épuré, familial.",
     "hs.s3t": "Le décor",
     "hs.s3d": "La pièce meublée, livrée en 48 h, prête pour le portail et le film.",
-    "hs.ctatitle": "Une pièce vide fait fuir. Une pièce racontée fait visiter.",
+    "hs.ct1": "Une pièce vide fait fuir.",
+    "hs.ct2": "Une pièce racontée fait visiter.",
     "hs.ctabtn": "Réserver un rendez-vous",
     "hs.ctaalt": "Découvrir le film Vesta →"
   },
   en: {
     "hs.eyebrow": "Vesta · Virtual home staging",
-    "hs.title": "Virtual home staging.",
-    "hs.sub": "Scroll: the bedroom furnishes itself before your eyes.",
+    "hs.t1": "Furnished in", "hs.t2": "one scroll.",
+    "hs.sub": "Scroll: the room furnishes itself before your eyes.",
     "hs.counter": "Staging",
     "hs.phase1": "01 · The structure",
     "hs.phase2": "02 · The furniture",
     "hs.done": "Ready to charm.",
     "hs.legal": "Virtually staged visuals, non-contractual.",
     "hs.stepseyebrow": "Without moving anyone",
+    "hs.et1": "Three", "hs.et2": "steps.",
     "hs.s1t": "The bare room",
     "hs.s1d": "Your photos, even empty, even dated. That's our raw material.",
     "hs.s2t": "The intent",
     "hs.s2d": "A style chosen for your buyers: warm, minimal, family-friendly.",
     "hs.s3t": "The décor",
     "hs.s3d": "The furnished room, delivered in 48 h, ready for the portal and the film.",
-    "hs.ctatitle": "An empty room scares off. A story-filled room sells visits.",
+    "hs.ct1": "An empty room scares off.",
+    "hs.ct2": "A story-filled room sells visits.",
     "hs.ctabtn": "Book a call",
     "hs.ctaalt": "Discover the Vesta film →"
   }
@@ -302,13 +306,14 @@ tryPhotoMode().then((ok) => {
 // À la bascule de langue, le libellé de phase suit
 window.PAGE_LANG_HOOK = () => { if (photoMode) phaseLabel(lastPhaseKey); };
 
-/* ---------- Sections suivantes ---------- */
+/* ---------- Sections suivantes : reveals du système éditorial ---------- */
+VestaShared.initWipes();
 if (!prefersReduced) {
   gsap.from(".hs-steps .volet", {
     y: 60, opacity: 0, duration: 1, ease: "power3.out", stagger: 0.15,
-    scrollTrigger: { trigger: ".hs-steps", start: "top 74%" }
+    scrollTrigger: { trigger: ".hs-steps .promesse__list", start: "top 80%" }
   });
-  gsap.from(".hs-cta .ph-cta__inner > *", {
+  gsap.from(".hs-cta .ph-cta__inner > *:not(.sec-title)", {
     y: 30, opacity: 0, duration: 0.9, ease: "power3.out", stagger: 0.1,
     scrollTrigger: { trigger: "#cta", start: "top 72%" }
   });
