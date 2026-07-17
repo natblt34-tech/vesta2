@@ -178,11 +178,43 @@ function setScene(p) {
 
 /* ---------- La chorégraphie PHOTO : rénovation, puis meubles un à un ---------- */
 let lastPhaseKey = "hs.phase1";
-// Le rythme : chaque meuble a sa fenêtre d'arrivée PUIS un palier de repos,
-// pour qu'un coup de molette ne pose jamais deux meubles à la fois.
+// Le rythme : chaque meuble a son seuil de scroll (étalés sur la section)…
 const PIECE_START = 0.32;  // début de la pose des meubles
-const PIECE_SPAN = 0.5;    // fenêtre totale de la pose (un meuble tous les 0.125)
-const PIECE_DUR = 0.05;    // durée d'apparition d'un meuble
+const PIECE_SPAN = 0.5;    // fenêtre totale des seuils (un meuble tous les 0.125)
+// …mais la pose est JOUÉE DANS LE TEMPS : au moins MIN_GAP secondes entre
+// deux départs. C'est la garantie du « un par un », quel que soit le scroll.
+const MIN_GAP = 0.5;       // secondes minimum entre deux poses
+const POP_DUR = 0.65;      // durée du fondu de pose d'un meuble
+
+const pieceShown = [false, false, false, false];
+let lastPopAt = -1e9;      // horodatage (gsap.ticker.time) du dernier départ
+
+function popPiece(i) {
+  const el = photoPieces[i];
+  const now = gsap.ticker.time;
+  const startAt = Math.max(now, lastPopAt + MIN_GAP);
+  lastPopAt = startAt;
+  const delay = startAt - now;
+  gsap.killTweensOf(el);
+  gsap.to(el, { opacity: 1, duration: POP_DUR, ease: "power2.out", delay: delay });
+  // Compteur + onde braise au moment où la pose démarre vraiment
+  gsap.delayedCall(delay + 0.05, () => {
+    hsCount.textContent = pieceShown.filter(Boolean).length;
+    const ping = photoPings[i];
+    if (ping) {
+      ping.classList.remove("is-live");
+      void ping.offsetWidth; // relance l'animation CSS
+      ping.classList.add("is-live");
+    }
+  });
+}
+
+function unpopPiece(i) {
+  const el = photoPieces[i];
+  gsap.killTweensOf(el);
+  gsap.to(el, { opacity: 0, duration: 0.3, ease: "power1.in" });
+  hsCount.textContent = pieceShown.filter(Boolean).length;
+}
 
 function setPhotoScene(p) {
   // Le titre s'efface dès qu'on commence
@@ -195,23 +227,26 @@ function setPhotoScene(p) {
   hsSweep.style.top = (sw * 100).toFixed(2) + "%";
   hsSweep.style.opacity = sw > 0.005 && sw < 0.995 ? 1 : 0;
 
-  // PHASE 2 (0.40 → 0.86) : les meubles d'apres.jpg, un à un
-  photoPieces.forEach((el) => {
-    const i = +el.dataset.piece;
+  // PHASE 2 : les meubles. Le scroll ne fait que FRANCHIR des seuils ; la
+  // pose elle-même se joue dans le temps (tween + espacement minimum), si
+  // bien qu'un seul grand coup de molette pose quand même les meubles UN PAR
+  // UN, jamais d'un coup.
+  photoPieces.forEach((el, i) => {
     const s = PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT);
-    el.style.opacity = smooth(Math.min(1, Math.max(0, (p - s) / PIECE_DUR)));
+    if (prefersReduced) {
+      el.style.opacity = p >= s ? 1 : 0;
+      return;
+    }
+    if (p >= s && !pieceShown[i]) { pieceShown[i] = true; popPiece(i); }
+    else if (p < s - 0.03 && pieceShown[i]) { pieceShown[i] = false; unpopPiece(i); }
   });
-  let placed = 0;
-  for (let i = 0; i < PHOTO_PIECE_COUNT; i++) {
-    if (p >= PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT) + PIECE_DUR) placed++;
+  if (prefersReduced) {
+    let n = 0;
+    for (let i = 0; i < PHOTO_PIECE_COUNT; i++) {
+      if (p >= PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT)) n++;
+    }
+    hsCount.textContent = n;
   }
-  hsCount.textContent = placed;
-  // L'onde braise à l'endroit où le meuble vient de se poser
-  photoPings.forEach((ping) => {
-    const i = +ping.dataset.ping;
-    const s = PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT);
-    ping.classList.toggle("is-live", p >= s + PIECE_DUR * 0.6 && p < s + PIECE_DUR * 2.2);
-  });
 
   // Libellé de phase
   const key = p < 0.3 ? "hs.phase1" : "hs.phase2";
