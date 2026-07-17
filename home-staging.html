@@ -17,7 +17,7 @@
   href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Archivo:wght@300;400;500;600;700&display=swap"
   rel="stylesheet"
 />
-<link rel="stylesheet" href="css/main.css?v=14" />
+<link rel="stylesheet" href="css/main.css?v=15" />
 </head>
 <body class="page-staging">
 
@@ -65,10 +65,42 @@
         <p class="hs-hero__sub" data-i18n="hs.sub">Faites défiler : la chambre se meuble sous vos yeux.</p>
       </div>
 
-      <!-- Compteur d'aménagement -->
+      <!-- Phase en cours + compteur d'aménagement -->
       <div class="hs-counter" aria-hidden="true">
+        <span id="hsPhase" class="hs-counter__phase"></span>
         <span class="hs-counter__label" data-i18n="hs.counter">Aménagement</span>
-        <span class="hs-counter__value"><span id="hsCount">0</span>/9</span>
+        <span class="hs-counter__value"><span id="hsCount">0</span>/<span id="hsTotal">9</span></span>
+      </div>
+
+      <!-- LA DÉMO PHOTO (activée si les 3 images existent dans assets/staging/) :
+           avant.jpg   = la pièce d'origine, en l'état
+           structure.jpg = la pièce rénovée mais VIDE (murs, sol, plafond refaits)
+           apres.jpg   = la pièce meublée (home staging final)
+           Phase 1 : balayage de rénovation avant → structure.
+           Phase 2 : les meubles d'apres.jpg apparaissent un à un (découpes). -->
+      <div id="hsPhoto" class="hs-photo" hidden aria-label="Avant / après home staging">
+        <img class="hs-photo__layer" id="hsAvant" data-src="assets/staging/avant.jpg" alt="" />
+        <img class="hs-photo__layer" id="hsStructure" data-src="assets/staging/structure.jpg" alt="" />
+        <span id="hsSweep" class="hs-photo__sweep" aria-hidden="true"></span>
+        <!-- Les meubles : chaque calque montre une découpe d'apres.jpg -->
+        <img class="hs-photo__layer hs-photo__piece" data-piece="0" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="1" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="2" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="3" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="4" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="5" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="5" data-piece-b="1" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="6" data-src="assets/staging/apres.jpg" alt="" />
+        <img class="hs-photo__layer hs-photo__piece" data-piece="7" data-src="assets/staging/apres.jpg" alt="" />
+        <span class="hs-ping" data-ping="0" style="left:52%;top:85%"></span>
+        <span class="hs-ping" data-ping="1" style="left:76%;top:67%"></span>
+        <span class="hs-ping" data-ping="2" style="left:52%;top:76%"></span>
+        <span class="hs-ping" data-ping="3" style="left:40%;top:62%"></span>
+        <span class="hs-ping" data-ping="4" style="left:75%;top:37%"></span>
+        <span class="hs-ping" data-ping="5" style="left:9%;top:40%"></span>
+        <span class="hs-ping" data-ping="6" style="left:90%;top:58%"></span>
+        <span class="hs-ping" data-ping="7" style="left:93%;top:88%"></span>
+        <span class="hs-photo__glow" id="hsPhotoGlow" aria-hidden="true"></span>
       </div>
 
       <!-- La pièce : line-art vectoriel, les meubles arrivent un à un.
@@ -258,6 +290,6 @@
 
 <!-- ================= APPLICATION ================= -->
 <script src="js/shared.js?v=14"></script>
-<script src="js/staging.js?v=14"></script>
+<script src="js/staging.js?v=17"></script>
 </body>
 </html>

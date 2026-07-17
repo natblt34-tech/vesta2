@@ -17,6 +17,8 @@ window.PAGE_I18N = {
     "hs.title": "Home staging virtuel.",
     "hs.sub": "Faites défiler : la chambre se meuble sous vos yeux.",
     "hs.counter": "Aménagement",
+    "hs.phase1": "01 · La structure",
+    "hs.phase2": "02 · Les meubles",
     "hs.done": "Prête à séduire.",
     "hs.legal": "Visuels virtuellement aménagés, non contractuels.",
     "hs.stepseyebrow": "Sans déménager personne",
@@ -35,6 +37,8 @@ window.PAGE_I18N = {
     "hs.title": "Virtual home staging.",
     "hs.sub": "Scroll: the bedroom furnishes itself before your eyes.",
     "hs.counter": "Staging",
+    "hs.phase1": "01 · The structure",
+    "hs.phase2": "02 · The furniture",
     "hs.done": "Ready to charm.",
     "hs.legal": "Virtually staged visuals, non-contractual.",
     "hs.stepseyebrow": "Without moving anyone",
@@ -70,7 +74,66 @@ ScrollTrigger.create({
   onUpdate: (self) => { progressFill.style.transform = "scaleX(" + self.progress + ")"; }
 });
 
-/* ---------- LA DÉMO : l'assemblage des meubles ---------- */
+/* -------------------------------------------------------------------------
+   LA DÉMO PHOTO — les vraies images (assets/staging/)
+   avant.jpg → structure.jpg (balayage de rénovation) → les meubles
+   d'apres.jpg apparaissent un à un, par découpes clip-path.
+   Les découpes sont calées sur la photo « après » (cadre 3:2) : en dehors
+   des meubles, structure.jpg et apres.jpg sont identiques, donc les bords
+   des découpes sont invisibles.
+   ------------------------------------------------------------------------- */
+const PHOTO_DIR = "assets/staging/";
+const PHOTO_SOURCES = ["avant.jpg", "structure.jpg", "apres.jpg"];
+
+// Une découpe par meuble (polygones en % du cadre) + son ordre d'apparition
+const PIECE_CLIPS = [
+  /* 0 · tapis          */ "ellipse(28% 17% at 52% 86%)",
+  /* 1 · canapé         */ "polygon(58% 53%, 92% 50%, 94% 84%, 59% 84%)",
+  /* 2 · table + vase   */ "polygon(39% 55%, 56% 52%, 64% 68%, 63% 94%, 41% 95%, 38% 74%)",
+  /* 3 · fauteuil       */ "polygon(31% 50%, 48% 49%, 49% 74%, 32% 74%)",
+  /* 4 · tableau        */ "polygon(63% 22%, 86% 21%, 86% 53%, 63% 54%)",
+  /* 5 · rideaux (2 pans, même temps) */ "polygon(1% 5%, 15% 5%, 15% 79%, 1% 79%)",
+  /* 5b· rideau droit   */ "polygon(22% 7%, 34% 7%, 34% 73%, 22% 73%)",
+  /* 6 · lampadaire     */ "polygon(83% 33%, 96% 32%, 97% 83%, 84% 83%)",
+  /* 7 · table d'appoint*/ "polygon(84% 75%, 100% 73%, 100% 100%, 85% 100%)"
+];
+const PHOTO_PIECE_COUNT = 8; // les rideaux comptent pour un
+
+let photoMode = false;
+const hsPhoto = document.getElementById("hsPhoto");
+const hsScene = document.getElementById("hsScene");
+const hsSweep = document.getElementById("hsSweep");
+const hsStructure = document.getElementById("hsStructure");
+const hsPhase = document.getElementById("hsPhase");
+const hsTotal = document.getElementById("hsTotal");
+const photoPieces = Array.from(document.querySelectorAll(".hs-photo__piece"));
+const photoPings = Array.from(document.querySelectorAll(".hs-ping"));
+
+// Applique les découpes définies ci-dessus aux calques d'apres.jpg
+photoPieces.forEach((el, i) => { el.style.clipPath = PIECE_CLIPS[i]; });
+
+// Détecte les 3 images (fetch HEAD : silencieux si absentes), puis les
+// précharge ; si TOUT est là → mode photo, sinon scène vectorielle.
+function tryPhotoMode() {
+  return Promise.all(PHOTO_SOURCES.map((f) =>
+    fetch(PHOTO_DIR + f, { method: "HEAD" }).then((r) => r.ok).catch(() => false)
+  )).then((oks) => {
+    if (!oks.every(Boolean)) return false;
+    return Promise.all(PHOTO_SOURCES.map((f) => new Promise((res) => {
+      const img = new Image();
+      img.onload = () => res(true);
+      img.onerror = () => res(false);
+      img.src = PHOTO_DIR + f;
+    }))).then((loads) => loads.every(Boolean));
+  });
+}
+
+function phaseLabel(key) {
+  const d = window.PAGE_I18N[document.documentElement.lang] || window.PAGE_I18N.fr;
+  hsPhase.textContent = d[key] || "";
+}
+
+/* ---------- LA DÉMO VECTORIELLE (repli sans images) ---------- */
 const PIECES = Array.from({ length: 9 }, (_, i) => document.getElementById("hs-p" + (i + 1)));
 const hsCount = document.getElementById("hsCount");
 const hsGlowRect = document.getElementById("hsGlowRect");
@@ -108,22 +171,91 @@ function setScene(p) {
   const g = smooth(Math.min(1, Math.max(0, (p - 0.82) / 0.12)));
   hsGlowRect.setAttribute("opacity", g);
   hsDone.style.opacity = g;
-  hsDone.style.transform = "translateY(" + ((1 - g) * 18).toFixed(1) + "px)";
+  hsDone.style.transform = "translateX(-50%) translateY(" + ((1 - g) * 18).toFixed(1) + "px)";
 
   // Le titre s'efface dès qu'on commence
   hsHero.style.opacity = Math.max(0, 1 - p / 0.1);
 }
 
-if (prefersReduced) {
-  setScene(1); // pièce entièrement meublée, sans chorégraphie
-  hsHero.style.opacity = 1;
-} else {
-  setScene(0);
+/* ---------- La chorégraphie PHOTO : rénovation, puis meubles un à un ---------- */
+let lastPhaseKey = "hs.phase1";
+const PIECE_START = 0.4;   // début de la pose des meubles
+const PIECE_SPAN = 0.46;   // fenêtre totale de la pose
+const PIECE_DUR = 0.06;    // durée d'apparition d'un meuble
+
+function setPhotoScene(p) {
+  // Le titre s'efface dès qu'on commence
+  hsHero.style.opacity = Math.max(0, 1 - p / 0.1);
+
+  // PHASE 1 (0.10 → 0.34) : le balayage de rénovation, du plafond au parquet.
+  // structure.jpg recouvre avant.jpg derrière une ligne braise qui descend.
+  const sw = smooth(Math.min(1, Math.max(0, (p - 0.1) / 0.24)));
+  hsStructure.style.clipPath = "inset(0 0 " + ((1 - sw) * 100).toFixed(2) + "% 0)";
+  hsSweep.style.top = (sw * 100).toFixed(2) + "%";
+  hsSweep.style.opacity = sw > 0.005 && sw < 0.995 ? 1 : 0;
+
+  // PHASE 2 (0.40 → 0.86) : les meubles d'apres.jpg, un à un
+  photoPieces.forEach((el) => {
+    const i = +el.dataset.piece;
+    const s = PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT);
+    el.style.opacity = smooth(Math.min(1, Math.max(0, (p - s) / PIECE_DUR)));
+  });
+  let placed = 0;
+  for (let i = 0; i < PHOTO_PIECE_COUNT; i++) {
+    if (p >= PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT) + PIECE_DUR) placed++;
+  }
+  hsCount.textContent = placed;
+  // L'onde braise à l'endroit où le meuble vient de se poser
+  photoPings.forEach((ping) => {
+    const i = +ping.dataset.ping;
+    const s = PIECE_START + i * (PIECE_SPAN / PHOTO_PIECE_COUNT);
+    ping.classList.toggle("is-live", p >= s + PIECE_DUR * 0.6 && p < s + PIECE_DUR * 2.2);
+  });
+
+  // Libellé de phase
+  const key = p < 0.38 ? "hs.phase1" : "hs.phase2";
+  if (key !== lastPhaseKey) { lastPhaseKey = key; }
+  phaseLabel(key);
+
+  // FINAL : la lumière s'installe, la signature apparaît
+  const g = smooth(Math.min(1, Math.max(0, (p - 0.88) / 0.1)));
+  document.getElementById("hsPhotoGlow").style.opacity = g;
+  hsDone.style.opacity = g;
+  hsDone.style.transform = "translateX(-50%) translateY(" + ((1 - g) * 18).toFixed(1) + "px)";
+}
+
+/* ---------- Choix du mode + démarrage ---------- */
+function initDemo(driver) {
+  if (prefersReduced) { driver(1); hsHero.style.opacity = 1; return; }
+  driver(0);
   ScrollTrigger.create({
     trigger: "#demo", start: "top top", end: "bottom bottom", scrub: 0.4,
-    onUpdate: (self) => setScene(self.progress)
+    onUpdate: (self) => driver(self.progress)
   });
 }
+
+tryPhotoMode().then((ok) => {
+  photoMode = ok;
+  if (ok) {
+    // Mode photo : la vraie pièce, le vrai staging.
+    // Les <img> n'ont pas de src en HTML (pour éviter des 404 quand les
+    // fichiers manquent) : on le pose maintenant, les images sont déjà en cache.
+    hsPhoto.querySelectorAll("img[data-src]").forEach((el) => { el.src = el.dataset.src; });
+    hsPhoto.hidden = false;
+    hsScene.style.display = "none";
+    hsTotal.textContent = PHOTO_PIECE_COUNT;
+    phaseLabel("hs.phase1");
+    initDemo(setPhotoScene);
+  } else {
+    // Repli : la scène vectorielle (aucune image requise)
+    hsPhase.textContent = "";
+    initDemo(setScene);
+  }
+  ScrollTrigger.refresh();
+});
+
+// À la bascule de langue, le libellé de phase suit
+window.PAGE_LANG_HOOK = () => { if (photoMode) phaseLabel(lastPhaseKey); };
 
 /* ---------- Sections suivantes ---------- */
 if (!prefersReduced) {

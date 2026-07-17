@@ -52,13 +52,41 @@ vesta/
 └── README.md
 ```
 
+## Activer la démo home staging avec VOS photos
+
+La page home staging bascule automatiquement en **mode photo** dès que ces
+3 fichiers existent (sinon elle garde sa scène vectorielle de repli) :
+
+| Fichier | Contenu |
+|---------|---------|
+| `assets/staging/avant.jpg` | La pièce d'origine, en l'état (votre photo) |
+| `assets/staging/structure.jpg` | La même pièce **rénovée mais VIDE** (murs, sol, plafond refaits, aucun meuble) |
+| `assets/staging/apres.jpg` | La pièce meublée (votre home staging Gemini) |
+
+L'animation : ① un balayage de rénovation descend du plafond au parquet
+(avant → structure), ② les meubles d'`apres.jpg` apparaissent **un à un**
+(tapis, canapé, table, fauteuil, tableau, rideaux, lampadaire, table d'appoint),
+avec compteur et onde braise à chaque pose.
+
+**Il vous manque `structure.jpg` ?** Générez-la avec Gemini à partir de votre
+image « après » avec ce prompt :
+
+> *Same exact room, same camera angle, same lighting — but completely EMPTY:
+> remove all furniture, rug, curtains, artwork, lamps and decorations. Keep the
+> renovated walls, wooden floor, ceiling, window and door exactly as they are.*
+
+⚠️ Les trois images doivent partager **le même cadrage** (même angle, même
+ratio — idéalement les 1024×683 de Gemini). Les découpes des meubles sont
+calées sur la photo « après » fournie en exemple ; si votre après change
+beaucoup (autres meubles, autres positions), ajustez les polygones
+`PIECE_CLIPS` en tête de `js/staging.js` (coordonnées en % du cadre).
+
 ## Le home staging en vidéo, plus tard
 
-La page home staging est aujourd'hui une **scène vectorielle** (les meubles
-s'assemblent en SVG). Quand vous aurez généré le film d'assemblage (pièce vide →
-pièce meublée), découpez-le en frames avec la même commande ffmpeg que la visite
-(dossier `frames-staging/` par exemple) et remplacez la scène SVG par le moteur
-canvas de `js/main.js` — la mécanique scroll est identique.
+Quand vous aurez généré un vrai film d'assemblage (pièce vide → meublée),
+découpez-le en frames avec la même commande ffmpeg que la visite (dossier
+`frames-staging/` par exemple) et branchez le moteur canvas de `js/main.js` —
+la mécanique scroll est identique.
 
 ---
 
