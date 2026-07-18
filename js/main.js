@@ -315,11 +315,38 @@ window.addEventListener("load", sizeCanvas);
 sizeCanvas();
 
 // On lance le préchargement, puis on construit l'expérience
+/* L'INTRO « LE COULOIR » : les mots de Vesta filent en perspective vers la
+   porte du fond pendant le préchargement, puis on fonce à travers. */
+const introT0 = performance.now();
+const introOn = typeof VestaIntro !== "undefined" &&
+  VestaIntro.start(document.getElementById("introCanvas"));
+if (introOn) document.body.classList.add("is-intro");
+// Un geste (molette, clic, touche) écourte l'intro
+let introMin = introOn ? 2400 : 250;
+if (introOn) {
+  const skip = () => { introMin = 0; };
+  ["wheel", "pointerdown", "touchstart", "keydown"].forEach((ev) =>
+    window.addEventListener(ev, skip, { once: true, passive: true }));
+}
+
 preloadFrames().then((ok) => {
   drawFrame(state.frame, true); // 1re image tout de suite
-  // Sortie du loader via setTimeout (robuste même si le rAF est suspendu)
-  setTimeout(() => loaderEl.classList.add("is-done"), 250);
   buildExperience(ok);
+  // Sortie : accélération à travers la porte, puis fondu vers le hero.
+  // Toujours pilotée par setTimeout — jamais par le ticker (robustesse).
+  const leave = () => {
+    if (introOn) VestaIntro.warp();
+    setTimeout(() => {
+      loaderEl.classList.add("is-done");
+      document.body.classList.remove("is-intro");
+      window.scrollTo(0, 0);
+      if (introOn) setTimeout(() => VestaIntro.stop(), 1000);
+    }, introOn ? 780 : 250);
+  };
+  (function waitIntro() {
+    if (performance.now() - introT0 >= introMin) leave();
+    else setTimeout(waitIntro, 100);
+  })();
 });
 
 /* =========================================================================

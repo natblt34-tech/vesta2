@@ -86,15 +86,24 @@ button { font: inherit; color: inherit; background: none; border: none; }
   transition: opacity 0.9s var(--ease-out), visibility 0.9s;
 }
 .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
-.loader__inner { width: min(80vw, 420px); text-align: center; }
+
+/* Le couloir typographique (canvas plein écran derrière le compteur) */
+.loader__tunnel { position: absolute; inset: 0; width: 100%; height: 100%; }
+@media (prefers-reduced-motion: reduce) { .loader__tunnel { display: none; } }
+/* Pendant l'intro, la page ne défile pas */
+body.is-intro { overflow: hidden; }
+
+.loader__inner {
+  position: relative; z-index: 2;
+  width: min(60vw, 300px); text-align: center;
+}
 .loader__mark {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(2.2rem, 7vw, 3.6rem);
-  letter-spacing: 0.18em;
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
   color: var(--os);
-  margin-bottom: 1.6rem;
-  padding-left: 0.18em;
+  margin-bottom: 1.1rem;
 }
 .loader__bar {
   height: 2px; width: 100%;
