@@ -1,12 +1,11 @@
 /* ==========================================================================
    VESTA — INTRO « LE COULOIR »  (page film uniquement)
-   Des anneaux rectangulaires de texte — la marque, la promesse, les
-   services — filent en perspective vers le spectateur, formant un couloir
-   typographique dont le centre sombre est la porte du fond. L'intro habille
-   le préchargement des frames, puis accélère (« warp ») à travers la porte
-   pour révéler le hero.
-   Inspiration mécanique : intro de 333southwabash.com, refaite de zéro
-   en canvas 2D (aucun code repris), aux couleurs et aux mots de Vesta.
+   Un couloir rectangulaire en une seule fuite : les phrases de Vesta sont
+   COUCHÉES sur les quatre parois (sol, plafond, murs) et filent vers le
+   spectateur avec une vraie déformation perspective — lettres étirées au
+   premier plan, tassées vers la porte sombre du fond.
+   Technique : projection par tranches (façon « mode 7 ») d'une texture de
+   texte pré-rendue. Canvas 2D pur, aucune dépendance.
    ========================================================================== */
 
 const VestaIntro = (() => {
@@ -14,65 +13,71 @@ const VestaIntro = (() => {
 
   let canvas = null, ctx = null;
   let W = 0, H = 0, dpr = 1;
-  let running = false;
-  let travel = 0;          // distance parcourue dans le couloir
-  let speed = 0.42;        // vitesse de croisière (unités z / seconde)
-  let warping = false;
+  let running = false, warping = false;
+  let travel = 0;            // distance parcourue dans le couloir (unités z)
+  let speed = 0.75;          // vitesse de croisière
   let lastT = 0;
 
-  /* Géométrie du couloir */
-  const Z_NEAR = 0.5, Z_FAR = 7;      // bornes de profondeur
-  const RING_SPACING = 0.3;           // écart entre deux anneaux (en z) — dense
-  const TEX_FONT = 92;                // hauteur de police dans la texture (px)
+  /* Projection : à la profondeur z, un point de paroi se projette à
+     K/z pixels du centre. Z_DOOR = profondeur de la porte du fond. */
+  const Z_DOOR = 7;
+  const ZTEX = 340;          // pixels de texture par unité de profondeur
+  const SLICE = 2;           // épaisseur des tranches écran (px)
 
-  /* La texture : une longue bande de texte pré-rendue, partagée par tous les
-     anneaux. Astérisques braise, marque en bas-de-casse serif, le reste en
-     capitales — les mots de Vesta. */
-  let tex = null, texW = 0, texH = 0;
+  /* ---- La texture des parois : des rangées de phrases empilées ---- */
+  let tex = null, texV = null;   // horizontale (sol/plafond) et pivotée (murs)
+  let TW = 0, TH = 0;
+  const ROW_PITCH = 160, ROW_FONT = 92, PAD = 320;
 
-  const SEGMENTS = [
-    { t: "vesta", c: "#EFE7D8", style: "italic 700", caps: false },
-    { t: "  ✳  ", c: "#FF6B35", style: "700", caps: false },
-    { t: "VOS MURS MÉRITENT UN FILM", c: "#EFE7D8", style: "640", caps: true },
-    { t: "  ✳  ", c: "#FF6B35", style: "700", caps: false },
-    { t: "FILM", c: "#EFE7D8", style: "640", caps: true },
-    { t: " — ", c: "#6b6156", style: "400", caps: false },
-    { t: "PHOTO", c: "#EFE7D8", style: "640", caps: true },
-    { t: " — ", c: "#6b6156", style: "400", caps: false },
-    { t: "HOME STAGING", c: "#EFE7D8", style: "640", caps: true },
-    { t: "  ✳  ", c: "#FF6B35", style: "700", caps: false },
-    { t: "PREMIER FILM OFFERT", c: "#d8a24a", style: "640", caps: true },
-    { t: "  ✳  ", c: "#FF6B35", style: "700", caps: false },
-    { t: "TOULOUSE", c: "#EFE7D8", style: "640", caps: true },
-    { t: "  ✳  ", c: "#FF6B35", style: "700", caps: false }
+  const ROWS = [
+    [ { t: "VOS MURS MÉRITENT UN FILM", c: "#EFE7D8", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
+    [ { t: "vesta", c: "#EFE7D8", f: "italic 700 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
+    [ { t: "FILM — PHOTO — HOME STAGING", c: "#EFE7D8", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
+    [ { t: "PREMIER FILM OFFERT", c: "#d8a24a", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ]
   ];
 
   function buildTexture() {
-    const probe = document.createElement("canvas").getContext("2d");
-    let total = 0;
-    SEGMENTS.forEach((s) => {
-      probe.font = s.style + " " + TEX_FONT + "px Fraunces, serif";
-      s.w = probe.measureText(s.t).width;
-      total += s.w;
-    });
-    texH = Math.round(TEX_FONT * 1.32);
-    // La bande est répétée deux fois : l'échantillonnage peut déborder et
-    // reboucler sans couture.
-    texW = Math.ceil(total);
+    TW = 2048;
+    TH = ROWS.length * ROW_PITCH;
     tex = document.createElement("canvas");
-    tex.width = texW * 2;
-    tex.height = texH;
+    tex.width = TW;
+    tex.height = TH + PAD; // marge basse = copie du haut (échantillonnage sans couture)
     const tc = tex.getContext("2d");
+    tc.fillStyle = "#0A0806";
+    tc.fillRect(0, 0, TW, TH + PAD);
     tc.textBaseline = "middle";
-    for (let r = 0; r < 2; r++) {
-      let x = r * texW;
-      SEGMENTS.forEach((s) => {
-        tc.font = s.style + " " + TEX_FONT + "px Fraunces, serif";
-        tc.fillStyle = s.c;
-        tc.fillText(s.t, x, texH / 2);
-        x += s.w;
+
+    ROWS.forEach((segs, r) => {
+      const y = r * ROW_PITCH + ROW_PITCH / 2;
+      // largeur d'un motif complet de la rangée
+      let unit = 0;
+      segs.forEach((s) => {
+        tc.font = s.f + ROW_FONT + "px Fraunces, serif";
+        s.w = tc.measureText(s.t).width;
+        unit += s.w;
       });
-    }
+      // répète le motif sur toute la largeur, avec un décalage propre à la rangée
+      let x = -((r * 431) % unit);
+      while (x < TW) {
+        segs.forEach((s) => {
+          tc.font = s.f + ROW_FONT + "px Fraunces, serif";
+          tc.fillStyle = s.c;
+          tc.fillText(s.t, x, y);
+          x += s.w;
+        });
+      }
+    });
+    // couture : recopie le haut dans la marge basse
+    tc.drawImage(tex, 0, 0, TW, PAD, 0, TH, TW, PAD);
+
+    // version pivotée de 90° pour les murs (les tranches y sont verticales)
+    texV = document.createElement("canvas");
+    texV.width = TH + PAD;
+    texV.height = TW;
+    const vc = texV.getContext("2d");
+    vc.translate((TH + PAD) / 2, TW / 2);
+    vc.rotate(Math.PI / 2);
+    vc.drawImage(tex, -TW / 2, -(TH + PAD) / 2);
   }
 
   function size() {
@@ -86,65 +91,67 @@ const VestaIntro = (() => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  /* Un côté d'anneau : la texture, étirée le long du côté, défilant avec la
-     profondeur parcourue. srcW est constant quel que soit le zoom (les
-     proportions du texte sont préservées à toutes les profondeurs). */
-  function drawSide(len, th, srcX) {
-    const srcW = (len / th) * texH;
-    let sx = ((srcX % texW) + texW) % texW;
-    ctx.drawImage(tex, sx, 0, Math.min(srcW, texW * 2 - sx), texH,
-      -len / 2, 0, len, th);
-  }
+  const mod = (a, n) => ((a % n) + n) % n;
 
   function render(dt) {
     travel += speed * dt;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalAlpha = 1;
     ctx.fillStyle = "#0A0806";
     ctx.fillRect(0, 0, W, H);
 
-    const cx = W / 2, cy = H / 2;
-    const hw0 = W * 0.48, hh0 = H * 0.48;  // demi-dimensions du couloir à z=1
-    const span = Z_FAR - Z_NEAR;
-    const count = Math.ceil(span / RING_SPACING) + 1;
-    const thBase = Math.max(30, Math.min(80, H * 0.06)); // hauteur du texte à z=1
+    // Léger balancement de caméra : le couloir respire
+    const cx = W / 2 + Math.sin(travel * 0.6) * W * 0.006;
+    const cy = H / 2 + Math.cos(travel * 0.45) * H * 0.005;
 
-    // Du fond vers l'avant (les anneaux proches recouvrent les lointains)
-    for (let i = count - 1; i >= 0; i--) {
-      const z = Z_FAR - (((travel + i * RING_SPACING) % span + span) % span);
-      const s = 1 / z;
-      const hw = hw0 * s, hh = hh0 * s, th = thBase * s;
+    const KY = H * 0.62;             // demi-hauteur du couloir (projection)
+    const KX = W * 0.62;             // demi-largeur
+    const doorY = KY / Z_DOOR;       // demi-dimensions de la porte à l'écran
+    const doorX = KX / Z_DOOR;
+    const travelPx = travel * ZTEX;
 
-      // Fondus : naissance au fond, dissolution au premier plan
-      let a = 1;
-      if (z > Z_FAR - 1.6) a = (Z_FAR - z) / 1.6;
-      if (z < Z_NEAR + 0.5) a = Math.max(0, (z - Z_NEAR) / 0.5);
-      if (a <= 0.01) continue;
-      ctx.globalAlpha = Math.min(1, a) * 0.94;
+    // Une paroi horizontale (sol dir=1, plafond dir=-1)
+    const wallH = (dir) => {
+      const edge = dir > 0 ? H : 0;
+      for (let d = doorY; ; d += SLICE) {
+        const sy = cy + dir * d;
+        if (dir > 0 ? sy > edge : sy < edge) break;
+        const z1 = KY / d, z2 = KY / (d + SLICE);
+        const sv = mod(z2 * ZTEX + travelPx, TH);
+        const sh = Math.min((z1 - z2) * ZTEX, PAD + TH - sv);
+        const half = KX / z1;
+        // au loin, on s'enfonce dans l'ombre de la porte
+        ctx.globalAlpha = Math.min(1, Math.max(0.06, 1.25 - z1 / Z_DOOR));
+        ctx.drawImage(tex, 0, sv, TW, Math.max(1, sh),
+          cx - half, dir > 0 ? sy : sy - SLICE, half * 2, SLICE + 0.6);
+      }
+    };
+    // Une paroi verticale (mur droit dir=1, gauche dir=-1)
+    const wallV = (dir) => {
+      const edge = dir > 0 ? W : 0;
+      for (let d = doorX; ; d += SLICE) {
+        const sx = cx + dir * d;
+        if (dir > 0 ? sx > edge : sx < edge) break;
+        const z1 = KX / d, z2 = KX / (d + SLICE);
+        const sv = mod(z2 * ZTEX + travelPx, TH);
+        const sh = Math.min((z1 - z2) * ZTEX, PAD + TH - sv);
+        const half = KY / z1;
+        ctx.globalAlpha = Math.min(1, Math.max(0.06, 1.25 - z1 / Z_DOOR));
+        ctx.drawImage(texV, sv, 0, Math.max(1, sh), TW,
+          dir > 0 ? sx : sx - SLICE, cy - half, SLICE + 0.6, half * 2);
+      }
+    };
 
-      // Le texte défile le long du périmètre, chaque anneau déphasé
-      const slide = travel * 260 + i * texW * 0.37;
+    wallH(1); wallH(-1); wallV(1); wallV(-1);
 
-      // haut (posé au-dessus du cadre)
-      ctx.setTransform(dpr, 0, 0, dpr, cx, cy - hh - th);
-      drawSide(hw * 2, th, slide);
-      // bas
-      ctx.setTransform(dpr, 0, 0, dpr, cx, cy + hh);
-      drawSide(hw * 2, th, slide + hw * 2);
-      // droite (pivotée, se lit de haut en bas)
-      ctx.setTransform(0, dpr, -dpr, 0, cx + hw + th, cy);
-      drawSide(hh * 2, th, slide + hw * 4);
-      // gauche
-      ctx.setTransform(0, -dpr, dpr, 0, cx - hw - th, cy);
-      drawSide(hh * 2, th, slide + hw * 4 + hh * 2);
-    }
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // La porte du fond : un rectangle d'ombre net, puis un voile de profondeur
     ctx.globalAlpha = 1;
-
-    // La porte du fond : un voile qui garde le centre sombre et profond
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.5);
-    g.addColorStop(0, "rgba(10, 8, 6, 0.82)");
-    g.addColorStop(0.22, "rgba(10, 8, 6, 0.28)");
-    g.addColorStop(0.55, "rgba(10, 8, 6, 0)");
+    ctx.fillStyle = "rgba(8, 6, 5, 0.92)";
+    ctx.fillRect(cx - doorX, cy - doorY, doorX * 2, doorY * 2);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.55);
+    g.addColorStop(0, "rgba(10, 8, 6, 0.55)");
+    g.addColorStop(0.3, "rgba(10, 8, 6, 0.12)");
+    g.addColorStop(0.65, "rgba(10, 8, 6, 0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
@@ -157,7 +164,6 @@ const VestaIntro = (() => {
   }
 
   return {
-    /* Démarre le couloir (no-op si mouvement réduit ou canvas absent) */
     start(el) {
       if (prefersReduced || !el || !el.getContext) return false;
       canvas = el;
@@ -178,9 +184,8 @@ const VestaIntro = (() => {
     warp() {
       if (!running || warping) return;
       warping = true;
-      gsap.to(this, {}); // no-op de sûreté si gsap absent
       gsap.to({ v: speed }, {
-        v: 5.2, duration: 0.85, ease: "power2.in",
+        v: 7, duration: 0.85, ease: "power2.in",
         onUpdate: function () { speed = this.targets()[0].v; }
       });
     },
@@ -191,7 +196,6 @@ const VestaIntro = (() => {
       window.removeEventListener("resize", size);
     },
 
-    /* Pour les tests : rend une frame avec un dt donné */
     renderOnce(dt) { if (ctx) render(dt || 0.016); },
     get isRunning() { return running; }
   };
