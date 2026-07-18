@@ -1,11 +1,11 @@
 /* ==========================================================================
    VESTA — INTRO « LE COULOIR »  (page film uniquement)
-   Un couloir rectangulaire en une seule fuite : les phrases de Vesta sont
-   COUCHÉES sur les quatre parois (sol, plafond, murs) et filent vers le
-   spectateur avec une vraie déformation perspective — lettres étirées au
-   premier plan, tassées vers la porte sombre du fond.
-   Technique : projection par tranches (façon « mode 7 ») d'une texture de
-   texte pré-rendue. Canvas 2D pur, aucune dépendance.
+   Des cadres rectangulaires concentriques, en perspective. Sur chaque cadre,
+   le texte CIRCULE le long du périmètre — il file sur le bord haut, tourne
+   le coin, descend le flanc, revient par le bas — un convoyeur fermé.
+   Tous les cadres montrent la même fenêtre de texte : les lettres
+   s'alignent en rayons du fond du couloir jusqu'aux bords de l'écran.
+   Canvas 2D pur, aucune dépendance.
    ========================================================================== */
 
 const VestaIntro = (() => {
@@ -14,86 +14,58 @@ const VestaIntro = (() => {
   let canvas = null, ctx = null;
   let W = 0, H = 0, dpr = 1;
   let running = false, warping = false;
-  /* En croisière, le couloir est POSÉ : ce sont les lettres qui défilent le
-     long des parois (marquee). La plongée en profondeur n'arrive qu'au warp. */
-  let travel = 0;            // distance parcourue dans le couloir (unités z)
-  let speed = 0;             // vitesse de plongée (0 en croisière, 7 au warp)
-  let marqueeT = 0;          // horloge du défilement des lettres
+  let circ = 0;              // position du convoyeur le long du périmètre (px de bande)
+  let drift = 0;             // dérive de profondeur (lente en croisière)
+  let driftSpeed = 0.05;     // vitesse de la dérive (plongée au warp)
+  let circSpeed = 260;       // vitesse de circulation du texte (px de bande / s)
   let lastT = 0;
 
-  /* Projection : à la profondeur z, un point de paroi se projette à
-     K/z pixels du centre. Z_DOOR = profondeur de la porte du fond. */
-  const Z_DOOR = 7;
-  const ZTEX = 340;          // pixels de texture par unité de profondeur
-  const SLICE = 2;           // épaisseur des tranches écran (px)
+  /* Profondeur du couloir */
+  const Z_NEAR = 0.55, Z_FAR = 6.5;
+  const RING_SPACING = 0.42;
 
-  /* ---- La texture des parois : des rangées de phrases empilées ---- */
-  let tex = null, texV = null;   // horizontale (sol/plafond) et pivotée (murs)
-  let TW = 0, TH = 0;
-  const ROW_PITCH = 160, ROW_FONT = 92, PAD = 320;
+  /* ---- La bande de texte (une seule, partagée par tous les cadres) ---- */
+  let strip = null, stripLen = 0, STRIP_PAD = 4200;
+  const TEX_FONT = 116, texH = Math.round(TEX_FONT * 1.3);
 
-  const ROWS = [
-    [ { t: "VOS MURS MÉRITENT UN FILM", c: "#EFE7D8", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
-    [ { t: "vesta", c: "#EFE7D8", f: "italic 700 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
-    [ { t: "FILM — PHOTO — HOME STAGING", c: "#EFE7D8", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
-    [ { t: "PREMIER FILM OFFERT", c: "#d8a24a", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ]
+  const SEGMENTS = [
+    { t: "VOS MURS MÉRITENT UN FILM", c: "#EFE7D8", f: "640 " },
+    { t: "  ✳  ", c: "#FF6B35", f: "700 " },
+    { t: "vesta", c: "#EFE7D8", f: "italic 700 " },
+    { t: "  ✳  ", c: "#FF6B35", f: "700 " },
+    { t: "FILM — PHOTO — HOME STAGING", c: "#EFE7D8", f: "640 " },
+    { t: "  ✳  ", c: "#FF6B35", f: "700 " },
+    { t: "PREMIER FILM OFFERT", c: "#d8a24a", f: "640 " },
+    { t: "  ✳  ", c: "#FF6B35", f: "700 " }
   ];
-  /* Vitesse de défilement de chaque rangée (px de texture / seconde).
-     Sens alternés : les lignes se croisent, le couloir vit. */
-  const ROW_SPEED = [52, -66, 78, -44];
 
-  let texCtx = null, texVCtx = null;
-
-  function initTexture() {
-    TW = 2048;
-    TH = ROWS.length * ROW_PITCH;
-    tex = document.createElement("canvas");
-    tex.width = TW;
-    tex.height = TH + PAD; // marge basse = copie du haut (échantillonnage sans couture)
-    texCtx = tex.getContext("2d");
-    texV = document.createElement("canvas");
-    texV.width = TH + PAD;
-    texV.height = TW;
-    texVCtx = texV.getContext("2d");
-    // mesure des segments (refaite quand Fraunces est chargée)
-    ROWS.forEach((segs) => {
-      let unit = 0;
-      segs.forEach((s) => {
-        texCtx.font = s.f + ROW_FONT + "px Fraunces, serif";
-        s.w = texCtx.measureText(s.t).width;
-        unit += s.w;
+  function buildStrip() {
+    const probe = document.createElement("canvas").getContext("2d");
+    let unit = 0;
+    SEGMENTS.forEach((s) => {
+      probe.font = s.f + TEX_FONT + "px Fraunces, serif";
+      s.w = probe.measureText(s.t).width;
+      unit += s.w;
+    });
+    // répète le motif jusqu'à ≥ 6000 px, puis ajoute une marge de bouclage
+    const reps = Math.max(1, Math.ceil(6000 / unit));
+    stripLen = Math.ceil(unit * reps);
+    strip = document.createElement("canvas");
+    strip.width = stripLen + STRIP_PAD;
+    strip.height = texH;
+    const sc = strip.getContext("2d");
+    sc.textBaseline = "middle";
+    let x = 0;
+    for (let r = 0; r < reps; r++) {
+      SEGMENTS.forEach((s) => {
+        sc.font = s.f + TEX_FONT + "px Fraunces, serif";
+        sc.fillStyle = s.c;
+        sc.fillText(s.t, x, texH / 2);
+        x += s.w;
       });
-      segs.unit = unit;
-    });
-  }
-
-  /* La texture est VIVANTE : redessinée à chaque frame, chaque rangée glissant
-     à sa vitesse — c'est ça, le défilement des lettres le long des parois. */
-  function drawTexture() {
-    const tc = texCtx;
-    tc.fillStyle = "#0A0806";
-    tc.fillRect(0, 0, TW, TH + PAD);
-    tc.textBaseline = "middle";
-    ROWS.forEach((segs, r) => {
-      const y = r * ROW_PITCH + ROW_PITCH / 2;
-      const unit = segs.unit || TW;
-      let x = -mod(ROW_SPEED[r] * marqueeT + r * 431, unit) - unit;
-      while (x < TW) {
-        segs.forEach((s) => {
-          tc.font = s.f + ROW_FONT + "px Fraunces, serif";
-          tc.fillStyle = s.c;
-          tc.fillText(s.t, x, y);
-          x += s.w;
-        });
-      }
-    });
-    // couture : recopie le haut dans la marge basse
-    tc.drawImage(tex, 0, 0, TW, PAD, 0, TH, TW, PAD);
-    // version pivotée de 90° pour les murs (les tranches y sont verticales)
-    texVCtx.setTransform(1, 0, 0, 1, 0, 0);
-    texVCtx.translate((TH + PAD) / 2, TW / 2);
-    texVCtx.rotate(Math.PI / 2);
-    texVCtx.drawImage(tex, -TW / 2, -(TH + PAD) / 2);
+    }
+    // marge : recopie du début (les fenêtres qui débordent rebouclent sans couture)
+    sc.drawImage(strip, 0, 0, STRIP_PAD, texH, stripLen, 0, STRIP_PAD, texH);
   }
 
   function size() {
@@ -104,72 +76,82 @@ const VestaIntro = (() => {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   const mod = (a, n) => ((a % n) + n) % n;
 
   function render(dt) {
-    marqueeT += dt * (warping ? 2.6 : 1); // les lettres s'emballent au warp
-    travel += speed * dt;
-    drawTexture();
+    circ += circSpeed * dt * (warping ? 3 : 1);
+    drift += driftSpeed * dt;
+
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalAlpha = 1;
     ctx.fillStyle = "#0A0806";
     ctx.fillRect(0, 0, W, H);
 
-    // Léger balancement de caméra : le couloir respire
-    const cx = W / 2 + Math.sin(travel * 0.6) * W * 0.006;
-    const cy = H / 2 + Math.cos(travel * 0.45) * H * 0.005;
+    const cx = W / 2, cy = H / 2;
+    const hw0 = W * 0.61, hh0 = H * 0.61;   // demi-dimensions du cadre à z=1
+    const thBase = Math.max(34, Math.min(92, H * 0.082)); // texte à z=1
 
-    const KY = H * 0.62;             // demi-hauteur du couloir (projection)
-    const KX = W * 0.62;             // demi-largeur
-    const doorY = KY / Z_DOOR;       // demi-dimensions de la porte à l'écran
-    const doorX = KX / Z_DOOR;
-    const travelPx = travel * ZTEX;
+    /* La même fenêtre de bande pour tous les cadres : les longueurs de côté,
+       converties en pixels de bande, ne dépendent pas de la profondeur —
+       c'est ce qui aligne les lettres en rayons. */
+    const r0 = texH / thBase;
+    const LT = 2 * hw0 * r0;   // côté haut/bas, en px de bande
+    const LS = 2 * hh0 * r0;   // côté gauche/droit
+    const P = 2 * LT + 2 * LS; // périmètre complet
+    const U0 = mod(-circ, stripLen);
 
-    // Une paroi horizontale (sol dir=1, plafond dir=-1)
-    const wallH = (dir) => {
-      const edge = dir > 0 ? H : 0;
-      for (let d = doorY; ; d += SLICE) {
-        const sy = cy + dir * d;
-        if (dir > 0 ? sy > edge : sy < edge) break;
-        const z1 = KY / d, z2 = KY / (d + SLICE);
-        const sv = mod(z2 * ZTEX + travelPx, TH);
-        const sh = Math.min((z1 - z2) * ZTEX, PAD + TH - sv);
-        const half = KX / z1;
-        // au loin, on s'enfonce dans l'ombre de la porte
-        ctx.globalAlpha = Math.min(1, Math.max(0.06, 1.25 - z1 / Z_DOOR));
-        ctx.drawImage(tex, 0, sv, TW, Math.max(1, sh),
-          cx - half, dir > 0 ? sy : sy - SLICE, half * 2, SLICE + 0.6);
-      }
-    };
-    // Une paroi verticale (mur droit dir=1, gauche dir=-1)
-    const wallV = (dir) => {
-      const edge = dir > 0 ? W : 0;
-      for (let d = doorX; ; d += SLICE) {
-        const sx = cx + dir * d;
-        if (dir > 0 ? sx > edge : sx < edge) break;
-        const z1 = KX / d, z2 = KX / (d + SLICE);
-        const sv = mod(z2 * ZTEX + travelPx, TH);
-        const sh = Math.min((z1 - z2) * ZTEX, PAD + TH - sv);
-        const half = KY / z1;
-        ctx.globalAlpha = Math.min(1, Math.max(0.06, 1.25 - z1 / Z_DOOR));
-        ctx.drawImage(texV, sv, 0, Math.max(1, sh), TW,
-          dir > 0 ? sx : sx - SLICE, cy - half, SLICE + 0.6, half * 2);
+    // une portion de bande (gère le rebouclage en deux morceaux)
+    const seg = (u, srcW, dstLen, th) => {
+      let su = mod(u, stripLen);
+      const first = Math.min(srcW, stripLen + STRIP_PAD - su);
+      ctx.drawImage(strip, su, 0, first, texH, -dstLen / 2, -th, dstLen * (first / srcW), th);
+      if (first < srcW) {
+        const rest = srcW - first;
+        ctx.drawImage(strip, 0, 0, rest, texH,
+          -dstLen / 2 + dstLen * (first / srcW), -th, dstLen * (rest / srcW), th);
       }
     };
 
-    wallH(1); wallH(-1); wallV(1); wallV(-1);
+    const span = Z_FAR - Z_NEAR;
+    const count = Math.ceil(span / RING_SPACING);
 
-    // La porte du fond : un rectangle d'ombre net, puis un voile de profondeur
+    // du fond vers l'avant
+    for (let i = count - 1; i >= 0; i--) {
+      const z = Z_FAR - mod(i * RING_SPACING + drift, span);
+      const s = 1 / z;
+      const hw = hw0 * s, hh = hh0 * s, th = thBase * s;
+
+      let a = 1;
+      if (z > Z_FAR - 1.8) a = (Z_FAR - z) / 1.8;          // naît dans l'ombre
+      if (z < Z_NEAR + 0.35) a = Math.min(a, (z - Z_NEAR) / 0.35); // se dissout tout près
+      if (a <= 0.015 || hh - th > H) continue;
+      ctx.globalAlpha = Math.min(1, a);
+
+      /* Le convoyeur : haut → coin → flanc droit → coin → bas (à l'envers)
+         → flanc gauche. Les orientations suivent le chemin. */
+      // haut (file vers la droite)
+      ctx.setTransform(dpr, 0, 0, dpr, cx, cy - hh);
+      seg(U0, LT, 2 * hw, th);
+      // droit (descend)
+      ctx.setTransform(0, dpr, -dpr, 0, cx + hw, cy);
+      seg(U0 + LT, LS, 2 * hh, th);
+      // bas (repart vers la gauche, tête en bas — le texte suit le chemin)
+      ctx.setTransform(-dpr, 0, 0, -dpr, cx, cy + hh);
+      seg(U0 + LT + LS, LT, 2 * hw, th);
+      // gauche (remonte)
+      ctx.setTransform(0, -dpr, dpr, 0, cx - hw, cy);
+      seg(U0 + 2 * LT + LS, LS, 2 * hh, th);
+    }
+
+    // la profondeur : un voile qui assombrit le fond du couloir
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "rgba(8, 6, 5, 0.92)";
-    ctx.fillRect(cx - doorX, cy - doorY, doorX * 2, doorY * 2);
-    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.55);
-    g.addColorStop(0, "rgba(10, 8, 6, 0.55)");
-    g.addColorStop(0.3, "rgba(10, 8, 6, 0.12)");
-    g.addColorStop(0.65, "rgba(10, 8, 6, 0)");
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.52);
+    g.addColorStop(0, "rgba(10, 8, 6, 0.88)");
+    g.addColorStop(0.18, "rgba(10, 8, 6, 0.42)");
+    g.addColorStop(0.45, "rgba(10, 8, 6, 0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
@@ -186,9 +168,9 @@ const VestaIntro = (() => {
       if (prefersReduced || !el || !el.getContext) return false;
       canvas = el;
       ctx = canvas.getContext("2d", { alpha: false });
-      initTexture();
+      buildStrip();
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => { if (running) initTexture(); });
+        document.fonts.ready.then(() => { if (running) buildStrip(); });
       }
       size();
       window.addEventListener("resize", size);
@@ -198,13 +180,13 @@ const VestaIntro = (() => {
       return true;
     },
 
-    /* L'accélération finale : on fonce à travers la porte */
+    /* La sortie : on s'engouffre dans le couloir, le convoyeur s'emballe */
     warp() {
       if (!running || warping) return;
       warping = true;
-      gsap.to({ v: speed }, {
-        v: 7, duration: 0.85, ease: "power2.in",
-        onUpdate: function () { speed = this.targets()[0].v; }
+      gsap.to({ v: driftSpeed }, {
+        v: 5.5, duration: 0.85, ease: "power2.in",
+        onUpdate: function () { driftSpeed = this.targets()[0].v; }
       });
     },
 
