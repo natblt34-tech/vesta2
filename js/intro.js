@@ -14,8 +14,11 @@ const VestaIntro = (() => {
   let canvas = null, ctx = null;
   let W = 0, H = 0, dpr = 1;
   let running = false, warping = false;
+  /* En croisière, le couloir est POSÉ : ce sont les lettres qui défilent le
+     long des parois (marquee). La plongée en profondeur n'arrive qu'au warp. */
   let travel = 0;            // distance parcourue dans le couloir (unités z)
-  let speed = 0.75;          // vitesse de croisière
+  let speed = 0;             // vitesse de plongée (0 en croisière, 7 au warp)
+  let marqueeT = 0;          // horloge du défilement des lettres
   let lastT = 0;
 
   /* Projection : à la profondeur z, un point de paroi se projette à
@@ -35,29 +38,46 @@ const VestaIntro = (() => {
     [ { t: "FILM — PHOTO — HOME STAGING", c: "#EFE7D8", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ],
     [ { t: "PREMIER FILM OFFERT", c: "#d8a24a", f: "640 " }, { t: "  ✳  ", c: "#FF6B35", f: "700 " } ]
   ];
+  /* Vitesse de défilement de chaque rangée (px de texture / seconde).
+     Sens alternés : les lignes se croisent, le couloir vit. */
+  const ROW_SPEED = [52, -66, 78, -44];
 
-  function buildTexture() {
+  let texCtx = null, texVCtx = null;
+
+  function initTexture() {
     TW = 2048;
     TH = ROWS.length * ROW_PITCH;
     tex = document.createElement("canvas");
     tex.width = TW;
     tex.height = TH + PAD; // marge basse = copie du haut (échantillonnage sans couture)
-    const tc = tex.getContext("2d");
+    texCtx = tex.getContext("2d");
+    texV = document.createElement("canvas");
+    texV.width = TH + PAD;
+    texV.height = TW;
+    texVCtx = texV.getContext("2d");
+    // mesure des segments (refaite quand Fraunces est chargée)
+    ROWS.forEach((segs) => {
+      let unit = 0;
+      segs.forEach((s) => {
+        texCtx.font = s.f + ROW_FONT + "px Fraunces, serif";
+        s.w = texCtx.measureText(s.t).width;
+        unit += s.w;
+      });
+      segs.unit = unit;
+    });
+  }
+
+  /* La texture est VIVANTE : redessinée à chaque frame, chaque rangée glissant
+     à sa vitesse — c'est ça, le défilement des lettres le long des parois. */
+  function drawTexture() {
+    const tc = texCtx;
     tc.fillStyle = "#0A0806";
     tc.fillRect(0, 0, TW, TH + PAD);
     tc.textBaseline = "middle";
-
     ROWS.forEach((segs, r) => {
       const y = r * ROW_PITCH + ROW_PITCH / 2;
-      // largeur d'un motif complet de la rangée
-      let unit = 0;
-      segs.forEach((s) => {
-        tc.font = s.f + ROW_FONT + "px Fraunces, serif";
-        s.w = tc.measureText(s.t).width;
-        unit += s.w;
-      });
-      // répète le motif sur toute la largeur, avec un décalage propre à la rangée
-      let x = -((r * 431) % unit);
+      const unit = segs.unit || TW;
+      let x = -mod(ROW_SPEED[r] * marqueeT + r * 431, unit) - unit;
       while (x < TW) {
         segs.forEach((s) => {
           tc.font = s.f + ROW_FONT + "px Fraunces, serif";
@@ -69,15 +89,11 @@ const VestaIntro = (() => {
     });
     // couture : recopie le haut dans la marge basse
     tc.drawImage(tex, 0, 0, TW, PAD, 0, TH, TW, PAD);
-
     // version pivotée de 90° pour les murs (les tranches y sont verticales)
-    texV = document.createElement("canvas");
-    texV.width = TH + PAD;
-    texV.height = TW;
-    const vc = texV.getContext("2d");
-    vc.translate((TH + PAD) / 2, TW / 2);
-    vc.rotate(Math.PI / 2);
-    vc.drawImage(tex, -TW / 2, -(TH + PAD) / 2);
+    texVCtx.setTransform(1, 0, 0, 1, 0, 0);
+    texVCtx.translate((TH + PAD) / 2, TW / 2);
+    texVCtx.rotate(Math.PI / 2);
+    texVCtx.drawImage(tex, -TW / 2, -(TH + PAD) / 2);
   }
 
   function size() {
@@ -94,7 +110,9 @@ const VestaIntro = (() => {
   const mod = (a, n) => ((a % n) + n) % n;
 
   function render(dt) {
+    marqueeT += dt * (warping ? 2.6 : 1); // les lettres s'emballent au warp
     travel += speed * dt;
+    drawTexture();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.globalAlpha = 1;
     ctx.fillStyle = "#0A0806";
@@ -168,9 +186,9 @@ const VestaIntro = (() => {
       if (prefersReduced || !el || !el.getContext) return false;
       canvas = el;
       ctx = canvas.getContext("2d", { alpha: false });
-      buildTexture();
+      initTexture();
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => { if (running) buildTexture(); });
+        document.fonts.ready.then(() => { if (running) initTexture(); });
       }
       size();
       window.addEventListener("resize", size);
